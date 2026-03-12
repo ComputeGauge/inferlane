@@ -1,0 +1,476 @@
+// ComputeGauge — Full SaaS Database Schema
+// The financial dashboard for AI-powered teams
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// AUTH — NextAuth.js required models
+// ============================================================================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  accounts          Account[]
+  sessions          Session[]
+  subscription      Subscription?
+  providerConnections ProviderConnection[]
+  spendSnapshots    SpendSnapshot[]
+  alerts            Alert[]
+  affiliateClicks   AffiliateClick[]
+  teams             TeamMember[]
+  apiKeys           ApiKey[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================================================
+// BILLING — Stripe subscription management
+// ============================================================================
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  tier                 SubscriptionTier   @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+// ============================================================================
+// PROVIDER CONNECTIONS — Connected AI provider accounts
+// ============================================================================
+
+model ProviderConnection {
+  id              String         @id @default(cuid())
+  userId          String
+  provider        AIProvider
+  displayName     String?
+  // Encrypted API key or OAuth token reference (NEVER store raw keys)
+  encryptedApiKey String?        @db.Text
+  oauthTokenRef   String?
+  isActive        Boolean        @default(true)
+  lastSyncAt      DateTime?
+  lastSyncStatus  SyncStatus     @default(PENDING)
+  syncError       String?
+  metadata        Json?          // Provider-specific config
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  spendSnapshots SpendSnapshot[]
+  usageRecords   UsageRecord[]
+
+  @@unique([userId, provider])
+  @@map("provider_connections")
+}
+
+// ============================================================================
+// SPEND & USAGE TRACKING
+// ============================================================================
+
+model SpendSnapshot {
+  id                   String   @id @default(cuid())
+  userId               String
+  providerConnectionId String
+  period               String   // "2026-02", "2026-02-17"
+  periodType           PeriodType @default(DAILY)
+  totalSpend           Decimal  @db.Decimal(12, 4)
+  tokenCount           BigInt?
+  requestCount         Int?
+  modelBreakdown       Json?    // { "claude-4-sonnet": { spend: 12.50, tokens: 50000 } }
+  budgetLimit          Decimal? @db.Decimal(12, 2)
+  budgetUsedPercent    Decimal? @db.Decimal(5, 2)
+  currency             String   @default("USD")
+  createdAt            DateTime @default(now())
+
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  providerConnection ProviderConnection @relation(fields: [providerConnectionId], references: [id], onDelete: Cascade)
+
+  @@index([userId, period])
+  @@index([providerConnectionId, period])
+  @@map("spend_snapshots")
+}
+
+model UsageRecord {
+  id                   String   @id @default(cuid())
+  providerConnectionId String
+  model                String
+  inputTokens          Int
+  outputTokens         Int
+  totalTokens          Int
+  costUsd              Decimal  @db.Decimal(10, 6)
+  latencyMs            Int?
+  requestType          String?  // "chat", "completion", "embedding", "image"
+  metadata             Json?
+  timestamp            DateTime @default(now())
+
+  providerConnection ProviderConnection @relation(fields: [providerConnectionId], references: [id], onDelete: Cascade)
+
+  @@index([providerConnectionId, timestamp])
+  @@index([model, timestamp])
+  @@map("usage_records")
+}
+
+// ============================================================================
+// ALERTS & BUDGETS
+// ============================================================================
+
+model Alert {
+  id          String      @id @default(cuid())
+  userId      String
+  type        AlertType
+  provider    AIProvider?
+  threshold   Decimal     @db.Decimal(12, 2)
+  currentValue Decimal?   @db.Decimal(12, 2)
+  message     String?
+  channel     AlertChannel @default(EMAIL)
+  isActive    Boolean     @default(true)
+  triggeredAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("alerts")
+}
+
+// ============================================================================
+// AFFILIATE & MARKETPLACE
+// ============================================================================
+
+model AffiliateClick {
+  id          String   @id @default(cuid())
+  userId      String?
+  provider    String
+  campaignId  String?
+  source      String?  // "marketplace", "topup_banner", "smart_router", "migration_advisor"
+  destination String   // URL clicked
+  converted   Boolean  @default(false)
+  commission  Decimal? @db.Decimal(10, 2)
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([provider, createdAt])
+  @@map("affiliate_clicks")
+}
+
+model MarketplaceListing {
+  id              String   @id @default(cuid())
+  provider        String
+  name            String
+  description     String?  @db.Text
+  category        String   // "cloud_api", "gpu_cloud", "hardware", "on_prem_tools"
+  affiliateUrl    String?
+  commissionRate  Decimal? @db.Decimal(5, 2) // percentage
+  commissionType  String?  // "signup", "recurring", "one_time"
+  logoUrl         String?
+  isActive        Boolean  @default(true)
+  isFeatured      Boolean  @default(false)
+  featuredFee     Decimal? @db.Decimal(10, 2)
+  sortOrder       Int      @default(0)
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("marketplace_listings")
+}
+
+// ============================================================================
+// TEAMS & GOVERNANCE
+// ============================================================================
+
+model Team {
+  id        String       @id @default(cuid())
+  name      String
+  slug      String       @unique
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  members   TeamMember[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  userId    String
+  teamId    String
+  role      TeamRole @default(MEMBER)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+  @@map("team_members")
+}
+
+// ============================================================================
+// API KEYS — For proxy/router access
+// ============================================================================
+
+model ApiKey {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  keyHash     String   @unique // SHA-256 hash, never store raw
+  keyPrefix   String   // First 8 chars for identification: "cg_live_abc12345..."
+  permissions Json?    // { "proxy": true, "read_spend": true }
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([keyHash])
+  @@map("api_keys")
+}
+
+// ============================================================================
+// PROXY ROUTING — Smart router decisions and logs
+// ============================================================================
+
+model ProxyRequest {
+  id              String   @id @default(cuid())
+  apiKeyId        String?
+  requestModel    String   // requested model class
+  routedProvider  String   // where we actually sent it
+  routedModel     String   // actual model used
+  routingReason   String?  // "cheapest", "fastest", "quality", "compliance"
+  inputTokens     Int
+  outputTokens    Int
+  costUsd         Decimal  @db.Decimal(10, 6)
+  savingsUsd      Decimal? @db.Decimal(10, 6) // vs. if they'd used default provider
+  latencyMs       Int
+  statusCode      Int
+  timestamp       DateTime @default(now())
+
+  @@index([apiKeyId, timestamp])
+  @@index([routedProvider, timestamp])
+  @@map("proxy_requests")
+}
+
+// ============================================================================
+// ON-PREM GPU CLUSTERS
+// ============================================================================
+
+model GpuCluster {
+  id              String   @id @default(cuid())
+  userId          String
+  name            String
+  agentToken      String   @unique // Token for the Docker agent to authenticate
+  gpuCount        Int
+  gpuModel        String?  // "A100", "H100", "4090"
+  totalVramGb     Int?
+  electricityCostPerKwh Decimal? @db.Decimal(6, 4)
+  hardwareCostUsd Decimal? @db.Decimal(12, 2) // For amortization calc
+  amortizationMonths Int?  @default(36)
+  location        String?
+  isOnline        Boolean  @default(false)
+  lastHeartbeat   DateTime?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  metrics GpuMetric[]
+
+  @@index([userId])
+  @@map("gpu_clusters")
+}
+
+model GpuMetric {
+  id              String   @id @default(cuid())
+  clusterId       String
+  gpuIndex        Int
+  utilization     Decimal  @db.Decimal(5, 2) // 0-100%
+  memoryUsedGb    Decimal? @db.Decimal(8, 2)
+  memoryTotalGb   Decimal? @db.Decimal(8, 2)
+  powerDrawWatts  Decimal? @db.Decimal(8, 2)
+  temperatureC    Decimal? @db.Decimal(5, 1)
+  inferenceCount  Int?
+  costPerToken    Decimal? @db.Decimal(12, 8) // Calculated TCO per token
+  timestamp       DateTime @default(now())
+
+  cluster GpuCluster @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+
+  @@index([clusterId, timestamp])
+  @@map("gpu_metrics")
+}
+
+// ============================================================================
+// ADMIN — Audit log
+// ============================================================================
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  resource  String
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================================================
+// WAITLIST — Pre-launch email capture
+// ============================================================================
+
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String?  // "landing_page", "product_hunt", etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("waitlist_entries")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+  HYBRID
+  TEAM
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+  INCOMPLETE
+}
+
+enum AIProvider {
+  ANTHROPIC
+  OPENAI
+  GOOGLE
+  AWS_BEDROCK
+  AZURE_OPENAI
+  TOGETHER
+  GROQ
+  MISTRAL
+  COHERE
+  REPLICATE
+  DEEPSEEK
+  ON_PREM
+}
+
+enum SyncStatus {
+  PENDING
+  SYNCING
+  SUCCESS
+  ERROR
+}
+
+enum PeriodType {
+  HOURLY
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum AlertType {
+  BUDGET_WARNING    // 80% of budget
+  BUDGET_EXCEEDED   // 100%+ of budget
+  SPEND_SPIKE       // Unusual spend increase
+  PROVIDER_DOWN     // Provider health check failed
+  RATE_LIMIT        // Approaching rate limits
+  COST_ANOMALY      // ML-detected anomaly
+}
+
+enum AlertChannel {
+  EMAIL
+  SLACK
+  WEBHOOK
+  IN_APP
+}
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}

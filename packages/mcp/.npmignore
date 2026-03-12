@@ -1,0 +1,30 @@
+# Source (compiled output is in dist/)
+src/
+tsconfig.json
+
+# Tests
+test-e2e.ts
+*.test.ts
+*.spec.ts
+__tests__/
+
+# Dev config
+.eslintrc*
+.prettierrc*
+.editorconfig
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Build artifacts we don't need
+*.tsbuildinfo
+
+# Docs (README.md and LICENSE are included via package.json "files")
+CHANGELOG.md
+
+# OS files
+.DS_Store
+Thumbs.db

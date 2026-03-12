@@ -1,0 +1,65 @@
+{
+  "name": "@computegauge/mcp",
+  "version": "0.3.0",
+  "description": "The cost intelligence layer for AI agents. Model selection, spend tracking, credibility scoring, and local-to-cloud routing via MCP. Works with Claude, Cursor, Windsurf, and any MCP-compatible agent.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "computegauge-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "llm",
+    "cost",
+    "finops",
+    "tracking",
+    "model-selection",
+    "claude",
+    "cursor",
+    "openai",
+    "anthropic",
+    "compute",
+    "agent",
+    "credibility",
+    "local-inference",
+    "ollama",
+    "vllm"
+  ],
+  "author": {
+    "name": "ComputeGauge",
+    "email": "travel_world_intl@proton.me",
+    "url": "https://computegauge.ai"
+  },
+  "homepage": "https://computegauge.ai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/computegauge/mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/computegauge/mcp/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}

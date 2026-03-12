@@ -1,0 +1,26 @@
+{
+  "name": "@computegauge/cli",
+  "version": "0.1.0",
+  "description": "CLI for AI compute cost tracking — check spend, budgets, and pricing from your terminal",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "computegauge": "dist/index.js"
+  },
+  "files": ["dist", "LICENSE", "README.md"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["ai", "cost", "cli", "tracking", "anthropic", "openai", "compute"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/computegauge/cli"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}

@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: "ComputeGauge — The Cost Intelligence Layer for AI Agents",
   description: "Make every AI agent cost-aware. Model selection, spend tracking, credibility scoring, and local-to-cloud routing via MCP. Save 40-70% on AI compute. Works with Claude, Cursor, Windsurf, and any MCP-compatible agent.",
   keywords: "MCP server, model context protocol, AI cost, Claude, Cursor, Windsurf, OpenAI, cost optimization, compute budget, ComputeGauge, agent credibility, model selection, local inference, Ollama",
+  icons: {
+    icon: '/icon.svg',
+  },
   openGraph: {
     title: "ComputeGauge — The Cost Intelligence Layer for AI Agents",
     description: "Make every AI agent cost-aware. 18 tools via MCP. Save 40-70% on AI compute.",

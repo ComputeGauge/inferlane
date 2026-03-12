@@ -1,0 +1,37 @@
+{
+  "name": "@computegauge/adapters",
+  "version": "0.1.0",
+  "description": "Provider adapters for AI cost tracking — connects to Anthropic, OpenAI, Google, AWS Bedrock, Azure, and more",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./anthropic": {
+      "import": "./dist/providers/anthropic.js",
+      "types": "./dist/providers/anthropic.d.ts"
+    },
+    "./openai": {
+      "import": "./dist/providers/openai.js",
+      "types": "./dist/providers/openai.d.ts"
+    }
+  },
+  "files": ["dist", "LICENSE", "README.md"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["ai", "cost", "tracking", "anthropic", "openai", "compute", "gauge", "adapter"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/computegauge/adapters"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}
