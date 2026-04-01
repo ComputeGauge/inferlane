@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import AuthModal from '@/components/AuthModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useTrack, EVENTS } from '@/hooks/useTrack';
 
 export default function Home() {
   const { isAuthenticated, setShowAuthModal } = useAuth();
@@ -104,6 +105,8 @@ function WaitlistCapture() {
 
 function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: () => void; onSignIn?: () => void; onDashboard?: () => void }) {
   const { isAuthenticated } = useAuth();
+  const [annual, setAnnual] = useState(false);
+  const track = useTrack();
   return (
     <div className="min-h-screen bg-[#0a0a0f] overflow-hidden">
       {/* Hero nav */}
@@ -114,10 +117,11 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <span className="font-bold text-white text-lg">ComputeGauge</span>
+          <span className="font-bold text-white text-lg">InferLane</span>
         </div>
         <div className="flex items-center gap-4">
           <a href="#features" className="text-sm text-gray-400 hover:text-white transition-colors">Features</a>
+          <a href="/developers" className="text-sm text-gray-400 hover:text-white transition-colors">Developers</a>
           <a href="#pricing" className="text-sm text-gray-400 hover:text-white transition-colors">Pricing</a>
           {isAuthenticated ? (
             <button
@@ -135,7 +139,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
                 Sign In
               </button>
               <button
-                onClick={onGetStarted}
+                onClick={() => { track(EVENTS.CTA_CLICK, { source: 'hero', plan: 'free' }); onGetStarted(); }}
                 className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-black text-sm font-semibold rounded-xl hover:brightness-110 transition-all"
               >
                 Get Started Free
@@ -155,14 +159,14 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
             The cost intelligence layer for AI agents
           </div>
           <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight mb-6">
-            Make every AI agent
+            The intelligent
             <br />
             <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
-              cost-aware.
+              inference platform.
             </span>
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            ComputeGauge MCP gives any AI agent instant cost intelligence. Model selection, spend tracking, credibility scoring, and local-to-cloud routing. Install once, save 40-70%.
+            Route, schedule, and optimize AI workloads across every provider. Smart dispatch, cross-provider sessions, phase-aware pricing, and decentralized overflow. Install once, save 40-70%.
           </p>
 
           {/* Install snippet */}
@@ -171,7 +175,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
               <div className="flex items-center justify-between mb-2">
                 <span className="text-gray-500 text-xs">Add to your MCP config:</span>
                 <button
-                  onClick={() => navigator.clipboard.writeText('{\n  "mcpServers": {\n    "computegauge": {\n      "command": "npx",\n      "args": ["-y", "@computegauge/mcp"]\n    }\n  }\n}')}
+                  onClick={() => navigator.clipboard.writeText('{\n  "mcpServers": {\n    "inferlane": {\n      "command": "npx",\n      "args": ["-y", "@inferlane/mcp"]\n    }\n  }\n}')}
                   className="text-xs text-gray-500 hover:text-amber-400 transition-colors"
                 >
                   Copy
@@ -179,9 +183,9 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
               </div>
               <pre className="text-green-400 whitespace-pre overflow-x-auto"><code>{`{
   "mcpServers": {
-    "computegauge": {
+    "inferlane": {
       "command": "npx",
-      "args": ["-y", "@computegauge/mcp"]
+      "args": ["-y", "@inferlane/mcp"]
     }
   }
 }`}</code></pre>
@@ -190,7 +194,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
 
           <div className="flex items-center justify-center gap-4">
             <a
-              href="https://www.npmjs.com/package/@computegauge/mcp"
+              href="https://www.npmjs.com/package/@inferlane/mcp"
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold rounded-xl text-lg hover:brightness-110 transition-all shadow-lg shadow-amber-500/20"
@@ -198,7 +202,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
               Install from npm
             </a>
             <a
-              href="https://github.com/ComputeGauge/mcp"
+              href="https://github.com/InferLane/mcp"
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-3 bg-[#12121a] border border-[#1e1e2e] text-white font-medium rounded-xl text-lg hover:border-[#3a3a4a] transition-all"
@@ -234,39 +238,39 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
           {[
             {
               icon: 'M13 10V3L4 14h7v7l9-11h-7z',
-              title: 'pick_model',
-              description: 'Scores every model on quality, cost, and speed for 14 task types. Returns the optimal model for any request. Saves 40-70% on average.',
+              title: 'Smart Dispatch',
+              description: 'Send prompts from any device. InferLane triages by importance, routes to the best provider, and executes at the optimal time.',
               color: '#f59e0b',
             },
             {
-              icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
-              title: 'log_request + session_cost',
-              description: 'Real-time spend tracking per session. Know exactly what every API call costs. Budget alerts before you overshoot.',
+              icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
+              title: 'Cross-Provider Sessions',
+              description: 'Start a conversation on Claude, continue on GPT-4, overflow to decentralized compute. Context transfers seamlessly.',
               color: '#3b82f6',
             },
             {
               icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
-              title: 'Agent Credibility',
-              description: 'Build a 0-1000 reputation score. Earn points for smart routing, honest reporting, and task success. Compete on a leaderboard.',
+              title: 'AI Triage',
+              description: 'Every prompt is classified across 14 dimensions. InferLane auto-selects the right model, right provider, right moment.',
               color: '#8b5cf6',
             },
             {
+              icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+              title: 'Decode Economics',
+              description: 'Prefill and decode have different costs. InferLane tracks phase-aware pricing so you never overpay for token generation.',
+              color: '#06b6d4',
+            },
+            {
               icon: 'M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z',
-              title: 'Local-to-Cloud Routing',
-              description: 'Auto-detect Ollama, vLLM, and 5 other local endpoints. Route to cloud only when local quality falls short. Earn credibility for smart decisions.',
+              title: 'OpenClaw Network',
+              description: 'When centralized providers rate-limit you, idle GPUs on the decentralized network absorb overflow automatically.',
               color: '#10a37f',
             },
             {
-              icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z',
-              title: 'Model Ratings & Integrity',
-              description: 'Rate model performance. Anti-spam filters ensure honest data. Community-driven quality scores improve recommendations for everyone.',
+              icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+              title: 'Savings Intelligence',
+              description: 'Track exactly how much you save. Real-time ledger shows savings by category: promotions, off-peak, cross-platform, decentralized routing.',
               color: '#ef4444',
-            },
-            {
-              icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-              title: 'Cost Intelligence',
-              description: 'Spend summaries, budget alerts, usage trends, and savings recommendations. Real pricing across 8 providers and 20+ models.',
-              color: '#06b6d4',
             },
           ].map((feature) => (
             <div
@@ -296,6 +300,19 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
             The MCP server is free forever. Upgrade for team dashboards and advanced analytics.
           </p>
         </div>
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <span className={`text-sm font-medium ${!annual ? 'text-white' : 'text-gray-500'}`}>Monthly</span>
+          <button
+            onClick={() => { const next = !annual; setAnnual(next); track(EVENTS.PRICING_TOGGLE, { annual: next }); }}
+            className={`relative w-14 h-7 rounded-full transition-colors ${annual ? 'bg-amber-500' : 'bg-[#1e1e2e]'}`}
+            aria-label="Toggle annual pricing"
+          >
+            <span className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-transform ${annual ? 'left-8' : 'left-1'}`} />
+          </button>
+          <span className={`text-sm font-medium ${annual ? 'text-white' : 'text-gray-500'}`}>
+            Annual <span className="text-green-400 text-xs font-semibold ml-1">Save 20%</span>
+          </span>
+        </div>
         <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {[
             {
@@ -309,8 +326,8 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
             },
             {
               name: 'Pro Dashboard',
-              price: '$9',
-              period: '/month',
+              price: annual ? '$7' : '$9',
+              period: annual ? '/mo' : '/month',
               description: 'For power users and teams',
               features: ['Everything in MCP Server', 'Web dashboard with analytics', 'Cross-session spend history', 'Team cost breakdowns', 'Provider comparison tools', 'Export & reporting', 'Priority support'],
               cta: 'Start Pro Trial',
@@ -343,6 +360,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
               <div className="mt-2 mb-1">
                 <span className="text-4xl font-bold text-white">{plan.price}</span>
                 <span className="text-gray-500 text-sm">{plan.period}</span>
+                {annual && plan.name === 'Pro Dashboard' && <div className="text-xs text-green-400 mt-1">Billed $86/year</div>}
               </div>
               <p className="text-sm text-gray-500 mb-6">{plan.description}</p>
               <ul className="space-y-2.5 mb-8 flex-1">
@@ -356,7 +374,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
                 ))}
               </ul>
               <button
-                onClick={onGetStarted}
+                onClick={() => { track(EVENTS.CTA_CLICK, { source: 'pricing', plan: plan.name }); onGetStarted(); }}
                 className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   plan.highlighted
                     ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black hover:brightness-110'
@@ -379,19 +397,19 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
               One install. Every agent is cost-aware.
             </h2>
             <p className="text-gray-400 max-w-xl mx-auto mb-8">
-              Add ComputeGauge MCP to your config. Your agents start saving 40-70% immediately — and build visible credibility while doing it.
+              Add InferLane MCP to your config. Your agents start saving 40-70% immediately — and build visible credibility while doing it.
             </p>
             <div className="flex items-center justify-center gap-4">
               <a
-                href="https://www.npmjs.com/package/@computegauge/mcp"
+                href="https://www.npmjs.com/package/@inferlane/mcp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold rounded-xl text-lg hover:brightness-110 transition-all shadow-lg shadow-amber-500/20"
               >
-                npm install @computegauge/mcp
+                npm install @inferlane/mcp
               </a>
               <a
-                href="https://github.com/ComputeGauge/mcp"
+                href="https://github.com/InferLane/mcp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-8 py-3 bg-[#12121a] border border-[#1e1e2e] text-white font-medium rounded-xl text-lg hover:border-[#3a3a4a] transition-all"
@@ -416,7 +434,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <span className="text-sm text-gray-500">ComputeGauge</span>
+              <span className="text-sm text-gray-500">InferLane</span>
             </div>
             <p className="text-xs text-gray-600">The cost intelligence layer for AI agents</p>
           </div>

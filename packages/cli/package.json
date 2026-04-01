@@ -1,26 +1,22 @@
 {
-  "name": "@computegauge/cli",
-  "version": "0.1.0",
-  "description": "CLI for AI compute cost tracking — check spend, budgets, and pricing from your terminal",
-  "license": "Apache-2.0",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "name": "@inferlane/cli",
+  "version": "1.0.0",
+  "description": "CLI tool for InferLane — multi-provider LLM proxy setup and management",
   "bin": {
-    "computegauge": "dist/index.js"
+    "inferlane": "./dist/index.js"
   },
-  "files": ["dist", "LICENSE", "README.md"],
+  "main": "dist/index.js",
+  "files": ["dist"],
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
-    "clean": "rm -rf dist"
+    "prepublishOnly": "npm run build"
   },
-  "keywords": ["ai", "cost", "cli", "tracking", "anthropic", "openai", "compute"],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/computegauge/cli"
+  "keywords": ["cli", "llm", "ai", "proxy", "inferlane", "cost-optimization"],
+  "dependencies": {
+    "@inferlane/sdk": "^1.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.7.0"
+    "typescript": "^5.8.0",
+    "@types/node": "^22.0.0"
   }
 }

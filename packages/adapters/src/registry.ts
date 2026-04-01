@@ -2,25 +2,25 @@
 // Adapter Registry — Manages provider adapters
 // ============================================================================
 
-import type { ComputeGaugeAdapter, AdapterRegistry, ProviderName } from './types.js';
+import type { InferLaneAdapter, AdapterRegistry, ProviderName } from './types.js';
 
 export class DefaultAdapterRegistry implements AdapterRegistry {
-  private adapters: Map<ProviderName, ComputeGaugeAdapter> = new Map();
+  private adapters: Map<ProviderName, InferLaneAdapter> = new Map();
 
-  register(adapter: ComputeGaugeAdapter): void {
+  register(adapter: InferLaneAdapter): void {
     this.adapters.set(adapter.provider, adapter);
   }
 
-  get(provider: ProviderName): ComputeGaugeAdapter | undefined {
+  get(provider: ProviderName): InferLaneAdapter | undefined {
     return this.adapters.get(provider);
   }
 
-  list(): ComputeGaugeAdapter[] {
+  list(): InferLaneAdapter[] {
     return Array.from(this.adapters.values());
   }
 
-  async getConnected(): Promise<ComputeGaugeAdapter[]> {
-    const results: ComputeGaugeAdapter[] = [];
+  async getConnected(): Promise<InferLaneAdapter[]> {
+    const results: InferLaneAdapter[] = [];
     for (const adapter of this.adapters.values()) {
       try {
         const health = await adapter.healthCheck();

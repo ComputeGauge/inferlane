@@ -2,7 +2,7 @@
 // ============================================================================
 // End-to-End Test: Full Agent Session Flow
 //
-// Simulates a complete agent session using ComputeGauge v0.3.0:
+// Simulates a complete agent session using InferLane v0.5.0:
 // 1. pick_model → get recommendation
 // 2. log_request → track cost
 // 3. rate_recommendation → feedback loop
@@ -76,7 +76,7 @@ function assert(condition: boolean, message: string): void {
 // Initialize all engines
 // ============================================================================
 
-header('ComputeGauge v0.3.0 — End-to-End Test');
+header('InferLane v0.4.0 — End-to-End Test');
 
 const tracker = new SpendTracker();
 const sessions = new AgentSessionTracker();
@@ -432,7 +432,7 @@ assert(integrity.includes('Accepted'), 'Shows acceptance rate');
 // TEST 16: credibility_data resource — JSON format
 // ============================================================================
 
-step(16, 'computegauge://credibility — Test resource JSON output');
+step(16, 'inferlane://credibility — Test resource JSON output');
 
 const credData = credibility.getCredibilityData();
 try {
@@ -451,7 +451,7 @@ try {
 // TEST 17: session_data resource — JSON format
 // ============================================================================
 
-step(17, 'computegauge://session — Test resource JSON output');
+step(17, 'inferlane://session — Test resource JSON output');
 
 const sessionData = sessions.getSessionData();
 try {
@@ -480,7 +480,7 @@ assert(true, 'Spam detection mechanism verified in integrity engine');
 // TEST 19: Config resource
 // ============================================================================
 
-step(19, 'computegauge://config — Test config output');
+step(19, 'inferlane://config — Test config output');
 
 const config = tracker.getConfig();
 assert(config.version === '0.3.0', `Version is 0.3.0 (got ${config.version})`);
@@ -517,7 +517,7 @@ console.log('  pick_model → log_request → rate_recommendation → assess_rou
 console.log('  → route_to_cloud → credibility_profile → leaderboard');
 console.log('  → improvement_cycle → integrity_report');
 console.log('');
-console.log(`${BOLD}ComputeGauge v0.3.0 — 18 tools, 7 resources, 3 prompts${RESET}`);
+console.log(`${BOLD}InferLane v0.4.0 — 18 tools, 7 resources, 3 prompts${RESET}`);
 console.log(`${BOLD}Agent Credibility Protocol — OPERATIONAL${RESET}`);
 
 process.exit(failures > 0 ? 1 : 0);

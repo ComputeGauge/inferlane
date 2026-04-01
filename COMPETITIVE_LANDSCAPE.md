@@ -1,4 +1,4 @@
-# ComputeGauge — Competitive Landscape Analysis
+# InferLane — Competitive Landscape Analysis
 *Updated February 2026 — with verified market data*
 
 ---
@@ -142,7 +142,7 @@ However, the **agent reputation/trust scoring space is more crowded than initial
 | LiteLLM | Unified interface, 100+ LLMs |
 | Requesty.ai | Budget-limit-aware routing |
 
-### What This Means for ComputeGauge
+### What This Means for InferLane
 
 **The "credit score for AI agents" concept is NOT novel.** ERC-8004 explicitly uses this phrase. Multiple startups are building agent reputation. $1.2B+ is deployed to agent identity/trust.
 
@@ -173,7 +173,7 @@ This is the strategic gap that **genuinely no competitor fills**:
 | AWS Billing MCP | ✅ (AWS only) | ❌ | ❌ | ❌ | ✅ |
 | OpenCost MCP | ❌ | ✅ (K8s) | ❌ | ❌ | ✅ |
 | mTrust Protocol | ❌ | ❌ | ❌ | ❌ | ✅ (trust only) |
-| **ComputeGauge** | **✅** | **✅** | **✅** | **✅** | **✅** |
+| **InferLane** | **✅** | **✅** | **✅** | **✅** | **✅** |
 
 **Key finding:** AWS has a Billing MCP server (AWS costs only). OpenCost has an MCP server (Kubernetes only). mTrust has MCP trust scoring (no cost). **Nobody has an MCP server that does AI cost intelligence + model selection + hybrid routing.** That's our lane.
 
@@ -269,7 +269,7 @@ This is the strategic gap that **genuinely no competitor fills**:
                     INFRASTRUCTURE (routing traffic)
                               ↑
                               |
-            Portkey     [ComputeGauge]        OpenRouter
+            Portkey     [InferLane]        OpenRouter
             LiteLLM     CLOUD + ON-PREM       Together AI
             Martian      + MCP-NATIVE
                         ← TARGET →

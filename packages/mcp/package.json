@@ -1,16 +1,17 @@
 {
-  "name": "@computegauge/mcp",
-  "version": "0.3.0",
+  "name": "@inferlane/mcp",
+  "version": "0.5.0",
   "description": "The cost intelligence layer for AI agents. Model selection, spend tracking, credibility scoring, and local-to-cloud routing via MCP. Works with Claude, Cursor, Windsurf, and any MCP-compatible agent.",
   "license": "Apache-2.0",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "computegauge-mcp": "dist/index.js"
+    "inferlane-mcp": "dist/index.js"
   },
   "files": [
     "dist",
+    "dashboard.html",
     "LICENSE",
     "README.md"
   ],
@@ -41,25 +42,27 @@
     "vllm"
   ],
   "author": {
-    "name": "ComputeGauge",
+    "name": "InferLane",
     "email": "travel_world_intl@proton.me",
-    "url": "https://computegauge.ai"
+    "url": "https://inferlane.ai"
   },
-  "homepage": "https://computegauge.ai",
+  "homepage": "https://inferlane.ai",
   "repository": {
     "type": "git",
-    "url": "https://github.com/computegauge/mcp.git"
+    "url": "https://github.com/inferlane/mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/computegauge/mcp/issues"
+    "url": "https://github.com/inferlane/mcp/issues"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0"
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "better-sqlite3": "^11.7.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
     "typescript": "^5.7.0"
   }
 }

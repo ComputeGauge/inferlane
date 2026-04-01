@@ -97,8 +97,8 @@ export default function SpendChart({ data }: SpendChartProps) {
               borderRadius: '12px',
               padding: '12px',
             }}
-            labelFormatter={(label: any) => formatDate(String(label))}
-            formatter={(value: any, name: any) => [`$${Number(value).toFixed(2)}`, name]}
+            labelFormatter={(label) => formatDate(String(label))}
+            formatter={(value, name) => [`$${Number(value).toFixed(2)}`, String(name)]}
           />
           <Legend
             wrapperStyle={{ fontSize: '12px' }}

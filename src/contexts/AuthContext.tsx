@@ -38,13 +38,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (session?.user) {
       setRealUser({
-        id: (session.user as Record<string, string>).id || 'unknown',
+        id: session.user.id || 'unknown',
         name: session.user.name || 'User',
         email: session.user.email || '',
         avatar: session.user.image || undefined,
-        provider: ((session.user as Record<string, string>).provider as User['provider']) || 'google',
-        plan: ((session.user as Record<string, string>).plan as User['plan']) || 'free',
-        role: ((session.user as Record<string, string>).role as User['role']) || 'USER',
+        provider: (session.user.provider as User['provider']) || 'google',
+        plan: (session.user.plan as User['plan']) || 'free',
+        role: session.user.role || 'USER',
         createdAt: new Date(),
       });
       setDemoUser(null); // Clear demo if real session exists
@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     const demoName = provider === 'email' ? (email?.split('@')[0] || 'Demo User') : 'Demo User';
-    const demoEmail = email || 'demo@computegauge.ai';
+    const demoEmail = email || 'demo@inferlane.ai';
     const initials = demoName.split(' ').map(n => n[0] || '').join('') || 'DU';
     const mockUser: User = {
       id: 'demo_' + Math.random().toString(36).slice(2, 10),
@@ -92,7 +92,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setDemoUser(mockUser);
     setShowAuthModal(false);
     // Set demo cookie so middleware allows dashboard access
-    document.cookie = 'cg_demo=1; path=/; max-age=86400; SameSite=Lax';
+    // Secure flag ensures cookie only sent over HTTPS (except localhost for dev)
+    const isSecure = window.location.protocol === 'https:';
+    document.cookie = `il_demo=1; path=/; max-age=86400; SameSite=Lax${isSecure ? '; Secure' : ''}`;
   }, []);
 
   const logout = useCallback(async () => {
@@ -102,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setDemoUser(null);
     setRealUser(null);
     // Clear demo cookie
-    document.cookie = 'cg_demo=; path=/; max-age=0';
+    document.cookie = 'il_demo=; path=/; max-age=0';
   }, [realUser]);
 
   return (

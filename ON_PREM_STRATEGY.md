@@ -1,4 +1,4 @@
-# ComputeGauge — Cloud-to-On-Premise Strategy & Hybrid AI Cost Management
+# InferLane — Cloud-to-On-Premise Strategy & Hybrid AI Cost Management
 
 ## The Macro Trend: AI Repatriation Is Real
 
@@ -38,7 +38,7 @@ No enterprise will go 100% on-prem or 100% cloud. The future is **hybrid**:
 
 ---
 
-## Impact on ComputeGauge Business Model
+## Impact on InferLane Business Model
 
 ### The Threat (If We Ignore It)
 If enterprises shift 40-60% of AI workloads to on-prem:
@@ -57,11 +57,11 @@ Current landscape:
 - **Mavvrik** (formerly DigitalEx) → closest to unified, but focused on cloud+SaaS, not AI-specific
 - **Nobody** → unified "total cost of AI" across cloud API + on-prem GPU + self-hosted inference
 
-**ComputeGauge can own this gap.**
+**InferLane can own this gap.**
 
 ---
 
-## How ComputeGauge Supports the Cloud-to-On-Prem Movement
+## How InferLane Supports the Cloud-to-On-Prem Movement
 
 ### New Product Capabilities
 
@@ -99,7 +99,7 @@ Extend the API proxy to route intelligently between:
 
 **Architecture:**
 ```
-Developer Code → api.computegauge.ai → Smart Router Decision
+Developer Code → api.inferlane.ai → Smart Router Decision
                                         ├── Cloud: OpenAI API (complex reasoning)
                                         ├── Cloud: Anthropic API (overflow/burst)
                                         ├── On-Prem: vLLM cluster (high-volume inference)
@@ -120,11 +120,11 @@ New marketplace section for:
 #### 6. Limit Overflow → On-Prem Trigger
 Real-world example: Anthropic's usage page shows session limits, weekly limits, and extra usage billing (e.g. user at 116% of A$20 monthly limit with A$75.82 balance). Every provider has similar pages — OpenAI, Google AI, Together AI, AWS Bedrock, Azure.
 
-**ComputeGauge aggregates ALL of these into one view and uses "limit overflow" as a monetisation and routing trigger:**
+**InferLane aggregates ALL of these into one view and uses "limit overflow" as a monetisation and routing trigger:**
 
 ```
 User hits 80% of Anthropic monthly limit
-  → ComputeGauge fires "low fuel" alert
+  → InferLane fires "low fuel" alert
   → Top-Up Banner shows: "Top up Anthropic" (affiliate commission on reload)
   → Smart Router shows: "Route overflow to on-prem vLLM" (save $X/month)
   → Migration Advisor shows: "Your usage pattern suggests on-prem break-even in 4 months"
@@ -175,10 +175,10 @@ The **Hybrid tier at $29** captures the on-prem value without cannibalizing the 
 ## The Strategic Positioning Shift
 
 ### Before (Cloud-Only)
-> "ComputeGauge: Track and optimize your AI API spend"
+> "InferLane: Track and optimize your AI API spend"
 
 ### After (Hybrid)
-> "ComputeGauge: The total cost of AI — cloud, on-prem, and everywhere in between"
+> "InferLane: The total cost of AI — cloud, on-prem, and everywhere in between"
 
 This positioning:
 - **Widens TAM** from "teams using AI APIs" to "any team using AI" (much larger market)
@@ -236,7 +236,7 @@ No change. Ship the MVP, get users, prove demand.
 **Impact:** Cost management value proposition weakens across the board.
 **Contingency:** Pivot to governance, compliance, and usage intelligence. "What AI is your team using and is it aligned with policy?" matters even if AI is free.
 
-**In all four scenarios, ComputeGauge survives and can thrive.** The hybrid strategy eliminates the single-point-of-failure risk of being cloud-API-only.
+**In all four scenarios, InferLane survives and can thrive.** The hybrid strategy eliminates the single-point-of-failure risk of being cloud-API-only.
 
 ---
 
@@ -256,7 +256,7 @@ Common misconception: "On-prem has fixed costs, so there's nothing to manage."
 | Hidden costs | None | Networking, storage, staff time, opportunity cost | Very High |
 | Comparison | Easy (check pricing page) | Apples-to-oranges vs. cloud without normalization | Very High |
 
-**The punchline:** Teams moving to on-prem NEED cost management tools MORE, not less. They just need different ones. ComputeGauge provides both.
+**The punchline:** Teams moving to on-prem NEED cost management tools MORE, not less. They just need different ones. InferLane provides both.
 
 ---
 

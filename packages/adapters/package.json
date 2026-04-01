@@ -1,5 +1,5 @@
 {
-  "name": "@computegauge/adapters",
+  "name": "@inferlane/adapters",
   "version": "0.1.0",
   "description": "Provider adapters for AI cost tracking — connects to Anthropic, OpenAI, Google, AWS Bedrock, Azure, and more",
   "license": "Apache-2.0",
@@ -29,7 +29,7 @@
   "keywords": ["ai", "cost", "tracking", "anthropic", "openai", "compute", "gauge", "adapter"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/computegauge/adapters"
+    "url": "https://github.com/inferlane/adapters"
   },
   "devDependencies": {
     "typescript": "^5.7.0"

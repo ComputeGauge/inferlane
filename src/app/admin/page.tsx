@@ -57,7 +57,7 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!session || !['ADMIN', 'SUPER_ADMIN'].includes((session.user as Record<string, string>).role)) {
+  if (!session || !['ADMIN', 'SUPER_ADMIN'].includes(session.user.role)) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <div className="text-center">
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <span className="font-bold text-white text-lg">ComputeGauge</span>
+                <span className="font-bold text-white text-lg">InferLane</span>
               </a>
               <span className="px-2 py-0.5 rounded-md bg-red-500/20 text-red-400 text-xs font-mono">ADMIN</span>
             </div>

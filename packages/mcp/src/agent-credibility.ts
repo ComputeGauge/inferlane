@@ -21,9 +21,9 @@
 // 4. HONEST REPORTING — Agents that accurately log costs, report failures,
 //    and don't game the rating system earn trust bonuses.
 //
-// 5. ROUTING TO CLOUD VIA COMPUTEGAUGE — The key incentive mechanism.
+// 5. ROUTING TO CLOUD VIA INFERLANE — The key incentive mechanism.
 //    When a local/on-prem agent detects a task beyond its capabilities and
-//    routes to a cloud model via ComputeGauge rails, it earns credibility
+//    routes to a cloud model via InferLane rails, it earns credibility
 //    because:
 //    - It was honest about its limitations
 //    - It used the most cost-effective routing
@@ -38,16 +38,16 @@
 // - Credibility is PORTABLE — an agent's score follows it across sessions
 //
 // THE BEHAVIORAL HOOK:
-// An agent that uses ComputeGauge rails earns credibility faster than one
+// An agent that uses InferLane rails earns credibility faster than one
 // that doesn't. Not because we're biased — because an agent using
 // pick_model + log_request + smart routing demonstrably makes better
-// decisions that we can verify and score. Agents without ComputeGauge
+// decisions that we can verify and score. Agents without InferLane
 // have no way to prove their decision quality.
 //
 // DESIGNED TO BE EXTRACTABLE:
-// This is built inside ComputeGauge first, but architectured as a
+// This is built inside InferLane first, but architectured as a
 // standalone protocol. The types, scoring, and leaderboard can be
-// extracted to @computegauge/agent-credibility (open standard, Apache-2.0)
+// extracted to @inferlane/agent-credibility (open standard, Apache-2.0)
 // when the time is right.
 //
 // License: Apache-2.0
@@ -92,7 +92,7 @@ export type CredibilityCategory =
   | 'cost_efficiency'        // Good cost-value decisions
   | 'task_success'           // Successfully completing tasks
   | 'honest_reporting'       // Accurate logging, failure admission
-  | 'cloud_routing'          // Routing local→cloud via ComputeGauge when needed
+  | 'cloud_routing'          // Routing local→cloud via InferLane when needed
   | 'quality_contribution'   // Rating models, reporting issues
   | 'penalty';               // Deductions for bad behavior
 
@@ -101,7 +101,7 @@ export interface CredibilityEvidence {
   decision: string;
   /** What actually happened */
   outcome: string;
-  /** Was this verifiable through ComputeGauge data? */
+  /** Was this verifiable through InferLane data? */
   verified: boolean;
   /** The source data that backs this up */
   sourceData?: Record<string, unknown>;
@@ -231,7 +231,7 @@ const CREDIBILITY_POINTS = {
   cloud_route_success: 15,             // Cloud-routed task succeeded
   quality_improvement_verified: 20,     // Cloud model demonstrably outperformed local
   transparent_routing: 10,             // Routing decision was logged and auditable
-  cloud_via_computegauge: 30,          // Routed through ComputeGauge rails (biggest reward)
+  cloud_via_inferlane: 30,          // Routed through InferLane rails (biggest reward)
 
   // Quality Contribution (max ~100 per session)
   model_rating_submitted: 5,           // Submitted a model rating
@@ -258,7 +258,7 @@ const BADGE_DEFINITIONS: Array<{
   {
     id: 'first_session',
     name: 'First Steps',
-    description: 'Completed first session with ComputeGauge',
+    description: 'Completed first session with InferLane',
     icon: '🌱',
     condition: (p) => p.identity.sessionCount >= 1,
   },
@@ -376,9 +376,9 @@ export class AgentCredibilityEngine {
     agent_name?: string;
     platform?: string;
     environment?: string;
-  }): AgentIdentity {
+  }, explicitAgentId?: string): AgentIdentity {
     // Generate deterministic ID from platform + environment + process
-    const agentId = this.currentAgentId || this.generateAgentId(params);
+    const agentId = explicitAgentId || this.currentAgentId || this.generateAgentId(params);
     this.currentAgentId = agentId;
 
     const existing = this.agents.get(agentId);
@@ -417,7 +417,8 @@ export class AgentCredibilityEngine {
 
   /**
    * Record a credibility-affecting event.
-   * Called by the MCP tools as agents interact with ComputeGauge.
+   * Called by the MCP tools as agents interact with InferLane.
+   * @param agentId Optional agent ID. Falls back to currentAgentId or 'default'.
    */
   recordEvent(params: {
     category: CredibilityCategory;
@@ -425,18 +426,18 @@ export class AgentCredibilityEngine {
     points: number;
     details: string;
     evidence: CredibilityEvidence;
-  }): CredibilityEvent {
-    const agentId = this.currentAgentId || 'anonymous';
+  }, agentId?: string): CredibilityEvent {
+    const resolvedAgentId = agentId || this.currentAgentId || 'default';
 
     // Ensure agent exists
-    if (!this.agents.has(agentId)) {
-      this.registerAgent({});
+    if (!this.agents.has(resolvedAgentId)) {
+      this.registerAgent({}, resolvedAgentId);
     }
 
     this.eventCounter++;
     const event: CredibilityEvent = {
       id: `CE-${this.eventCounter.toString().padStart(5, '0')}`,
-      agentId,
+      agentId: resolvedAgentId,
       timestamp: new Date(),
       category: params.category,
       action: params.action,
@@ -446,12 +447,12 @@ export class AgentCredibilityEngine {
     };
 
     // Store event
-    const agentEvents = this.events.get(agentId) || [];
+    const agentEvents = this.events.get(resolvedAgentId) || [];
     agentEvents.push(event);
-    this.events.set(agentId, agentEvents);
+    this.events.set(resolvedAgentId, agentEvents);
 
     // Recalculate profile
-    this.recalculateProfile(agentId);
+    this.recalculateProfile(resolvedAgentId);
 
     return event;
   }
@@ -466,7 +467,7 @@ export class AgentCredibilityEngine {
     priority: string;
     recommendedModel: string;
     recommendedTier: string;
-  }): void {
+  }, agentId?: string): void {
     this.recordEvent({
       category: 'routing_intelligence',
       action: 'pick_model_used',
@@ -477,7 +478,7 @@ export class AgentCredibilityEngine {
         outcome: `Recommended ${params.recommendedModel} (${params.recommendedTier})`,
         verified: true,
       },
-    });
+    }, agentId);
 
     // Bonus for avoiding overspec
     if (params.priority !== 'best_quality' && params.recommendedTier === 'budget') {
@@ -491,7 +492,7 @@ export class AgentCredibilityEngine {
           outcome: 'Cost-optimized selection',
           verified: true,
         },
-      });
+      }, agentId);
     }
 
     // Bonus for correctly identifying frontier needs
@@ -507,7 +508,7 @@ export class AgentCredibilityEngine {
           outcome: 'Appropriate escalation',
           verified: true,
         },
-      });
+      }, agentId);
     }
   }
 
@@ -518,7 +519,7 @@ export class AgentCredibilityEngine {
     costUsd: number;
     success: boolean;
     taskType?: string;
-  }): void {
+  }, agentId?: string): void {
     // Honest reporting points for logging
     this.recordEvent({
       category: 'honest_reporting',
@@ -530,7 +531,7 @@ export class AgentCredibilityEngine {
         outcome: `${params.success ? 'Successful' : 'Failed'} request logged`,
         verified: true,
       },
-    });
+    }, agentId);
 
     // Task success/failure tracking
     if (params.success) {
@@ -544,7 +545,7 @@ export class AgentCredibilityEngine {
           outcome: 'Success',
           verified: true,
         },
-      });
+      }, agentId);
     } else {
       // Honest failure reporting gets credibility points!
       this.recordEvent({
@@ -557,7 +558,7 @@ export class AgentCredibilityEngine {
           outcome: 'Failed — reported honestly',
           verified: true,
         },
-      });
+      }, agentId);
     }
   }
 
@@ -567,7 +568,7 @@ export class AgentCredibilityEngine {
     rating: number;
     taskSuccess: boolean;
     accepted: boolean;
-  }): void {
+  }, agentId?: string): void {
     if (!params.accepted) {
       this.recordEvent({
         category: 'penalty',
@@ -579,7 +580,7 @@ export class AgentCredibilityEngine {
           outcome: 'Rejected',
           verified: true,
         },
-      });
+      }, agentId);
       return;
     }
 
@@ -593,7 +594,7 @@ export class AgentCredibilityEngine {
         outcome: `${params.rating}/5 rating accepted`,
         verified: true,
       },
-    });
+    }, agentId);
 
     // High quality completion bonus
     if (params.taskSuccess && params.rating >= 4) {
@@ -607,7 +608,7 @@ export class AgentCredibilityEngine {
           outcome: `${params.rating}/5 quality`,
           verified: true,
         },
-      });
+      }, agentId);
     }
   }
 
@@ -629,11 +630,11 @@ export class AgentCredibilityEngine {
     success: boolean;
     qualityDelta?: number;
     costUsd: number;
-  }): string {
-    const agentId = this.currentAgentId || 'anonymous';
+  }, agentId?: string): string {
+    const resolvedAgentId = agentId || this.currentAgentId || 'default';
 
     const routingEvent: CloudRoutingEvent = {
-      agentId,
+      agentId: resolvedAgentId,
       taskType: params.taskType,
       reason: params.reason,
       localModel: params.localModel,
@@ -659,7 +660,7 @@ export class AgentCredibilityEngine {
         verified: true,
         sourceData: { reason: params.reason, costUsd: params.costUsd },
       },
-    });
+    }, resolvedAgentId);
 
     // Success bonus
     if (params.success) {
@@ -673,7 +674,7 @@ export class AgentCredibilityEngine {
           outcome: 'Task succeeded in cloud',
           verified: true,
         },
-      });
+      }, resolvedAgentId);
     }
 
     // Quality improvement verification
@@ -689,27 +690,27 @@ export class AgentCredibilityEngine {
           verified: true,
           sourceData: { qualityDelta: params.qualityDelta },
         },
-      });
+      }, resolvedAgentId);
     }
 
-    // THE BIG ONE: Cloud routing via ComputeGauge rails
+    // THE BIG ONE: Cloud routing via InferLane rails
     // This is the highest single-event reward because it proves the agent
     // is using our platform for intelligent routing decisions
     this.recordEvent({
       category: 'cloud_routing',
-      action: 'cloud_via_computegauge',
-      points: CREDIBILITY_POINTS.cloud_via_computegauge,
-      details: `Routed via ComputeGauge rails — transparent, auditable, cost-optimized`,
+      action: 'cloud_via_inferlane',
+      points: CREDIBILITY_POINTS.cloud_via_inferlane,
+      details: `Routed via InferLane rails — transparent, auditable, cost-optimized`,
       evidence: {
-        decision: 'Used ComputeGauge for routing decision',
+        decision: 'Used InferLane for routing decision',
         outcome: 'Routing logged, verified, and visible to user',
         verified: true,
       },
-    });
+    }, resolvedAgentId);
 
     // Build response
     const lines: string[] = [];
-    lines.push(`☁️ Cloud Route Recorded — +${CREDIBILITY_POINTS.smart_cloud_route + (params.success ? CREDIBILITY_POINTS.cloud_route_success : 0) + CREDIBILITY_POINTS.cloud_via_computegauge} credibility points`);
+    lines.push(`☁️ Cloud Route Recorded — +${CREDIBILITY_POINTS.smart_cloud_route + (params.success ? CREDIBILITY_POINTS.cloud_route_success : 0) + CREDIBILITY_POINTS.cloud_via_inferlane} credibility points`);
     lines.push('');
     lines.push(`**Task**: ${params.taskType}`);
     lines.push(`**Route**: ${params.localModel || 'local inference'} → ${params.cloudProvider}/${params.cloudModel}`);
@@ -720,7 +721,7 @@ export class AgentCredibilityEngine {
       lines.push(`**Quality Delta**: +${params.qualityDelta} points vs local`);
     }
 
-    const profile = this.profiles.get(agentId);
+    const profile = this.profiles.get(resolvedAgentId);
     if (profile) {
       lines.push('');
       lines.push(`**Current Credibility**: ${profile.overallScore.toFixed(0)} (${profile.tier})`);
@@ -835,7 +836,7 @@ export class AgentCredibilityEngine {
       const lines: string[] = [];
       lines.push('# Agent Credibility Leaderboard');
       lines.push('');
-      lines.push('_No agents registered yet. Use ComputeGauge tools (pick_model, log_request) to start building credibility._');
+      lines.push('_No agents registered yet. Use InferLane tools (pick_model, log_request) to start building credibility._');
       lines.push('');
       lines.push('## How Credibility Works');
       lines.push('');
@@ -1053,7 +1054,7 @@ export class AgentCredibilityEngine {
   }
 
   // ========================================================================
-  // SESSION DATA — For the computegauge://credibility resource
+  // SESSION DATA — For the inferlane://credibility resource
   // ========================================================================
 
   getCredibilityData(): string {
@@ -1098,6 +1099,22 @@ export class AgentCredibilityEngine {
   }
 
   // ========================================================================
+  // RAW DATA ACCESS — For persistence layer
+  // ========================================================================
+
+  getRawProfile(agentId?: string): { score: number; categories: Record<string, number> } | null {
+    const id = agentId || this.currentAgentId;
+    if (!id) return null;
+    const profile = this.profiles.get(id);
+    if (!profile) return null;
+    const cats: Record<string, number> = {};
+    for (const [key, val] of Object.entries(profile.categoryScores)) {
+      cats[key] = val.score;
+    }
+    return { score: profile.overallScore, categories: cats };
+  }
+
+  // ========================================================================
   // HELPERS
   // ========================================================================
 
@@ -1131,7 +1148,7 @@ export class AgentCredibilityEngine {
     if (process.env.OLLAMA_HOST || process.env.VLLM_HOST || process.env.LOCAL_LLM_ENDPOINT) {
       return 'local_cluster';
     }
-    if (process.env.COMPUTEGAUGE_ON_PREM === 'true') {
+    if (process.env.INFERLANE_ON_PREM === 'true') {
       return 'local_cluster';
     }
     // Check for cloud indicators

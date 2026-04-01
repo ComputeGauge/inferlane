@@ -1,5 +1,7 @@
 'use client';
 
+import { memo } from 'react';
+
 interface Stat {
   label: string;
   value: string;
@@ -13,7 +15,7 @@ interface StatsBarProps {
   stats: Stat[];
 }
 
-export default function StatsBar({ stats }: StatsBarProps) {
+export default memo(function StatsBar({ stats }: StatsBarProps) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((stat, i) => (
@@ -54,4 +56,4 @@ export default function StatsBar({ stats }: StatsBarProps) {
       ))}
     </div>
   );
-}
+});

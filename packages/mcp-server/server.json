@@ -1,0 +1,71 @@
+{
+  "name": "@inferlane/mcp-server",
+  "description": "Multi-provider LLM cost optimization tools for AI agents. Estimate costs, compare models, get recommendations, check promotions, track spend, and route requests through a cost-optimized proxy.",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/aardappvark-group/inferlane"
+  },
+  "homepage": "https://inferlane.com",
+  "license": "MIT",
+  "runtime": "node",
+  "installation": {
+    "npx": {
+      "command": "npx -y @inferlane/mcp-server",
+      "description": "Run directly via npx without installation"
+    },
+    "npm": {
+      "command": "npm install -g @inferlane/mcp-server",
+      "description": "Install globally, then run 'inferlane-mcp'"
+    }
+  },
+  "configuration": {
+    "mcpServers": {
+      "inferlane": {
+        "command": "npx",
+        "args": ["-y", "@inferlane/mcp-server"],
+        "env": {
+          "INFERLANE_API_KEY": "<your-api-key>"
+        }
+      }
+    }
+  },
+  "authentication": {
+    "type": "api_key",
+    "env_var": "INFERLANE_API_KEY",
+    "required": false,
+    "description": "API key is optional. 3 tools (il_estimate_cost, il_compare_models, il_suggest_model) work offline with no key. 3 tools (il_check_promotions, il_get_spend, il_route_request) require an API key."
+  },
+  "tools": [
+    {
+      "name": "il_estimate_cost",
+      "description": "Estimate LLM API call cost across providers. Works offline — no API key required.",
+      "requiresAuth": false
+    },
+    {
+      "name": "il_compare_models",
+      "description": "Compare equivalent models across providers on price, speed, and context window. Works offline — no API key required.",
+      "requiresAuth": false
+    },
+    {
+      "name": "il_suggest_model",
+      "description": "Get a model recommendation for a given task based on cost, quality, and speed tradeoffs. Works offline — no API key required.",
+      "requiresAuth": false
+    },
+    {
+      "name": "il_check_promotions",
+      "description": "Check active provider promotions and free-tier offers. Requires API key.",
+      "requiresAuth": true
+    },
+    {
+      "name": "il_get_spend",
+      "description": "Get spend summary by period (daily, weekly, monthly). Requires API key.",
+      "requiresAuth": true
+    },
+    {
+      "name": "il_route_request",
+      "description": "Route LLM requests through a cost-optimized proxy with automatic provider selection. Requires API key.",
+      "requiresAuth": true
+    }
+  ]
+}

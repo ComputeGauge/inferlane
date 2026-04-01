@@ -41,10 +41,17 @@ function SignInContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <span className="font-bold text-white text-xl">ComputeGauge</span>
+            <span className="font-bold text-white text-xl">InferLane</span>
           </a>
           <h1 className="text-2xl font-bold text-white">Sign in to your account</h1>
-          <p className="text-gray-400 mt-2">Track and optimize your AI compute spend</p>
+          <p className="text-gray-400 mt-2">The intelligent inference platform. Route, schedule, and optimize AI across every provider.</p>
+          <div className="flex flex-wrap justify-center gap-2 mt-3">
+            {['Smart dispatch', 'Cross-provider sessions', 'AI triage', 'Cost savings intelligence'].map((feature) => (
+              <span key={feature} className="text-xs px-2 py-0.5 rounded-full bg-[#1e1e2e] text-gray-400 border border-[#2a2a3a]">
+                {feature}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* Error message */}

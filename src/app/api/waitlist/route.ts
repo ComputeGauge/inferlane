@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { rateLimit } from '@/lib/rate-limit';
+import { withTiming } from '@/lib/api-timing';
 
 // POST /api/waitlist — capture email for early access
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
+  // Rate limit: 5 submissions per IP per 15 minutes
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const { success } = await rateLimit(`waitlist:${ip}`, 5, 15 * 60 * 1000);
+  if (!success) {
+    return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+  }
   let body;
   try {
     body = await req.json();
@@ -50,3 +58,5 @@ export async function POST(req: NextRequest) {
     }
   }
 }
+
+export const POST = withTiming(handlePOST);

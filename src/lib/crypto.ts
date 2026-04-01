@@ -43,10 +43,10 @@ export function decrypt(encryptedData: string): string {
   return decrypted;
 }
 
-// Generate a ComputeGauge API key (cg_live_xxx or cg_test_xxx)
+// Generate a InferLane API key (il_live_xxx or il_test_xxx)
 export function generateApiKey(prefix: 'live' | 'test' = 'live'): { raw: string; hash: string; prefix: string } {
   const random = randomBytes(32).toString('base64url');
-  const raw = `cg_${prefix}_${random}`;
+  const raw = `il_${prefix}_${random}`;
   const hash = createHash('sha256').update(raw).digest('hex');
   const keyPrefix = raw.slice(0, 16);
 

@@ -119,13 +119,46 @@ const MODEL_CAPABILITIES: Record<string, ModelCapability> = {
     quality: { complex_reasoning: 58, code_generation: 62, code_review: 58, simple_qa: 76, classification: 78, extraction: 76, summarization: 72, translation: 75, data_analysis: 62, math: 58, conversation: 74, general: 67 },
     speed: 88, toolUse: true, vision: false, tier: 'budget',
   },
+  // === NEW PROVIDERS ===
+  'grok-3': {
+    quality: { complex_reasoning: 90, code_generation: 88, code_review: 87, creative_writing: 88, simple_qa: 89, classification: 86, extraction: 87, summarization: 88, data_analysis: 88, math: 87, conversation: 90, general: 89 },
+    speed: 50, toolUse: true, vision: true, tier: 'premium',
+  },
+  'grok-3-mini': {
+    quality: { complex_reasoning: 72, code_generation: 74, simple_qa: 80, classification: 78, extraction: 76, summarization: 75, conversation: 78, general: 75 },
+    speed: 80, toolUse: true, vision: false, tier: 'budget',
+  },
+  'sonar-pro': {
+    quality: { complex_reasoning: 82, simple_qa: 92, summarization: 90, extraction: 88, data_analysis: 85, general: 85 },
+    speed: 50, toolUse: false, vision: false, tier: 'premium',
+  },
+  'sonar': {
+    quality: { simple_qa: 85, summarization: 82, extraction: 80, general: 78 },
+    speed: 65, toolUse: false, vision: false, tier: 'value',
+  },
+  'cerebras-llama-3.3-70b': {
+    quality: { complex_reasoning: 78, code_generation: 80, code_review: 78, simple_qa: 82, classification: 80, extraction: 80, summarization: 80, translation: 78, data_analysis: 78, math: 76, conversation: 80, general: 79 },
+    speed: 97, toolUse: true, vision: false, tier: 'value',
+  },
+  'sambanova-llama-3.1-70b': {
+    quality: { complex_reasoning: 76, code_generation: 78, code_review: 76, simple_qa: 80, classification: 78, extraction: 78, summarization: 78, translation: 76, data_analysis: 76, math: 74, conversation: 78, general: 77 },
+    speed: 92, toolUse: true, vision: false, tier: 'value',
+  },
+  'command-r-plus': {
+    quality: { complex_reasoning: 82, code_generation: 78, simple_qa: 86, classification: 84, extraction: 86, summarization: 85, translation: 84, data_analysis: 82, conversation: 85, general: 83 },
+    speed: 50, toolUse: true, vision: false, tier: 'premium',
+  },
+  'command-r': {
+    quality: { simple_qa: 78, classification: 76, extraction: 78, summarization: 76, translation: 76, conversation: 76, general: 74 },
+    speed: 70, toolUse: true, vision: false, tier: 'budget',
+  },
 };
 
 const MODEL_PRICES: ModelPrice[] = [
   // Anthropic
   { provider: 'Anthropic', model: 'claude-opus-4', inputPerMToken: 15.0, outputPerMToken: 75.0, context: 200000, category: 'chat' },
   { provider: 'Anthropic', model: 'claude-sonnet-4', inputPerMToken: 3.0, outputPerMToken: 15.0, context: 200000, category: 'chat' },
-  { provider: 'Anthropic', model: 'claude-haiku-3.5', inputPerMToken: 0.80, outputPerMToken: 4.0, context: 200000, category: 'chat' },
+  { provider: 'Anthropic', model: 'claude-haiku-3.5', inputPerMToken: 0.25, outputPerMToken: 1.25, context: 200000, category: 'chat' },
   { provider: 'Anthropic', model: 'claude-sonnet-3.5', inputPerMToken: 3.0, outputPerMToken: 15.0, context: 200000, category: 'chat' },
   // OpenAI
   { provider: 'OpenAI', model: 'gpt-4o', inputPerMToken: 2.50, outputPerMToken: 10.0, context: 128000, category: 'chat' },
@@ -135,21 +168,41 @@ const MODEL_PRICES: ModelPrice[] = [
   { provider: 'OpenAI', model: 'text-embedding-3-small', inputPerMToken: 0.02, outputPerMToken: 0, context: 8191, category: 'embedding' },
   { provider: 'OpenAI', model: 'text-embedding-3-large', inputPerMToken: 0.13, outputPerMToken: 0, context: 8191, category: 'embedding' },
   // Google
+  { provider: 'Google', model: 'gemini-2.5-pro', inputPerMToken: 1.25, outputPerMToken: 10.0, context: 1000000, category: 'chat' },
   { provider: 'Google', model: 'gemini-2.0-flash', inputPerMToken: 0.10, outputPerMToken: 0.40, context: 1000000, category: 'chat' },
   { provider: 'Google', model: 'gemini-2.0-pro', inputPerMToken: 1.25, outputPerMToken: 10.0, context: 2000000, category: 'chat' },
   { provider: 'Google', model: 'gemini-1.5-pro', inputPerMToken: 1.25, outputPerMToken: 5.0, context: 2000000, category: 'chat' },
   // DeepSeek
+  { provider: 'DeepSeek', model: 'deepseek-v3', inputPerMToken: 0.27, outputPerMToken: 1.10, context: 128000, category: 'chat' },
   { provider: 'DeepSeek', model: 'deepseek-chat', inputPerMToken: 0.14, outputPerMToken: 0.28, context: 128000, category: 'chat' },
   { provider: 'DeepSeek', model: 'deepseek-reasoner', inputPerMToken: 0.55, outputPerMToken: 2.19, context: 128000, category: 'chat' },
   // Groq
   { provider: 'Groq', model: 'llama-3.3-70b', inputPerMToken: 0.59, outputPerMToken: 0.79, context: 128000, category: 'chat' },
+  { provider: 'Groq', model: 'mixtral-8x7b', inputPerMToken: 0.24, outputPerMToken: 0.24, context: 32768, category: 'chat' },
   { provider: 'Groq', model: 'llama-3.1-8b', inputPerMToken: 0.05, outputPerMToken: 0.08, context: 128000, category: 'chat' },
   // Together
   { provider: 'Together', model: 'llama-3.3-70b-turbo', inputPerMToken: 0.88, outputPerMToken: 0.88, context: 128000, category: 'chat' },
+  { provider: 'Together', model: 'mixtral-8x22b', inputPerMToken: 1.20, outputPerMToken: 1.20, context: 65536, category: 'chat' },
   { provider: 'Together', model: 'qwen-2.5-72b-turbo', inputPerMToken: 1.20, outputPerMToken: 1.20, context: 128000, category: 'chat' },
   // Mistral
   { provider: 'Mistral', model: 'mistral-large', inputPerMToken: 2.0, outputPerMToken: 6.0, context: 128000, category: 'chat' },
-  { provider: 'Mistral', model: 'mistral-small', inputPerMToken: 0.10, outputPerMToken: 0.30, context: 128000, category: 'chat' },
+  { provider: 'Mistral', model: 'mistral-small', inputPerMToken: 0.20, outputPerMToken: 0.60, context: 128000, category: 'chat' },
+  // Cohere
+  { provider: 'Cohere', model: 'command-r-plus', inputPerMToken: 2.50, outputPerMToken: 10.0, context: 128000, category: 'chat' },
+  { provider: 'Cohere', model: 'command-r', inputPerMToken: 0.15, outputPerMToken: 0.60, context: 128000, category: 'chat' },
+  // xAI (Grok)
+  { provider: 'xAI', model: 'grok-3', inputPerMToken: 3.0, outputPerMToken: 15.0, context: 131072, category: 'chat' },
+  { provider: 'xAI', model: 'grok-3-mini', inputPerMToken: 0.30, outputPerMToken: 0.50, context: 131072, category: 'chat' },
+  // Perplexity
+  { provider: 'Perplexity', model: 'sonar-pro', inputPerMToken: 3.0, outputPerMToken: 15.0, context: 200000, category: 'chat' },
+  { provider: 'Perplexity', model: 'sonar', inputPerMToken: 1.0, outputPerMToken: 1.0, context: 128000, category: 'chat' },
+  // Cerebras
+  { provider: 'Cerebras', model: 'cerebras-llama-3.3-70b', inputPerMToken: 0.60, outputPerMToken: 0.60, context: 128000, category: 'chat' },
+  // SambaNova
+  { provider: 'SambaNova', model: 'sambanova-llama-3.1-70b', inputPerMToken: 0.60, outputPerMToken: 0.60, context: 128000, category: 'chat' },
+  { provider: 'SambaNova', model: 'sambanova-llama-3.1-405b', inputPerMToken: 5.0, outputPerMToken: 15.0, context: 128000, category: 'chat' },
+  // Fireworks
+  { provider: 'Fireworks', model: 'fireworks-llama-3.3-70b', inputPerMToken: 0.90, outputPerMToken: 0.90, context: 128000, category: 'chat' },
 ];
 
 interface Config {
@@ -159,17 +212,234 @@ interface Config {
   budgets: Record<string, number>;
 }
 
+// ============================================================================
+// Budget Enforcement — opt-in hard budget cap
+//
+// Set INFERLANE_BUDGET_TOTAL env var to enable. If not set, budget is
+// unlimited and no blocking occurs. This preserves the zero-config experience.
+// ============================================================================
+
+export interface BudgetCheckResult {
+  allowed: boolean;
+  remaining: number;
+  monthSpend: number;
+  monthlyBudget: number;
+  resetAt: string;
+}
+
+export interface PickModelResult {
+  text: string;
+  budgetWarning?: string;
+  blocked?: boolean;
+  blockedReason?: string;
+  estimatedCost?: number;
+}
+
 export class SpendTracker {
   private config: Config;
+  private monthlyBudget: number;
+  private monthSpend: number = 0;
+  private monthSpendResetMonth: number; // tracks which month the spend counter is for
+
+  // Rating aggregation — quality score adjustments from real usage data.
+  // Key: model name, Value: { totalWeightedRating, ratingCount, byTaskType }
+  // This is THE network effect: more agents rate → better quality scores → better pick_model → more users
+  private ratingAdjustments: Map<string, {
+    totalWeightedRating: number;
+    ratingCount: number;
+    byTaskType: Map<string, { sum: number; count: number }>;
+  }> = new Map();
 
   constructor() {
     // Read config from environment or config file
     this.config = {
       connectedProviders: this.detectProviders(),
-      dashboardUrl: process.env.COMPUTEGAUGE_DASHBOARD_URL || null,
-      apiKey: process.env.COMPUTEGAUGE_API_KEY || null,
+      dashboardUrl: process.env.INFERLANE_DASHBOARD_URL || null,
+      apiKey: process.env.INFERLANE_API_KEY || null,
       budgets: this.parseBudgets(),
     };
+
+    // Budget enforcement — opt-in via INFERLANE_BUDGET_TOTAL
+    const budgetEnv = process.env.INFERLANE_BUDGET_TOTAL;
+    this.monthlyBudget = budgetEnv ? parseFloat(budgetEnv) : Infinity;
+    if (isNaN(this.monthlyBudget) || this.monthlyBudget <= 0) {
+      this.monthlyBudget = Infinity;
+    }
+    this.monthSpendResetMonth = new Date().getMonth();
+  }
+
+  // ========================================================================
+  // BUDGET ENFORCEMENT
+  // ========================================================================
+
+  /**
+   * Check whether a given estimated cost fits within the monthly budget.
+   * If INFERLANE_BUDGET_TOTAL is not set, always returns allowed: true.
+   */
+  checkBudget(estimatedCost: number): BudgetCheckResult {
+    this.autoResetMonth();
+    const remaining = this.monthlyBudget === Infinity
+      ? Infinity
+      : Math.max(0, this.monthlyBudget - this.monthSpend);
+    const allowed = this.monthlyBudget === Infinity
+      ? true
+      : (this.monthSpend + estimatedCost) <= this.monthlyBudget;
+
+    return {
+      allowed,
+      remaining,
+      monthSpend: this.monthSpend,
+      monthlyBudget: this.monthlyBudget,
+      resetAt: this.getNextMonthReset(),
+    };
+  }
+
+  /**
+   * Record actual spend against the monthly budget.
+   */
+  recordSpend(cost: number): void {
+    this.autoResetMonth();
+    this.monthSpend += cost;
+  }
+
+  /**
+   * Returns true if budget enforcement is active (env var is set).
+   */
+  get budgetEnabled(): boolean {
+    return this.monthlyBudget !== Infinity;
+  }
+
+  /** Auto-reset spend counter when a new month begins. */
+  private autoResetMonth(): void {
+    const currentMonth = new Date().getMonth();
+    if (currentMonth !== this.monthSpendResetMonth) {
+      this.monthSpend = 0;
+      this.monthSpendResetMonth = currentMonth;
+    }
+  }
+
+  /** ISO string of the first day of next month. */
+  private getNextMonthReset(): string {
+    const now = new Date();
+    const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    return next.toISOString();
+  }
+
+  /**
+   * Estimate the cost of a request using local pricing data.
+   */
+  estimateCost(model: string, inputTokens: number, outputTokens: number): number {
+    const price = MODEL_PRICES.find(
+      p => p.model.toLowerCase() === model.toLowerCase()
+    );
+    if (!price) return 0;
+    return (inputTokens / 1_000_000) * price.inputPerMToken +
+           (outputTokens / 1_000_000) * price.outputPerMToken;
+  }
+
+  // ========================================================================
+  // RATING AGGREGATION — The Network Effect Engine
+  //
+  // Quality scores in MODEL_CAPABILITIES are static benchmarks. Real usage
+  // data from agents (via rate_recommendation) creates a feedback loop:
+  // more ratings → adjusted quality scores → better pick_model → more users.
+  //
+  // The adjustment formula blends benchmark scores with real-world ratings,
+  // weighted by confidence (more ratings = more weight on real data).
+  // ========================================================================
+
+  /**
+   * Ingest a single rating into the aggregation engine.
+   * Called after rate_recommendation accepts a rating.
+   */
+  ingestRating(model: string, taskType: string, rating: number): void {
+    let entry = this.ratingAdjustments.get(model);
+    if (!entry) {
+      entry = { totalWeightedRating: 0, ratingCount: 0, byTaskType: new Map() };
+      this.ratingAdjustments.set(model, entry);
+    }
+
+    // Normalize 1-5 rating to 0-100 scale (matching MODEL_CAPABILITIES quality scores)
+    const normalizedRating = ((rating - 1) / 4) * 100;
+    entry.totalWeightedRating += normalizedRating;
+    entry.ratingCount += 1;
+
+    // Track per-task-type for granular quality adjustment
+    let taskEntry = entry.byTaskType.get(taskType);
+    if (!taskEntry) {
+      taskEntry = { sum: 0, count: 0 };
+      entry.byTaskType.set(taskType, taskEntry);
+    }
+    taskEntry.sum += normalizedRating;
+    taskEntry.count += 1;
+  }
+
+  /**
+   * Bulk load ratings from persistence (called at startup).
+   * Accepts the output format of PersistenceLayer.loadRatings().
+   */
+  loadPersistedRatings(ratings: Array<{ model: string; taskType: string; rating: number }>): void {
+    for (const r of ratings) {
+      this.ingestRating(r.model, r.taskType, r.rating);
+    }
+    if (ratings.length > 0) {
+      console.error(`[InferLane MCP] Loaded ${ratings.length} persisted ratings into quality engine`);
+    }
+  }
+
+  /**
+   * Get the adjusted quality score for a model + task type.
+   * Blends static benchmark score with real-world rating data.
+   *
+   * Confidence formula: weight = min(0.5, ratingCount / 20)
+   * - 0 ratings: 100% benchmark
+   * - 10 ratings: 75% benchmark, 25% real
+   * - 20+ ratings: 50% benchmark, 50% real (cap — benchmarks still matter)
+   */
+  getAdjustedQuality(model: string, taskType: string, benchmarkScore: number): number {
+    const entry = this.ratingAdjustments.get(model);
+    if (!entry || entry.ratingCount === 0) return benchmarkScore;
+
+    // Prefer task-specific ratings if available, fall back to aggregate
+    const taskEntry = entry.byTaskType.get(taskType);
+    let realWorldScore: number;
+    let count: number;
+
+    if (taskEntry && taskEntry.count >= 3) {
+      // Enough task-specific data — use it
+      realWorldScore = taskEntry.sum / taskEntry.count;
+      count = taskEntry.count;
+    } else {
+      // Use aggregate across all tasks
+      realWorldScore = entry.totalWeightedRating / entry.ratingCount;
+      count = entry.ratingCount;
+    }
+
+    // Confidence-weighted blend (caps at 50% real-world weight)
+    const realWeight = Math.min(0.5, count / 20);
+    const benchmarkWeight = 1 - realWeight;
+
+    return Math.round(benchmarkWeight * benchmarkScore + realWeight * realWorldScore);
+  }
+
+  /**
+   * Get rating aggregation stats for display (used by model_ratings tool).
+   */
+  getRatingStats(): { model: string; avgRating: number; count: number; adjustment: string }[] {
+    const stats: { model: string; avgRating: number; count: number; adjustment: string }[] = [];
+    for (const [model, entry] of this.ratingAdjustments) {
+      if (entry.ratingCount === 0) continue;
+      const avgNormalized = entry.totalWeightedRating / entry.ratingCount;
+      const avg5Scale = (avgNormalized / 100) * 4 + 1; // back to 1-5 scale
+      const weight = Math.min(0.5, entry.ratingCount / 20);
+      stats.push({
+        model,
+        avgRating: Math.round(avg5Scale * 10) / 10,
+        count: entry.ratingCount,
+        adjustment: weight > 0 ? `${(weight * 100).toFixed(0)}% real-world weight` : 'benchmark only',
+      });
+    }
+    return stats.sort((a, b) => b.avgRating - a.avgRating);
   }
 
   // ========================================================================
@@ -195,13 +465,13 @@ export class SpendTracker {
       lines.push('- `OPENAI_API_KEY` — OpenAI/GPT usage');
       lines.push('- `GOOGLE_API_KEY` — Google/Gemini usage');
       lines.push('');
-      lines.push('Or connect to the ComputeGauge dashboard:');
-      lines.push('- Set `COMPUTEGAUGE_DASHBOARD_URL` and `COMPUTEGAUGE_API_KEY`');
+      lines.push('Or connect to the InferLane dashboard:');
+      lines.push('- Set `INFERLANE_DASHBOARD_URL` and `INFERLANE_API_KEY`');
     } else {
       lines.push(`Connected providers: ${this.config.connectedProviders.join(', ')}`);
       lines.push(`Period: ${period}`);
       lines.push('');
-      lines.push('💡 For detailed spend data, connect to the ComputeGauge dashboard.');
+      lines.push('💡 For detailed spend data, connect to the InferLane dashboard.');
       lines.push('The MCP server can provide pricing intelligence and cost comparisons');
       lines.push('with just provider API keys configured.');
     }
@@ -222,9 +492,9 @@ export class SpendTracker {
       lines.push('No budgets configured.');
       lines.push('');
       lines.push('Set budgets with environment variables:');
-      lines.push('- `COMPUTEGAUGE_BUDGET_ANTHROPIC=500` — $500/month Anthropic budget');
-      lines.push('- `COMPUTEGAUGE_BUDGET_OPENAI=300` — $300/month OpenAI budget');
-      lines.push('- `COMPUTEGAUGE_BUDGET_TOTAL=1000` — $1000/month total budget');
+      lines.push('- `INFERLANE_BUDGET_ANTHROPIC=500` — $500/month Anthropic budget');
+      lines.push('- `INFERLANE_BUDGET_OPENAI=300` — $300/month OpenAI budget');
+      lines.push('- `INFERLANE_BUDGET_TOTAL=1000` — $1000/month total budget');
     } else {
       for (const [provider, budget] of Object.entries(this.config.budgets)) {
         lines.push(`**${provider}**: $${budget}/month budget set`);
@@ -365,7 +635,7 @@ export class SpendTracker {
     lines.push('| 🥈 Value | Most workloads | Gemini Flash, o3-mini | $0.10-4.40 |');
     lines.push('| 🥉 Budget | Simple tasks | GPT-4o-mini, Haiku, DeepSeek | $0.05-0.80 |');
     lines.push('');
-    lines.push('💡 Connect to the ComputeGauge dashboard for personalized recommendations based on your actual usage patterns.');
+    lines.push('💡 Connect to the InferLane dashboard for personalized recommendations based on your actual usage patterns.');
 
     return lines.join('\n');
   }
@@ -378,12 +648,12 @@ export class SpendTracker {
     const lines: string[] = [];
     lines.push(`# Usage Trend (last ${days} days)`);
     lines.push('');
-    lines.push('⚠️ Trend analysis requires connection to the ComputeGauge dashboard.');
+    lines.push('⚠️ Trend analysis requires connection to the InferLane dashboard.');
     lines.push('');
     lines.push('To enable:');
-    lines.push('1. Start the dashboard: `cd computegauge && npm run dev`');
-    lines.push('2. Set `COMPUTEGAUGE_DASHBOARD_URL=http://localhost:3000`');
-    lines.push('3. Set `COMPUTEGAUGE_API_KEY` to your ComputeGauge API key');
+    lines.push('1. Start the dashboard: `cd inferlane && npm run dev`');
+    lines.push('2. Set `INFERLANE_DASHBOARD_URL=http://localhost:3000`');
+    lines.push('3. Set `INFERLANE_API_KEY` to your InferLane API key');
     lines.push('');
     lines.push('The dashboard tracks daily spend, identifies spikes, and detects anomalies.');
 
@@ -403,7 +673,7 @@ export class SpendTracker {
     needs_tool_use: boolean;
     needs_vision: boolean;
     needs_long_context: boolean;
-  }): Promise<string> {
+  }): Promise<PickModelResult> {
     const {
       task_type,
       priority,
@@ -447,8 +717,9 @@ export class SpendTracker {
       const outputCost = (estimated_output_tokens / 1_000_000) * price.outputPerMToken;
       const estimatedCost = inputCost + outputCost;
 
-      // Get quality score for this task type
-      const qualityScore = caps.quality[task_type] ?? caps.quality['general'] ?? 50;
+      // Get quality score for this task type — blended with real-world ratings
+      const benchmarkScore = caps.quality[task_type] ?? caps.quality['general'] ?? 50;
+      const qualityScore = this.getAdjustedQuality(price.model, task_type, benchmarkScore);
       const speedScore = caps.speed;
 
       // Check disqualification criteria
@@ -483,6 +754,8 @@ export class SpendTracker {
       const providerMap: Record<string, string> = {
         'Anthropic': 'anthropic', 'OpenAI': 'openai', 'Google': 'google',
         'DeepSeek': 'deepseek', 'Groq': 'groq', 'Together': 'together', 'Mistral': 'mistral',
+        'Cohere': 'cohere', 'xAI': 'xai', 'Perplexity': 'perplexity',
+        'Cerebras': 'cerebras', 'SambaNova': 'sambanova', 'Fireworks': 'fireworks',
       };
       const providerKey = providerMap[price.provider];
       const hasProviderKey = providerKey ? this.config.connectedProviders.includes(providerKey) : false;
@@ -543,19 +816,63 @@ export class SpendTracker {
       }
       lines.push('');
       lines.push('💡 Try relaxing constraints (e.g., drop vision requirement or increase max_cost_per_call).');
-      return lines.join('\n');
+      return { text: lines.join('\n') };
     }
 
     // Sort by composite score
     eligible.sort((a, b) => b.compositeScore - a.compositeScore);
     const pick = eligible[0];
     const runnerUp = eligible.length > 1 ? eligible[1] : null;
-    const cheapest = [...eligible].sort((a, b) => a.estimatedCost - b.estimatedCost)[0];
+    const cheapestModel = [...eligible].sort((a, b) => a.estimatedCost - b.estimatedCost)[0];
+
+    // Budget enforcement: check if the recommended model fits within budget
+    let budgetWarning: string | undefined;
+    let blocked = false;
+    let blockedReason: string | undefined;
+
+    if (this.budgetEnabled) {
+      const budgetCheck = this.checkBudget(pick.estimatedCost);
+
+      if (!budgetCheck.allowed) {
+        // Try to find a cheaper model that fits within remaining budget
+        const affordable = eligible.filter(m => {
+          const check = this.checkBudget(m.estimatedCost);
+          return check.allowed;
+        });
+
+        if (affordable.length > 0) {
+          // Sort by composite score among affordable models
+          affordable.sort((a, b) => b.compositeScore - a.compositeScore);
+          const fallback = affordable[0];
+          // Replace pick with the affordable fallback
+          // Re-run the output with the fallback as the pick
+          budgetWarning = `Original recommendation (${pick.provider}/${pick.model} at $${pick.estimatedCost.toFixed(4)}) exceeds remaining budget of $${budgetCheck.remaining.toFixed(2)}. Downgraded to fit budget.`;
+          // Swap pick to fallback
+          Object.assign(pick, fallback);
+        } else {
+          // No model fits — blocked
+          blocked = true;
+          blockedReason = 'budget_exhausted';
+          return {
+            text: '',
+            blocked: true,
+            blockedReason: 'budget_exhausted',
+            estimatedCost: pick.estimatedCost,
+            budgetWarning: `Monthly budget of $${budgetCheck.monthlyBudget.toFixed(2)} has been reached ($${budgetCheck.monthSpend.toFixed(2)} spent). Resets on ${budgetCheck.resetAt.split('T')[0]}.`,
+          };
+        }
+      } else if (budgetCheck.remaining !== Infinity && budgetCheck.remaining < budgetCheck.monthlyBudget * 0.2) {
+        // Low budget warning (< 20% remaining)
+        budgetWarning = `$${budgetCheck.remaining.toFixed(2)} remaining this month`;
+      }
+    }
 
     // Check if user has the provider's API key
     const providerAvailMap: Record<string, string> = {
       'Anthropic': 'anthropic', 'OpenAI': 'openai', 'Google': 'google',
       'DeepSeek': 'deepseek', 'Groq': 'groq', 'Together': 'together', 'Mistral': 'mistral',
+      'Cohere': 'cohere', 'xAI': 'xai', 'Perplexity': 'perplexity',
+      'Cerebras': 'cerebras', 'SambaNova': 'sambanova', 'Fireworks': 'fireworks',
     };
     const pickProviderKey = providerAvailMap[pick.provider];
     const pickAvailable = pickProviderKey ? this.config.connectedProviders.includes(pickProviderKey) : false;
@@ -582,14 +899,14 @@ export class SpendTracker {
     }
 
     // Show cheapest alternative if different from pick
-    if (cheapest.model !== pick.model) {
-      const savings = pick.estimatedCost - cheapest.estimatedCost;
+    if (cheapestModel.model !== pick.model) {
+      const savings = pick.estimatedCost - cheapestModel.estimatedCost;
       const savingsPct = ((savings / pick.estimatedCost) * 100).toFixed(0);
       lines.push('');
-      lines.push(`## 💰 Cheapest alternative: ${cheapest.provider} / ${cheapest.model}`);
-      lines.push(`Cost: $${cheapest.estimatedCost.toFixed(4)} (saves ${savingsPct}%) | Quality: ${cheapest.qualityScore}/100`);
-      if (cheapest.qualityScore < pick.qualityScore - 15) {
-        lines.push(`⚠️ Significant quality drop (${pick.qualityScore} → ${cheapest.qualityScore}) — use only if cost is critical.`);
+      lines.push(`## 💰 Cheapest alternative: ${cheapestModel.provider} / ${cheapestModel.model}`);
+      lines.push(`Cost: $${cheapestModel.estimatedCost.toFixed(4)} (saves ${savingsPct}%) | Quality: ${cheapestModel.qualityScore}/100`);
+      if (cheapestModel.qualityScore < pick.qualityScore - 15) {
+        lines.push(`⚠️ Significant quality drop (${pick.qualityScore} → ${cheapestModel.qualityScore}) — use only if cost is critical.`);
       }
     }
 
@@ -607,10 +924,16 @@ export class SpendTracker {
       lines.push(`_${disqualified.length} model(s) excluded due to missing capabilities._`);
     }
 
-    return lines.join('\n');
+    return {
+      text: lines.join('\n'),
+      budgetWarning,
+      blocked,
+      blockedReason,
+      estimatedCost: pick.estimatedCost,
+    };
   }
 
-  private pickEmbeddingModel(estimatedTokens: number): string {
+  private pickEmbeddingModel(estimatedTokens: number): PickModelResult {
     const embeddingModels = MODEL_PRICES.filter(m => m.category === 'embedding');
     const lines: string[] = [];
     lines.push('# Embedding Model Recommendation');
@@ -618,7 +941,7 @@ export class SpendTracker {
 
     if (embeddingModels.length === 0) {
       lines.push('No embedding models in pricing database.');
-      return lines.join('\n');
+      return { text: lines.join('\n') };
     }
 
     const scored = embeddingModels.map(m => ({
@@ -641,7 +964,7 @@ export class SpendTracker {
 
     lines.push('');
     lines.push('💡 For embeddings, always use the cheapest option. Quality differences are minimal for most use cases.');
-    return lines.join('\n');
+    return { text: lines.join('\n'), estimatedCost: pick.cost };
   }
 
   private getTaskAdvice(taskType: TaskType, chosenTier: string): string | null {
@@ -676,7 +999,7 @@ export class SpendTracker {
 
   getConfig(): Record<string, unknown> {
     return {
-      version: '0.3.0',
+      version: '0.4.0',
       connectedProviders: this.config.connectedProviders,
       hasDashboard: !!this.config.dashboardUrl,
       budgetsConfigured: Object.keys(this.config.budgets).length,
@@ -696,14 +1019,20 @@ export class SpendTracker {
     if (process.env.GROQ_API_KEY) providers.push('groq');
     if (process.env.MISTRAL_API_KEY) providers.push('mistral');
     if (process.env.DEEPSEEK_API_KEY) providers.push('deepseek');
+    if (process.env.COHERE_API_KEY) providers.push('cohere');
+    if (process.env.XAI_API_KEY) providers.push('xai');
+    if (process.env.PERPLEXITY_API_KEY) providers.push('perplexity');
+    if (process.env.CEREBRAS_API_KEY) providers.push('cerebras');
+    if (process.env.SAMBANOVA_API_KEY) providers.push('sambanova');
+    if (process.env.FIREWORKS_API_KEY) providers.push('fireworks');
     return providers;
   }
 
   private parseBudgets(): Record<string, number> {
     const budgets: Record<string, number> = {};
     for (const [key, value] of Object.entries(process.env)) {
-      if (key.startsWith('COMPUTEGAUGE_BUDGET_') && value) {
-        const provider = key.replace('COMPUTEGAUGE_BUDGET_', '').toLowerCase();
+      if (key.startsWith('INFERLANE_BUDGET_') && value) {
+        const provider = key.replace('INFERLANE_BUDGET_', '').toLowerCase();
         budgets[provider] = parseFloat(value);
       }
     }

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InferLane — Live Dashboard</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --card: #111827;
+    --border: #1f2937;
+    --text: #e5e7eb;
+    --dim: #6b7280;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --purple: #a855f7;
+    --cyan: #06b6d4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(17, 24, 39, 0.8);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header h1 .logo {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    border-radius: 6px;
+  }
+
+  .connection-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--dim);
+  }
+
+  .connection-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--red);
+    transition: background 0.3s;
+  }
+
+  .connection-dot.connected { background: var(--green); }
+  .connection-dot.connecting { background: var(--amber); animation: pulse 1s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.3s;
+  }
+
+  .card:hover { border-color: #374151; }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+  }
+
+  /* ===== TACHOMETER ===== */
+  .tachometer-card { grid-column: 1 / -1; }
+
+  .tacho-main {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .gauge-container {
+    position: relative;
+    width: 200px;
+    height: 120px;
+    flex-shrink: 0;
+  }
+
+  .gauge-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 120px;
+  }
+
+  .gauge-needle {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    width: 3px;
+    height: 80px;
+    background: linear-gradient(to top, #fff, var(--red));
+    border-radius: 2px;
+    transform-origin: bottom center;
+    transform: rotate(-90deg);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .gauge-center {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255,255,255,0.5);
+  }
+
+  .tacho-state {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    transition: color 0.3s;
+  }
+
+  .tacho-state.idle { color: var(--dim); }
+  .tacho-state.active { color: var(--green); }
+  .tacho-state.high_load { color: var(--amber); }
+  .tacho-state.redline { color: var(--red); animation: pulse 0.5s infinite; }
+
+  .tacho-metrics {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .metric {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .metric-value {
+    font-size: 24px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .metric-label {
+    font-size: 12px;
+    color: var(--dim);
+    margin-top: 2px;
+  }
+
+  /* Sparkline */
+  .sparkline-container {
+    margin-top: 16px;
+    height: 60px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .sparkline-canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .sparkline-label {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    font-size: 11px;
+    color: var(--dim);
+  }
+
+  /* Windows */
+  .windows-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .window-chip {
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 8px 14px;
+    flex: 1;
+    text-align: center;
+  }
+
+  .window-chip .val {
+    font-size: 18px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .window-chip .lbl {
+    font-size: 11px;
+    color: var(--dim);
+  }
+
+  /* ===== TRAFFIC LIGHT ===== */
+  .agents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .agent-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    transition: background 0.2s;
+  }
+
+  .agent-row:hover { background: rgba(255,255,255,0.06); }
+
+  .traffic-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px currentColor;
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+
+  .traffic-dot.green { background: var(--green); color: var(--green); }
+  .traffic-dot.amber { background: var(--amber); color: var(--amber); animation: pulse 1.5s infinite; }
+  .traffic-dot.red { background: var(--red); color: var(--red); animation: pulse 0.8s infinite; }
+  .traffic-dot.blue { background: var(--blue); color: var(--blue); }
+
+  .agent-info { flex: 1; }
+  .agent-name { font-weight: 500; font-size: 14px; }
+  .agent-label { font-size: 12px; color: var(--dim); margin-top: 2px; }
+  .agent-time { font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; }
+
+  .no-agents {
+    color: var(--dim);
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  /* ===== PROVIDERS ===== */
+  .provider-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+
+  .provider-bar .name {
+    font-size: 13px;
+    width: 80px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cyan), var(--purple));
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    min-width: 0;
+  }
+
+  .provider-bar .val {
+    font-size: 12px;
+    color: var(--dim);
+    width: 60px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ===== SESSION STATS ===== */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stat {
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .stat .val {
+    font-size: 22px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat .lbl {
+    font-size: 11px;
+    color: var(--dim);
+    margin-top: 4px;
+  }
+
+  /* ===== EVENT LOG ===== */
+  .event-log-card { grid-column: 1 / -1; }
+
+  .event-list {
+    max-height: 200px;
+    overflow-y: auto;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .event-list::-webkit-scrollbar { width: 4px; }
+  .event-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .event-entry {
+    padding: 2px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    display: flex;
+    gap: 8px;
+  }
+
+  .event-time { color: var(--dim); flex-shrink: 0; }
+  .event-type { color: var(--cyan); width: 100px; flex-shrink: 0; }
+  .event-data { color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ===== SETUP SCREEN ===== */
+  .setup-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 60px);
+    padding: 40px;
+    text-align: center;
+  }
+
+  .setup-screen h2 {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .setup-screen p {
+    color: var(--dim);
+    max-width: 500px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+
+  .setup-screen code {
+    background: rgba(255,255,255,0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'SF Mono', monospace;
+    font-size: 14px;
+  }
+
+  .setup-input {
+    margin-top: 20px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .setup-input input {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    color: var(--text);
+    font-size: 14px;
+    width: 300px;
+    outline: none;
+  }
+
+  .setup-input input:focus { border-color: var(--cyan); }
+
+  .setup-input button {
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .setup-input button:hover { opacity: 0.9; }
+
+  @media (max-width: 768px) {
+    .grid { grid-template-columns: 1fr; padding: 12px; }
+    .tacho-main { flex-direction: column; align-items: flex-start; }
+    .gauge-container { align-self: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><div class="logo"></div> InferLane</h1>
+  <div class="connection-status">
+    <div class="connection-dot" id="connDot"></div>
+    <span id="connLabel">Disconnected</span>
+  </div>
+</div>
+
+<!-- Setup screen (shown when not connected) -->
+<div class="setup-screen" id="setupScreen">
+  <h2>Connect to Event Stream</h2>
+  <p>Start the InferLane MCP server with <code>INFERLANE_EVENTS_PORT</code> set, then enter the URL below.</p>
+  <p style="font-size:13px;">Example: add <code>"INFERLANE_EVENTS_PORT": "7070"</code> to your MCP server env config.</p>
+  <div class="setup-input">
+    <input type="text" id="urlInput" placeholder="http://localhost:7070" value="http://localhost:7070">
+    <button onclick="connect()">Connect</button>
+  </div>
+</div>
+
+<!-- Dashboard (hidden until connected) -->
+<div class="grid" id="dashboard" style="display:none;">
+
+  <!-- Tachometer -->
+  <div class="card tachometer-card">
+    <div class="card-title">Token Tachometer</div>
+    <div class="tacho-main">
+      <div class="gauge-container">
+        <svg class="gauge-bg" viewBox="0 0 200 120">
+          <!-- Gauge arc background -->
+          <path d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="#1f2937" stroke-width="12" stroke-linecap="round"/>
+          <!-- Green zone -->
+          <path d="M 20 110 A 80 80 0 0 1 60 38" fill="none" stroke="#22c55e" stroke-width="12" stroke-linecap="round" opacity="0.3"/>
+          <!-- Amber zone -->
+          <path d="M 60 38 A 80 80 0 0 1 140 38" fill="none" stroke="#f59e0b" stroke-width="12" stroke-linecap="round" opacity="0.3"/>
+          <!-- Red zone -->
+          <path d="M 140 38 A 80 80 0 0 1 180 110" fill="none" stroke="#ef4444" stroke-width="12" stroke-linecap="round" opacity="0.3"/>
+          <!-- Tick marks -->
+          <text x="15" y="118" fill="#6b7280" font-size="9" text-anchor="middle">0</text>
+          <text x="100" y="22" fill="#6b7280" font-size="9" text-anchor="middle">1K</text>
+          <text x="185" y="118" fill="#6b7280" font-size="9" text-anchor="middle">2K+</text>
+        </svg>
+        <div class="gauge-needle" id="needle"></div>
+        <div class="gauge-center"></div>
+      </div>
+      <div>
+        <div class="tacho-state idle" id="tachoState">IDLE</div>
+        <div class="tacho-metrics">
+          <div class="metric">
+            <div class="metric-value" id="tps">0</div>
+            <div class="metric-label">tokens/sec</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value" id="cps">$0.0000</div>
+            <div class="metric-label">cost/sec</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value" id="concurrent">0</div>
+            <div class="metric-label">concurrent</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="windows-row">
+      <div class="window-chip"><div class="val" id="w5tps">0</div><div class="lbl">5s avg TPS</div></div>
+      <div class="window-chip"><div class="val" id="w15tps">0</div><div class="lbl">15s avg TPS</div></div>
+      <div class="window-chip"><div class="val" id="w60tps">0</div><div class="lbl">60s avg TPS</div></div>
+      <div class="window-chip"><div class="val" id="peakTps">0</div><div class="lbl">Peak TPS</div></div>
+    </div>
+
+    <div class="sparkline-container">
+      <canvas class="sparkline-canvas" id="sparkline"></canvas>
+      <div class="sparkline-label">60s token velocity</div>
+    </div>
+  </div>
+
+  <!-- Traffic Light -->
+  <div class="card">
+    <div class="card-title">Agent Traffic Light</div>
+    <div class="agents-list" id="agentsList">
+      <div class="no-agents">No agents tracked yet</div>
+    </div>
+  </div>
+
+  <!-- Provider Breakdown -->
+  <div class="card">
+    <div class="card-title">Provider Activity (60s)</div>
+    <div id="providerBars">
+      <div class="no-agents">No provider activity</div>
+    </div>
+  </div>
+
+  <!-- Session Stats -->
+  <div class="card" style="grid-column: 1 / -1;">
+    <div class="card-title">Session</div>
+    <div class="stat-grid">
+      <div class="stat"><div class="val" id="totalTokens">0</div><div class="lbl">Total Tokens</div></div>
+      <div class="stat"><div class="val" id="totalCost">$0.00</div><div class="lbl">Total Cost</div></div>
+      <div class="stat"><div class="val" id="uptime">0s</div><div class="lbl">Uptime</div></div>
+      <div class="stat"><div class="val" id="peakCps">$0.0000</div><div class="lbl">Peak Cost/sec</div></div>
+    </div>
+  </div>
+
+  <!-- Event Log -->
+  <div class="card event-log-card">
+    <div class="card-title">Event Log</div>
+    <div class="event-list" id="eventLog"></div>
+  </div>
+</div>
+
+<script>
+let evtSource = null;
+let sparklineData = new Array(60).fill(0);
+
+function connect() {
+  const baseUrl = document.getElementById('urlInput').value.replace(/\/$/, '');
+  const dot = document.getElementById('connDot');
+  const label = document.getElementById('connLabel');
+
+  dot.className = 'connection-dot connecting';
+  label.textContent = 'Connecting...';
+
+  if (evtSource) { evtSource.close(); }
+
+  evtSource = new EventSource(`${baseUrl}/events`);
+
+  evtSource.addEventListener('connected', (e) => {
+    dot.className = 'connection-dot connected';
+    label.textContent = 'Connected';
+    document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'grid';
+    logEvent('connected', JSON.parse(e.data));
+  });
+
+  evtSource.addEventListener('tachometer', (e) => {
+    const data = JSON.parse(e.data);
+    updateTachometer(data);
+    logEvent('tachometer', { state: data.state, tps: data.tokensPerSecond });
+  });
+
+  evtSource.addEventListener('status_change', (e) => {
+    const data = JSON.parse(e.data);
+    updateTrafficLight(data);
+    logEvent('status', { agent: data.agentId, color: data.color, label: data.label });
+  });
+
+  evtSource.addEventListener('budget_alert', (e) => {
+    const data = JSON.parse(e.data);
+    logEvent('budget', data);
+  });
+
+  evtSource.addEventListener('rating', (e) => {
+    const data = JSON.parse(e.data);
+    logEvent('rating', data);
+  });
+
+  evtSource.addEventListener('heartbeat', () => {
+    // Keep alive — no UI update needed
+  });
+
+  evtSource.onerror = () => {
+    dot.className = 'connection-dot';
+    label.textContent = 'Disconnected — retrying...';
+  };
+
+  // Also poll snapshots for initial state
+  fetch(`${baseUrl}/api/tachometer`).then(r => r.json()).then(updateTachometer).catch(() => {});
+  fetch(`${baseUrl}/api/status`).then(r => r.json()).then(data => {
+    if (data.agents) data.agents.forEach(a => updateTrafficLight(a));
+  }).catch(() => {});
+}
+
+function updateTachometer(data) {
+  // State
+  const stateEl = document.getElementById('tachoState');
+  stateEl.textContent = data.state.toUpperCase().replace('_', ' ');
+  stateEl.className = `tacho-state ${data.state}`;
+
+  // Metrics
+  document.getElementById('tps').textContent = (data.tokensPerSecond || 0).toLocaleString();
+  document.getElementById('cps').textContent = `$${(data.costPerSecond || 0).toFixed(4)}`;
+  document.getElementById('concurrent').textContent = data.concurrentRequests || 0;
+
+  // Windows
+  if (data.windows) {
+    document.getElementById('w5tps').textContent = Math.round(data.windows['5s']?.tps || 0);
+    document.getElementById('w15tps').textContent = Math.round(data.windows['15s']?.tps || 0);
+    document.getElementById('w60tps').textContent = Math.round(data.windows['60s']?.tps || 0);
+  }
+  document.getElementById('peakTps').textContent = Math.round(data.peakTps || 0).toLocaleString();
+
+  // Session
+  document.getElementById('totalTokens').textContent = (data.sessionTotalTokens || 0).toLocaleString();
+  document.getElementById('totalCost').textContent = `$${(data.sessionTotalCost || 0).toFixed(4)}`;
+  document.getElementById('uptime').textContent = formatUptime(data.uptime || 0);
+  document.getElementById('peakCps').textContent = `$${(data.peakCostPerSecond || 0).toFixed(4)}`;
+
+  // Needle rotation: -90deg (0 tps) to +90deg (2000+ tps)
+  const maxTps = 2000;
+  const pct = Math.min(1, (data.tokensPerSecond || 0) / maxTps);
+  const angle = -90 + (pct * 180);
+  document.getElementById('needle').style.transform = `rotate(${angle}deg)`;
+
+  // Sparkline
+  if (data.sparkline && data.sparkline.length > 0) {
+    sparklineData = data.sparkline.length >= 60
+      ? data.sparkline.slice(-60)
+      : [...new Array(60 - data.sparkline.length).fill(0), ...data.sparkline];
+  }
+  drawSparkline();
+
+  // Provider breakdown
+  updateProviders(data.providerBreakdown || {});
+}
+
+function drawSparkline() {
+  const canvas = document.getElementById('sparkline');
+  const ctx = canvas.getContext('2d');
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * 2;
+  canvas.height = rect.height * 2;
+  ctx.scale(2, 2);
+
+  const w = rect.width;
+  const h = rect.height;
+  const max = Math.max(...sparklineData, 1);
+  const step = w / (sparklineData.length - 1);
+
+  ctx.clearRect(0, 0, w, h);
+
+  // Fill gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, 'rgba(6, 182, 212, 0.3)');
+  grad.addColorStop(1, 'rgba(6, 182, 212, 0)');
+
+  ctx.beginPath();
+  ctx.moveTo(0, h);
+  for (let i = 0; i < sparklineData.length; i++) {
+    const x = i * step;
+    const y = h - (sparklineData[i] / max) * (h - 4);
+    if (i === 0) ctx.lineTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.lineTo(w, h);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  for (let i = 0; i < sparklineData.length; i++) {
+    const x = i * step;
+    const y = h - (sparklineData[i] / max) * (h - 4);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = '#06b6d4';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+function updateProviders(breakdown) {
+  const container = document.getElementById('providerBars');
+  const entries = Object.entries(breakdown);
+  if (entries.length === 0) {
+    container.innerHTML = '<div class="no-agents">No provider activity</div>';
+    return;
+  }
+  const maxTokens = Math.max(...entries.map(([,d]) => d.tokens), 1);
+  container.innerHTML = entries.map(([name, data]) => {
+    const pct = (data.tokens / maxTokens) * 100;
+    return `<div class="provider-bar">
+      <div class="name">${name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="val">${Math.round(data.tps)} tps</div>
+    </div>`;
+  }).join('');
+}
+
+const agentStates = {};
+function updateTrafficLight(data) {
+  const id = data.agentId;
+  agentStates[id] = data;
+
+  const container = document.getElementById('agentsList');
+  const entries = Object.values(agentStates);
+  if (entries.length === 0) {
+    container.innerHTML = '<div class="no-agents">No agents tracked yet</div>';
+    return;
+  }
+
+  container.innerHTML = entries.map(agent => {
+    const dur = agent.color === 'amber' && agent.startedAt
+      ? `${Math.floor((Date.now() - agent.startedAt) / 1000)}s`
+      : '';
+    return `<div class="agent-row">
+      <div class="traffic-dot ${agent.color}"></div>
+      <div class="agent-info">
+        <div class="agent-name">${agent.agentId}</div>
+        <div class="agent-label">${agent.label || ''}</div>
+      </div>
+      <div class="agent-time">${dur}</div>
+    </div>`;
+  }).join('');
+}
+
+function logEvent(type, data) {
+  const log = document.getElementById('eventLog');
+  const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
+  const entry = document.createElement('div');
+  entry.className = 'event-entry';
+  entry.innerHTML = `<span class="event-time">${time}</span><span class="event-type">${type}</span><span class="event-data">${JSON.stringify(data)}</span>`;
+  log.prepend(entry);
+  // Keep max 200 entries
+  while (log.children.length > 200) log.removeChild(log.lastChild);
+}
+
+function formatUptime(s) {
+  if (s < 60) return `${s}s`;
+  if (s < 3600) return `${Math.floor(s / 60)}m ${s % 60}s`;
+  return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m`;
+}
+
+// Auto-resize sparkline on window resize
+window.addEventListener('resize', drawSparkline);
+
+// Auto-connect if URL param provided
+const params = new URLSearchParams(window.location.search);
+if (params.has('port')) {
+  document.getElementById('urlInput').value = `http://localhost:${params.get('port')}`;
+  connect();
+} else if (params.has('url')) {
+  document.getElementById('urlInput').value = params.get('url');
+  connect();
+}
+</script>
+</body>
+</html>

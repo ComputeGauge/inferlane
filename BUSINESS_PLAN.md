@@ -1,6 +1,6 @@
-# ComputeGauge — Business Plan & Revenue Strategy
+# InferLane — Business Plan & Revenue Strategy
 ## "The Cost Intelligence Layer for AI Agents"
-## (Working name: FuelGauge → Renamed to ComputeGauge — see NAMING_ANALYSIS.md for full IP/trademark clearance)
+## (Working name: FuelGauge → Renamed to InferLane — see NAMING_ANALYSIS.md for full IP/trademark clearance)
 
 ---
 
@@ -36,11 +36,11 @@ The market opportunity is validated by hard numbers:
 ### Phase 0: MCP Server + CLI + Cost Intelligence Engine (Month 1) 🚀 THE DISTRIBUTION HACK
 **Goal:** Get into developers' daily workflows BEFORE the dashboard is polished. Save agents money from Day 1. Start the data flywheel.
 
-**MCP Server (@computegauge/mcp v0.3.0 — Apache-2.0, open source, AGENT-NATIVE)**
+**MCP Server (@inferlane/mcp v0.3.0 — Apache-2.0, open source, AGENT-NATIVE)**
 - **7 Agent-Native Tools**: `pick_model` (choose optimal model per task — THE core product), `log_request` (track cost per API call — feeds data flywheel), `session_cost` (real-time session spend), `rate_recommendation` (quality feedback loop), `model_ratings` (leaderboard), `improvement_cycle` (continuous improvement), `integrity_report` (transparency)
 - **5 Credibility + Routing Tools**: `credibility_profile` (agent reputation score — retention mechanism), `credibility_leaderboard` (competitive ranking), `route_to_cloud` (local→cloud routing), `assess_routing` (local vs cloud decision), `cluster_status` (local inference detection)
 - **6 Intelligence Tools**: `get_spend_summary`, `get_budget_status`, `get_model_pricing`, `get_cost_comparison`, `suggest_savings`, `get_usage_trend`
-- **7 Resources**: `computegauge://config`, `computegauge://session`, `computegauge://ratings`, `computegauge://credibility`, `computegauge://cluster`, `computegauge://quickstart`
+- **7 Resources**: `inferlane://config`, `inferlane://session`, `inferlane://ratings`, `inferlane://credibility`, `inferlane://cluster`, `inferlane://quickstart`
 - **3 Prompts**: `cost_aware_system`, `daily_cost_report`, `optimize_workflow`
 - **Agent Decision Engine**: Scores 20+ models across cost/quality/speed for 14 task types. Log-scale normalization handles 1000x price ranges.
 - **Credibility System** (retention layer): 0-1000 score, 6 tiers, 10 badges. Not the core moat — but makes switching painful.
@@ -73,12 +73,12 @@ Agent starts session → calls pick_model("code_review","balanced") → gets opt
   → next session: pick_model is smarter because of this session's data. DATA FLYWHEEL.
 ```
 
-**CLI (@computegauge/cli — Apache-2.0, open source)**
+**CLI (@inferlane/cli — Apache-2.0, open source)**
 - Commands: `status`, `spend`, `pricing`, `compare`, `budget`, `savings`
 - Creates daily developer touchpoints (`cg spend` before standup = not churning)
 
-**Adapters (@computegauge/adapters — Apache-2.0, open source)**
-- TypeScript `ComputeGaugeAdapter` interface — the open-source contract
+**Adapters (@inferlane/adapters — Apache-2.0, open source)**
+- TypeScript `InferLaneAdapter` interface — the open-source contract
 - Anthropic + OpenAI adapters shipped first, community builds the rest
 
 **Revenue:** $0 direct (open source) — but generates ALL top-of-funnel acquisition
@@ -98,9 +98,9 @@ Agent starts session → calls pick_model("code_review","balanced") → gets opt
 **Revenue ceiling:** ~$500K-$1M/year
 
 ### Phase 2: API Proxy/Router (Month 2-3) ⚡ THE 10x UNLOCK
-**Goal:** Route AI API traffic through ComputeGauge, take margin
+**Goal:** Route AI API traffic through InferLane, take margin
 
-- Teams point API calls at `api.computegauge.ai`
+- Teams point API calls at `api.inferlane.ai`
 - Pass-through to cheapest/fastest provider in real-time
 - Smart routing: auto-select best model for task type + cost
 - 3-8% margin on all traffic flowing through
@@ -249,7 +249,7 @@ Exit MRR at Month 12: **$757K** = **$9.1M ARR**
 2. **MCP distribution lock-in** — First AI cost intelligence MCP server. 10K+ MCP servers exist but none do cost management. First mover in a standard backed by OpenAI, Google, Anthropic under the Linux Foundation.
 3. **Hybrid complexity moat** — No tool unifies cloud API costs + on-prem GPU costs + hardware TCO. CloudZero ($119M) can't, Kubecost (IBM) can't, Helicone can't. Only us.
 4. **Credibility retention** — Agents that build reputation scores don't churn. Not our core moat (the concept isn't novel — ERC-8004, mTrust exist), but powerful retention mechanism when layered on top of cost intelligence.
-5. **Proxy switching cost** — Once teams route through `api.computegauge.ai`, rewiring every API endpoint is painful.
+5. **Proxy switching cost** — Once teams route through `api.inferlane.ai`, rewiring every API endpoint is painful.
 6. **Enterprise contracts** — 12-24 month terms with budget enforcement = locked revenue.
 
 ---
@@ -281,7 +281,7 @@ Exit MRR at Month 12: **$757K** = **$9.1M ARR**
 
 ## Provider Usage API Intelligence
 
-Each major AI provider exposes usage/billing data that ComputeGauge aggregates. Reference: Anthropic's Settings → Usage page shows session limits, weekly limits, per-model quotas, extra usage spend, balance, and top-up/reload triggers.
+Each major AI provider exposes usage/billing data that InferLane aggregates. Reference: Anthropic's Settings → Usage page shows session limits, weekly limits, per-model quotas, extra usage spend, balance, and top-up/reload triggers.
 
 ### Known Provider Data Points We Can Pull
 
@@ -324,9 +324,9 @@ When a user exceeds their provider limit (e.g. 116% of monthly budget), they fac
 
 | Component | License | Why |
 |---|---|---|
-| `@computegauge/adapters` | Apache-2.0 | Ecosystem moat — community builds integrations |
-| `@computegauge/mcp` | Apache-2.0 | Distribution — viral spread through MCP ecosystem |
-| `@computegauge/cli` | Apache-2.0 | Distribution — npm installs = acquisition metrics |
+| `@inferlane/adapters` | Apache-2.0 | Ecosystem moat — community builds integrations |
+| `@inferlane/mcp` | Apache-2.0 | Distribution — viral spread through MCP ecosystem |
+| `@inferlane/cli` | Apache-2.0 | Distribution — npm installs = acquisition metrics |
 | Dashboard + Billing | Commercial | Revenue — SaaS subscriptions, admin, teams |
 | API Proxy Engine | Commercial | Revenue — routing margin, smart optimization |
 | FinOps Automation | Commercial | Revenue — % of savings |

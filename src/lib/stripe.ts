@@ -8,13 +8,36 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   typescript: true,
 });
 
-// Subscription tier → Stripe Price ID mapping
+// Subscription tier → Stripe Price ID mapping (monthly)
 export const TIER_PRICE_MAP: Record<string, string | undefined> = {
   PRO: process.env.STRIPE_PRICE_PRO,
   HYBRID: process.env.STRIPE_PRICE_HYBRID,
   TEAM: process.env.STRIPE_PRICE_TEAM,
   ENTERPRISE: process.env.STRIPE_PRICE_ENTERPRISE,
 };
+
+// Annual price IDs (set env vars when Stripe annual prices are created)
+export const TIER_PRICE_ANNUAL_MAP: Record<string, string | undefined> = {
+  PRO: process.env.STRIPE_PRICE_PRO_ANNUAL,
+  HYBRID: process.env.STRIPE_PRICE_HYBRID_ANNUAL,
+  TEAM: process.env.STRIPE_PRICE_TEAM_ANNUAL,
+  ENTERPRISE: process.env.STRIPE_PRICE_ENTERPRISE_ANNUAL,
+};
+
+// ── Supplier (Node Operator) Subscription Tier Pricing ──────────────────
+
+export const SUPPLIER_TIER_PRICE_MAP: Record<string, string | undefined> = {
+  PROFESSIONAL: process.env.STRIPE_PRICE_SUPPLIER_PRO,
+  ENTERPRISE: process.env.STRIPE_PRICE_SUPPLIER_ENTERPRISE,
+};
+
+export const SUPPLIER_TIER_INFO = {
+  STARTER: { name: 'Starter', price: 0, features: ['100 req/day capacity', 'Weekly payouts', 'DEFERRED settlement lane'] },
+  PROFESSIONAL: { name: 'Professional', price: 29, features: ['10K req/day capacity', 'Daily payouts', 'STANDARD settlement lane', 'Priority routing'] },
+  ENTERPRISE: { name: 'Enterprise', price: 99, features: ['Unlimited capacity', 'Instant payouts', 'INSTANT settlement lane', 'Priority routing', 'Dedicated support'] },
+} as const;
+
+// ── Buyer Subscription Tier Display Info ─────────────────────────────────
 
 // Tier display info
 export const TIER_INFO = {

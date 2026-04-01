@@ -5,7 +5,7 @@
 // ============================================================================
 
 import type {
-  ComputeGaugeAdapter,
+  InferLaneAdapter,
   ProviderCredentials,
   HealthCheckResult,
   UsageData,
@@ -32,7 +32,7 @@ const OPENAI_PRICING: Record<string, { input: number; output: number; context: n
   'dall-e-3': { input: 40.0, output: 0, context: 0 }, // per image, approximated
 };
 
-export class OpenAIAdapter implements ComputeGaugeAdapter {
+export class OpenAIAdapter implements InferLaneAdapter {
   readonly provider = 'openai' as const;
   readonly version = '0.1.0';
 

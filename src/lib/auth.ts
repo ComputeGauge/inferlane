@@ -4,6 +4,8 @@ import GitHubProvider from 'next-auth/providers/github';
 import EmailProvider from 'next-auth/providers/email';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from './db';
+import { sendWelcomeEmail } from '@/lib/email';
+import { cookies } from 'next/headers';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -41,7 +43,7 @@ export const authOptions: NextAuthOptions = {
                 pass: process.env.EMAIL_SERVER_PASSWORD || '',
               },
             },
-            from: process.env.EMAIL_FROM || 'noreply@computegauge.ai',
+            from: process.env.EMAIL_FROM || 'noreply@inferlane.ai',
           }),
         ]
       : []),
@@ -61,12 +63,18 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
-        // Fetch role from database
+        // Fetch role + subscription tier from database
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
           select: { role: true },
         });
         token.role = dbUser?.role || 'USER';
+
+        const sub = await prisma.subscription.findUnique({
+          where: { userId: user.id },
+          select: { tier: true },
+        });
+        token.plan = sub?.tier?.toLowerCase() ?? 'free';
       }
       if (account) {
         token.provider = account.provider;
@@ -78,6 +86,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as Record<string, unknown>).id = token.id as string;
         (session.user as Record<string, unknown>).role = token.role as string;
+        (session.user as Record<string, unknown>).plan = token.plan as string || 'free';
       }
       return session;
     },
@@ -104,7 +113,28 @@ export const authOptions: NextAuthOptions = {
 
   events: {
     async createUser({ user }) {
-      console.log(`[ComputeGauge] New user created: ${user.email}`);
+      console.log(`[InferLane] New user created: ${user.email}`);
+
+      // Partner attribution — read slug from cookie set by middleware
+      try {
+        const cookieStore = await cookies();
+        const partnerSlug = cookieStore.get('il_partner')?.value;
+        if (partnerSlug) {
+          const partner = await prisma.partner.findUnique({
+            where: { slug: partnerSlug },
+          });
+          if (partner) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { partnerId: partner.id },
+            });
+            console.log(`[InferLane] User ${user.email} attributed to partner: ${partner.name}`);
+          }
+        }
+      } catch (err) {
+        console.error('[Auth] Partner attribution failed:', err);
+      }
+
       // Audit log
       await prisma.auditLog.create({
         data: {
@@ -114,6 +144,13 @@ export const authOptions: NextAuthOptions = {
           details: { email: user.email },
         },
       });
+
+      // Send welcome email (fire-and-forget — don't block signup)
+      if (user.email) {
+        sendWelcomeEmail(user.email, user.name || 'there').catch((err) => {
+          console.error('[Auth] Failed to send welcome email:', err);
+        });
+      }
     },
   },
 

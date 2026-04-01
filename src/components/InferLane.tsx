@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-interface ComputeGaugeProps {
+interface InferLaneProps {
   value: number; // 0-100
   size?: number;
   label: string;
@@ -13,7 +13,7 @@ interface ComputeGaugeProps {
   gradientTo: string;
 }
 
-export default function ComputeGauge({
+export default function InferLane({
   value,
   size = 160,
   label,
@@ -22,7 +22,7 @@ export default function ComputeGauge({
   color,
   gradientFrom,
   gradientTo,
-}: ComputeGaugeProps) {
+}: InferLaneProps) {
   const [animatedValue, setAnimatedValue] = useState(0);
   const gaugeRef = useRef<SVGCircleElement>(null);
 

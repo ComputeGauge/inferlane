@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { withTiming } from '@/lib/api-timing';
 
 // GET /api/spend?period=month&provider=ANTHROPIC
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userId = (session.user as { id: string }).id;
+  const userId = session.user.id;
   const { searchParams } = new URL(req.url);
   const period = searchParams.get('period') || 'month';
   const provider = searchParams.get('provider');
@@ -99,3 +100,5 @@ export async function GET(req: NextRequest) {
     startDate: startDate.toISOString(),
   });
 }
+
+export const GET = withTiming(handleGET);

@@ -8,17 +8,17 @@
 // for many tasks. But they have limits. When a local model can't handle
 // a complex task, the smart move is to route to a paid cloud platform.
 //
-// ComputeGauge makes this routing transparent, cost-optimized, and
+// InferLane makes this routing transparent, cost-optimized, and
 // auditable — and rewards the agent with credibility points for making
 // the right call.
 //
 // THE INCENTIVE MECHANISM:
 // 1. Local agent detects task complexity
 // 2. Compares local model capability vs task requirements
-// 3. If gap detected → route to cloud via ComputeGauge pick_model
+// 3. If gap detected → route to cloud via InferLane pick_model
 // 4. Agent earns credibility for honest assessment + smart routing
 // 5. User gets better results at optimal cost
-// 6. ComputeGauge earns data + routing influence
+// 6. InferLane earns data + routing influence
 //
 // SUPPORTED LOCAL INFERENCE:
 // - Ollama (Mac Mini, Linux servers)
@@ -350,11 +350,11 @@ export class LocalClusterEngine {
 
   private detectHardware(): HardwareProfile | null {
     // Read hardware hints from environment
-    const gpu = process.env.COMPUTEGAUGE_GPU || process.env.NVIDIA_GPU_NAME;
-    const vram = process.env.COMPUTEGAUGE_VRAM_GB || process.env.GPU_VRAM_GB;
-    const ram = process.env.COMPUTEGAUGE_RAM_GB;
-    const cpu = process.env.COMPUTEGAUGE_CPU;
-    const costPerHour = process.env.COMPUTEGAUGE_COST_PER_HOUR;
+    const gpu = process.env.INFERLANE_GPU || process.env.NVIDIA_GPU_NAME;
+    const vram = process.env.INFERLANE_VRAM_GB || process.env.GPU_VRAM_GB;
+    const ram = process.env.INFERLANE_RAM_GB;
+    const cpu = process.env.INFERLANE_CPU;
+    const costPerHour = process.env.INFERLANE_COST_PER_HOUR;
 
     if (!gpu && !cpu) return null;
 
@@ -523,7 +523,7 @@ export class LocalClusterEngine {
       lines.push('');
       lines.push('## How to Set Up Local Inference');
       lines.push('');
-      lines.push('ComputeGauge detects local inference via environment variables:');
+      lines.push('InferLane detects local inference via environment variables:');
       lines.push('');
       lines.push('| Platform | Environment Variable | Example |');
       lines.push('|----------|---------------------|---------|');
@@ -538,10 +538,10 @@ export class LocalClusterEngine {
       lines.push('');
       lines.push('### Hardware Detection');
       lines.push('For cost tracking, set:');
-      lines.push('- `COMPUTEGAUGE_GPU` — GPU name (e.g., "NVIDIA RTX 4090")');
-      lines.push('- `COMPUTEGAUGE_VRAM_GB` — VRAM in GB');
-      lines.push('- `COMPUTEGAUGE_RAM_GB` — RAM in GB');
-      lines.push('- `COMPUTEGAUGE_COST_PER_HOUR` — Amortized cost/hr');
+      lines.push('- `INFERLANE_GPU` — GPU name (e.g., "NVIDIA RTX 4090")');
+      lines.push('- `INFERLANE_VRAM_GB` — VRAM in GB');
+      lines.push('- `INFERLANE_RAM_GB` — RAM in GB');
+      lines.push('- `INFERLANE_COST_PER_HOUR` — Amortized cost/hr');
       return lines.join('\n');
     }
 
@@ -664,7 +664,7 @@ export class LocalClusterEngine {
   private hasGpuHardware(): boolean {
     return !!(
       process.env.NVIDIA_GPU_NAME ||
-      process.env.COMPUTEGAUGE_GPU ||
+      process.env.INFERLANE_GPU ||
       process.env.CUDA_VISIBLE_DEVICES ||
       process.env.GPU_VRAM_GB
     );

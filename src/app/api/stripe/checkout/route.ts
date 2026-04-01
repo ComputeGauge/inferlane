@@ -1,18 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { stripe, TIER_PRICE_MAP } from '@/lib/stripe';
+import { stripe, TIER_PRICE_MAP, TIER_PRICE_ANNUAL_MAP } from '@/lib/stripe';
 import { prisma } from '@/lib/db';
+import { withTiming } from '@/lib/api-timing';
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { tier } = await req.json();
-    const priceId = TIER_PRICE_MAP[tier];
+    let body;
+    try { body = await req.json(); } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+    const { tier, annual } = body;
+    const priceId = annual
+      ? (TIER_PRICE_ANNUAL_MAP[tier] || TIER_PRICE_MAP[tier])
+      : TIER_PRICE_MAP[tier];
 
     if (!priceId) {
       return NextResponse.json({ error: 'Invalid tier' }, { status: 400 });
@@ -71,3 +78,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withTiming(handlePOST);

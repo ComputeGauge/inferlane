@@ -1,12 +1,13 @@
 'use client';
 
+import { memo } from 'react';
 import { Alert } from '@/lib/types';
 
 interface AlertPanelProps {
   alerts: Alert[];
 }
 
-export default function AlertPanel({ alerts }: AlertPanelProps) {
+export default memo(function AlertPanel({ alerts }: AlertPanelProps) {
   const iconMap = {
     critical: (
       <svg className="w-4 h-4 text-red-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -61,4 +62,4 @@ export default function AlertPanel({ alerts }: AlertPanelProps) {
       </div>
     </div>
   );
-}
+});

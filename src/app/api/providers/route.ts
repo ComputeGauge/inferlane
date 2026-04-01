@@ -3,13 +3,22 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { encrypt } from '@/lib/crypto';
+import { rateLimit } from '@/lib/rate-limit';
+import { withTiming } from '@/lib/api-timing';
+
+const VALID_PROVIDERS = [
+  'ANTHROPIC', 'OPENAI', 'GOOGLE', 'AWS_BEDROCK', 'AZURE_OPENAI',
+  'TOGETHER', 'GROQ', 'MISTRAL', 'COHERE', 'REPLICATE', 'DEEPSEEK',
+  'XAI', 'PERPLEXITY', 'CEREBRAS', 'SAMBANOVA', 'FIREWORKS',
+  'MODAL', 'LAMBDA', 'COREWEAVE', 'ON_PREM',
+] as const;
 
 // GET /api/providers — list connected providers
-export async function GET() {
+async function handleGET(_req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userId = (session.user as { id: string }).id;
+  const userId = session.user.id;
   const connections = await prisma.providerConnection.findMany({
     where: { userId },
     select: {
@@ -30,20 +39,31 @@ export async function GET() {
 }
 
 // POST /api/providers — connect a new provider
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userId = (session.user as { id: string }).id;
+  const userId = session.user.id;
 
   let body;
   try { body = await req.json(); } catch {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
-  const { provider, apiKey, displayName } = body;
+  const { provider, apiKey, displayName, metadata } = body;
 
   if (!provider || !apiKey) {
     return NextResponse.json({ error: 'provider and apiKey are required' }, { status: 400 });
+  }
+
+  // Validate provider against allowed enum values
+  if (!VALID_PROVIDERS.includes(provider)) {
+    return NextResponse.json({ error: `Invalid provider. Must be one of: ${VALID_PROVIDERS.join(', ')}` }, { status: 400 });
+  }
+
+  // Rate limit: 10 provider connections per user per hour
+  const { success: rateLimitOk } = await rateLimit(`provider:${userId}`, 10, 60 * 60 * 1000);
+  if (!rateLimitOk) {
+    return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
   }
 
   // Check if already connected
@@ -65,6 +85,7 @@ export async function POST(req: NextRequest) {
       displayName: displayName || provider,
       encryptedApiKey,
       lastSyncStatus: 'PENDING',
+      ...(metadata && { metadata }),
     },
     select: {
       id: true,
@@ -88,11 +109,11 @@ export async function POST(req: NextRequest) {
 }
 
 // PUT /api/providers — update a provider connection (e.g., rotate API key)
-export async function PUT(req: NextRequest) {
+async function handlePUT(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userId = (session.user as { id: string }).id;
+  const userId = session.user.id;
 
   let body;
   try { body = await req.json(); } catch {
@@ -128,11 +149,11 @@ export async function PUT(req: NextRequest) {
 }
 
 // DELETE /api/providers — disconnect a provider
-export async function DELETE(req: NextRequest) {
+async function handleDELETE(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userId = (session.user as { id: string }).id;
+  const userId = session.user.id;
 
   let body;
   try { body = await req.json(); } catch {
@@ -163,3 +184,8 @@ export async function DELETE(req: NextRequest) {
 
   return NextResponse.json({ success: true });
 }
+
+export const GET = withTiming(handleGET);
+export const POST = withTiming(handlePOST);
+export const PUT = withTiming(handlePUT);
+export const DELETE = withTiming(handleDELETE);

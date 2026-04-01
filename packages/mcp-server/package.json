@@ -1,0 +1,30 @@
+{
+  "name": "@inferlane/mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for InferLane — multi-provider LLM cost optimization tools for AI agents",
+  "bin": {
+    "inferlane-mcp": "./dist/index.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp", "mcp-server", "claude", "claude-code", "ai-agent", "ai-agent-tools",
+    "llm", "llm-cost", "llm-gateway", "llm-router",
+    "cost-optimization", "ai-cost-tracker", "token-pricing",
+    "multi-provider", "openai", "anthropic", "gemini", "deepseek", "groq",
+    "model-comparison", "smart-routing", "inference-proxy",
+    "openai-compatible", "provider-fallback"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "@types/node": "^22.0.0"
+  }
+}

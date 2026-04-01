@@ -1,0 +1,24 @@
+# Smithery configuration for @inferlane/mcp
+# https://smithery.ai/docs/config
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      INFERLANE_API_KEY:
+        type: string
+        description: "Optional API key for platform features (check_promotions, platform_spend, platform_budget, route_via_platform). 18 tools work fully offline without it."
+      INFERLANE_BASE_URL:
+        type: string
+        description: "Optional custom base URL for the InferLane platform API."
+    required: []
+  commandFunction: |-
+    (config) => ({
+      command: "npx",
+      args: ["-y", "@inferlane/mcp"],
+      env: {
+        ...(config.INFERLANE_API_KEY ? { INFERLANE_API_KEY: config.INFERLANE_API_KEY } : {}),
+        ...(config.INFERLANE_BASE_URL ? { INFERLANE_BASE_URL: config.INFERLANE_BASE_URL } : {})
+      }
+    })

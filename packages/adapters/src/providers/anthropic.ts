@@ -5,7 +5,7 @@
 // ============================================================================
 
 import type {
-  ComputeGaugeAdapter,
+  InferLaneAdapter,
   ProviderCredentials,
   HealthCheckResult,
   UsageData,
@@ -28,7 +28,7 @@ const ANTHROPIC_PRICING: Record<string, { input: number; output: number; context
   'claude-3-haiku': { input: 0.25, output: 1.25, context: 200000 },
 };
 
-export class AnthropicAdapter implements ComputeGaugeAdapter {
+export class AnthropicAdapter implements InferLaneAdapter {
   readonly provider = 'anthropic' as const;
   readonly version = '0.1.0';
 

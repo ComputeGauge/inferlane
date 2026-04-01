@@ -1,17 +1,46 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTrack, EVENTS } from '@/hooks/useTrack';
 
 export default function AuthModal() {
   const { showAuthModal, setShowAuthModal, login, isLoading } = useAuth();
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
+  const track = useTrack();
+  const hasTrackedOpen = useRef(false);
+
+  const handleClose = useCallback(() => setShowAuthModal(false), [setShowAuthModal]);
+
+  useEffect(() => {
+    if (showAuthModal && !hasTrackedOpen.current) {
+      track(EVENTS.AUTH_MODAL_OPEN);
+      hasTrackedOpen.current = true;
+    }
+    if (!showAuthModal) {
+      hasTrackedOpen.current = false;
+    }
+  }, [showAuthModal, track]);
+
+  useEffect(() => {
+    if (!showAuthModal) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose();
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showAuthModal, handleClose]);
 
   if (!showAuthModal) return null;
 
   const handleOAuthLogin = async (provider: string) => {
+    if (provider === 'demo') {
+      track(EVENTS.DEMO_START);
+    } else {
+      track(EVENTS.AUTH_PROVIDER_CLICK, { provider });
+    }
     setLoadingProvider(provider);
     try {
       await login(provider);
@@ -89,12 +118,13 @@ export default function AuthModal() {
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Sign in to InferLane">
       <div className="bg-[#12121a] rounded-2xl border border-[#1e1e2e] w-full max-w-md overflow-hidden">
         {/* Header */}
         <div className="p-6 pb-4 text-center relative">
           <button
-            onClick={() => setShowAuthModal(false)}
+            onClick={handleClose}
+            aria-label="Close sign-in dialog"
             className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,5 +1,5 @@
 // ============================================================================
-// @computegauge/adapters — Core Type Definitions
+// @inferlane/adapters — Core Type Definitions
 // The open-source interface for AI provider cost tracking
 // License: Apache-2.0
 // ============================================================================
@@ -17,7 +17,10 @@ export type ProviderName =
   | 'cohere'
   | 'replicate'
   | 'deepseek'
-  | 'on-prem';
+  | 'on-prem'
+  | 'bittensor'
+  | 'akash'
+  | 'hyperbolic';
 
 /** Date range for queries */
 export interface DateRange {
@@ -169,7 +172,7 @@ export interface HealthCheckResult {
 // ADAPTER INTERFACE — The contract every provider adapter must implement
 // ============================================================================
 
-export interface ComputeGaugeAdapter {
+export interface InferLaneAdapter {
   /** Provider identifier */
   readonly provider: ProviderName;
   /** Adapter version */
@@ -215,11 +218,11 @@ export interface ComputeGaugeAdapter {
 
 export interface AdapterRegistry {
   /** Register an adapter */
-  register(adapter: ComputeGaugeAdapter): void;
+  register(adapter: InferLaneAdapter): void;
   /** Get adapter by provider name */
-  get(provider: ProviderName): ComputeGaugeAdapter | undefined;
+  get(provider: ProviderName): InferLaneAdapter | undefined;
   /** List all registered adapters */
-  list(): ComputeGaugeAdapter[];
+  list(): InferLaneAdapter[];
   /** Get all connected (healthy) adapters */
-  getConnected(): Promise<ComputeGaugeAdapter[]>;
+  getConnected(): Promise<InferLaneAdapter[]>;
 }

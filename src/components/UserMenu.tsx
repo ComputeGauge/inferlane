@@ -39,14 +39,6 @@ export default function UserMenu() {
     );
   }
 
-  const providerIcons: Record<string, string> = {
-    google: 'G',
-    apple: '',
-    github: 'GH',
-    microsoft: 'MS',
-    email: '@',
-  };
-
   const planColors: Record<string, string> = {
     free: 'bg-gray-500/20 text-gray-400',
     pro: 'bg-amber-500/20 text-amber-400',

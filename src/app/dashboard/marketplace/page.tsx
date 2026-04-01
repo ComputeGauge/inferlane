@@ -99,7 +99,7 @@ export default function MarketplacePage() {
       <div className="bg-[#12121a] rounded-2xl border border-dashed border-[#2a2a3a] p-8 text-center">
         <h3 className="text-lg font-semibold text-white mb-2">Are you an AI platform?</h3>
         <p className="text-sm text-gray-500 mb-4 max-w-md mx-auto">
-          List your platform on ComputeGauge Marketplace. Reach thousands of AI-powered teams actively looking for compute.
+          List your platform on InferLane Marketplace. Reach thousands of AI-powered teams actively looking for compute.
         </p>
         <div className="flex items-center justify-center gap-3">
           <button className="px-5 py-2 rounded-xl bg-purple-500/20 text-purple-400 text-sm font-medium border border-purple-500/30 hover:bg-purple-500/30 transition-all">

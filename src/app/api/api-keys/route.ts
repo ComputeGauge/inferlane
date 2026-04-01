@@ -3,13 +3,15 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { generateApiKey } from '@/lib/crypto';
+import { rateLimit } from '@/lib/rate-limit';
+import { withTiming } from '@/lib/api-timing';
 
 // GET /api/api-keys — list user's API keys (never returns the actual key)
-export async function GET() {
+async function handleGET(_req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userId = (session.user as { id: string }).id;
+  const userId = session.user.id;
   const keys = await prisma.apiKey.findMany({
     where: { userId },
     select: {
@@ -29,15 +31,26 @@ export async function GET() {
 }
 
 // POST /api/api-keys — generate a new API key
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userId = (session.user as { id: string }).id;
-  const { name, permissions } = await req.json();
+  const userId = session.user.id;
+
+  let body;
+  try { body = await req.json(); } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+  const { name, permissions } = body;
 
   if (!name) {
     return NextResponse.json({ error: 'name is required' }, { status: 400 });
+  }
+
+  // Rate limit: 5 key creations per user per hour
+  const { success: rateLimitOk } = await rateLimit(`apikey:${userId}`, 5, 60 * 60 * 1000);
+  if (!rateLimitOk) {
+    return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
   }
 
   // Check key limit (max 10 active keys)
@@ -71,11 +84,11 @@ export async function POST(req: NextRequest) {
 }
 
 // DELETE /api/api-keys — revoke an API key
-export async function DELETE(req: NextRequest) {
+async function handleDELETE(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userId = (session.user as { id: string }).id;
+  const userId = session.user.id;
 
   let body;
   try { body = await req.json(); } catch {
@@ -107,3 +120,7 @@ export async function DELETE(req: NextRequest) {
 
   return NextResponse.json({ success: true });
 }
+
+export const GET = withTiming(handleGET);
+export const POST = withTiming(handlePOST);
+export const DELETE = withTiming(handleDELETE);

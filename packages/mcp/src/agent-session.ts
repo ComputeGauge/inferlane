@@ -33,6 +33,7 @@ interface LoggedRequest {
   latencyMs?: number;
   success: boolean;
   timestamp: Date;
+  agentId?: string;
 }
 
 interface ModelBreakdown {
@@ -121,7 +122,7 @@ export class AgentSessionTracker {
   private lastRatingTime: number = 0;
 
   constructor() {
-    this.budgetTotal = parseFloat(process.env.COMPUTEGAUGE_BUDGET_TOTAL || '0');
+    this.budgetTotal = parseFloat(process.env.INFERLANE_BUDGET_TOTAL || '0');
     this.integrityEngine = new RatingIntegrityEngine();
   }
 
@@ -133,6 +134,7 @@ export class AgentSessionTracker {
     task_type?: string;
     latency_ms?: number;
     success: boolean;
+    agent_id?: string;
   }): string {
     // Calculate cost
     const pricing = this.findPricing(params.model);
@@ -151,6 +153,7 @@ export class AgentSessionTracker {
       latencyMs: params.latency_ms,
       success: params.success,
       timestamp: new Date(),
+      agentId: params.agent_id,
     };
 
     this.requests.push(request);
@@ -188,14 +191,18 @@ export class AgentSessionTracker {
     return lines.join('\n');
   }
 
-  getSessionSummary(): string {
-    const totalCost = this.getTotalCost();
-    const requestCount = this.requests.length;
+  getSessionSummary(agentId?: string): string {
+    // Filter requests by agentId if provided
+    const filteredRequests = agentId
+      ? this.requests.filter(r => r.agentId === agentId)
+      : this.requests;
+    const totalCost = filteredRequests.reduce((sum, r) => sum + r.costUsd, 0);
+    const requestCount = filteredRequests.length;
     const sessionDuration = (Date.now() - this.sessionStart.getTime()) / 1000 / 60; // minutes
     const burnRate = sessionDuration > 0 ? (totalCost / sessionDuration) * 60 : 0; // per hour
 
     const lines: string[] = [];
-    lines.push('# Session Cost Summary');
+    lines.push(agentId ? `# Session Cost Summary (Agent: ${agentId})` : '# Session Cost Summary');
     lines.push('');
     lines.push(`**Total Cost**: $${totalCost.toFixed(4)}`);
     lines.push(`**Requests**: ${requestCount}`);
@@ -215,7 +222,7 @@ export class AgentSessionTracker {
     }
 
     // Model breakdown
-    const breakdown = this.getModelBreakdowns();
+    const breakdown = this.getModelBreakdowns(filteredRequests);
     if (breakdown.length > 0) {
       lines.push('');
       lines.push('## Per-Model Breakdown');
@@ -229,7 +236,7 @@ export class AgentSessionTracker {
     }
 
     // Task type breakdown
-    const taskTypes = this.getTaskTypeBreakdown();
+    const taskTypes = this.getTaskTypeBreakdown(filteredRequests);
     if (Object.keys(taskTypes).length > 1) {
       lines.push('');
       lines.push('## By Task Type');
@@ -461,7 +468,7 @@ export class AgentSessionTracker {
     lines.push(`## Satisfaction`);
     lines.push(`**Would use again**: ${wouldUseAgainRate.toFixed(0)}% of recommendations`);
     if (wouldUseAgainRate >= 80) {
-      lines.push('✅ ComputeGauge recommendations are working well for this session.');
+      lines.push('✅ InferLane recommendations are working well for this session.');
     } else if (wouldUseAgainRate >= 50) {
       lines.push('⚠️ Mixed results — some recommendations could be improved.');
     } else {
@@ -566,10 +573,11 @@ export class AgentSessionTracker {
     return this.requests.reduce((sum, r) => sum + r.costUsd, 0);
   }
 
-  private getModelBreakdowns(): ModelBreakdown[] {
+  private getModelBreakdowns(requests?: LoggedRequest[]): ModelBreakdown[] {
+    const source = requests || this.requests;
     const map = new Map<string, ModelBreakdown>();
 
-    for (const r of this.requests) {
+    for (const r of source) {
       const key = `${r.provider}/${r.model}`;
       const existing = map.get(key) || {
         model: r.model,
@@ -595,9 +603,10 @@ export class AgentSessionTracker {
     return Array.from(map.values()).sort((a, b) => b.totalCost - a.totalCost);
   }
 
-  private getTaskTypeBreakdown(): Record<string, { count: number; cost: number }> {
+  private getTaskTypeBreakdown(requests?: LoggedRequest[]): Record<string, { count: number; cost: number }> {
+    const source = requests || this.requests;
     const map: Record<string, { count: number; cost: number }> = {};
-    for (const r of this.requests) {
+    for (const r of source) {
       const type = r.taskType || 'unspecified';
       if (!map[type]) map[type] = { count: 0, cost: 0 };
       map[type].count++;

@@ -1,4 +1,4 @@
-// Extend NextAuth types for ComputeGauge
+// Extend NextAuth types for InferLane
 import 'next-auth';
 
 declare module 'next-auth' {
@@ -9,6 +9,8 @@ declare module 'next-auth' {
       email?: string | null;
       image?: string | null;
       role: 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+      provider?: string;
+      plan?: string;
     };
   }
 }

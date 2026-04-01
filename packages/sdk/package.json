@@ -1,0 +1,59 @@
+{
+  "name": "@inferlane/sdk",
+  "version": "1.0.0",
+  "description": "Multi-provider LLM proxy SDK with smart routing, streaming, and cost optimization",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./openai": {
+      "import": "./dist/openai-compat.js",
+      "require": "./dist/openai-compat.js",
+      "types": "./dist/openai-compat.d.ts"
+    },
+    "./ingest": {
+      "import": "./dist/ingest.js",
+      "require": "./dist/ingest.js",
+      "types": "./dist/ingest.d.ts"
+    },
+    "./estimate": {
+      "import": "./dist/estimate.js",
+      "require": "./dist/estimate.js",
+      "types": "./dist/estimate.d.ts"
+    },
+    "./vercel-ai": {
+      "import": "./dist/vercel-ai.js",
+      "require": "./dist/vercel-ai.js",
+      "types": "./dist/vercel-ai.d.ts"
+    },
+    "./langchain": {
+      "import": "./dist/langchain.js",
+      "require": "./dist/langchain.js",
+      "types": "./dist/langchain.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "llm", "ai", "proxy", "openai", "anthropic", "claude", "gpt",
+    "gemini", "deepseek", "groq", "together-ai", "fireworks",
+    "multi-provider", "cost-optimization", "smart-routing",
+    "llm-gateway", "ai-gateway", "model-router", "inference-proxy",
+    "openai-compatible", "vercel-ai-sdk", "langchain",
+    "llm-cost", "ai-cost-tracker", "token-pricing",
+    "streaming", "sse", "chat-completion",
+    "model-comparison", "provider-fallback", "mcp"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

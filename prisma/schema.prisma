@@ -1,4 +1,4 @@
-// ComputeGauge — Full SaaS Database Schema
+// InferLane — Full SaaS Database Schema
 // The financial dashboard for AI-powered teams
 
 generator client {
@@ -24,6 +24,9 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Partner attribution (which integration partner referred this user)
+  partnerId     String?
+
   // Relations
   accounts          Account[]
   sessions          Session[]
@@ -34,8 +37,45 @@ model User {
   affiliateClicks   AffiliateClick[]
   teams             TeamMember[]
   apiKeys           ApiKey[]
+  recommendations   ProviderRecommendation[]
+  partner           Partner?  @relation("PartnerReferrals", fields: [partnerId], references: [id], onDelete: SetNull)
+  creditBalance     CreditBalance?
+  creditTransactions CreditTransaction[]
+  creditOffers      CreditOffer[]
+  poolDelegations   PoolDelegation[]
+  privacyPolicies    PrivacyPolicy[]
+  canaryEvents       CanaryEvent[]
+  creditConsumptions CreditConsumption[]
+  nodeOperator       NodeOperator?
+  tradingApiKeys     TradingApiKey[]
+  computeOrders      ComputeOrder[]
+  futuresCreated     ComputeFuture[]   @relation("FutureCreator")
+  notificationPrefs  NotificationPreferences?
+  deletedAt          DateTime?
+  scheduledPrompts   ScheduledPrompt[]
+  promptTemplates    PromptTemplate[]
 
   @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Notification Preferences (Stream Y3)
+// ---------------------------------------------------------------------------
+
+model NotificationPreferences {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  weeklyDigest    Boolean  @default(true)
+  alertEmails     Boolean  @default(true)
+  tradeNotifs     Boolean  @default(true)
+  payoutNotifs    Boolean  @default(true)
+  marketingEmails Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_preferences")
 }
 
 model Account {
@@ -204,15 +244,17 @@ model Alert {
 // ============================================================================
 
 model AffiliateClick {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   userId      String?
   provider    String
   campaignId  String?
-  source      String?  // "marketplace", "topup_banner", "smart_router", "migration_advisor"
-  destination String   // URL clicked
-  converted   Boolean  @default(false)
-  commission  Decimal? @db.Decimal(10, 2)
-  createdAt   DateTime @default(now())
+  partnerId   String?   // Integration partner who drove this click
+  source      String?   // "marketplace", "topup_banner", "smart_router", "recommendation", "dashboard"
+  destination String    // URL clicked
+  converted   Boolean   @default(false)
+  convertedAt DateTime? // When user actually connected this provider
+  commission  Decimal?  @db.Decimal(10, 2)
+  createdAt   DateTime  @default(now())
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
@@ -307,11 +349,16 @@ model ProxyRequest {
   routingReason   String?  // "cheapest", "fastest", "quality", "compliance"
   inputTokens     Int
   outputTokens    Int
-  costUsd         Decimal  @db.Decimal(10, 6)
-  savingsUsd      Decimal? @db.Decimal(10, 6) // vs. if they'd used default provider
-  latencyMs       Int
-  statusCode      Int
-  timestamp       DateTime @default(now())
+  costUsd           Decimal  @db.Decimal(10, 6)
+  savingsUsd        Decimal? @db.Decimal(10, 6) // vs. if they'd used default provider
+  prefillCost       Decimal? @db.Decimal(10, 6) // compute-phase cost (input tokens)
+  decodeCost        Decimal? @db.Decimal(10, 6) // memory-phase cost (output tokens)
+  kvCacheCost       Decimal? @db.Decimal(10, 6) // context retention cost
+  memoryTechnology  String?                     // HBM3E, HBM3, HBM2E, GDDR6X, etc.
+  costBreakdown     Json?                       // full PhaseAwareCostResult
+  latencyMs         Int
+  statusCode        Int
+  timestamp         DateTime @default(now())
 
   @@index([apiKeyId, timestamp])
   @@index([routedProvider, timestamp])
@@ -398,6 +445,49 @@ model WaitlistEntry {
 }
 
 // ============================================================================
+// PARTNERS — Integration partners (OpenClaw, LiteLLM, Portkey, etc.)
+// ============================================================================
+
+model Partner {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  slug            String   @unique
+  callbackKeyHash String   @unique // bcrypt hash of the partner's callback API key
+  revSharePct     Float    @default(0.10) // 10% default revenue share
+  contactEmail    String
+  isActive        Boolean  @default(true)
+  metadata        Json?    // Partner-specific config
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  referredUsers User[] @relation("PartnerReferrals")
+
+  @@map("partners")
+}
+
+// ============================================================================
+// PROVIDER RECOMMENDATIONS — Cost optimization suggestions
+// ============================================================================
+
+model ProviderRecommendation {
+  id             String     @id @default(cuid())
+  userId         String
+  fromProvider   AIProvider
+  toProvider     AIProvider
+  taskType       String     // "code_generation", "chat", "summarization", etc.
+  monthlySavings Decimal    @db.Decimal(10, 2)
+  savingsPercent Decimal    @db.Decimal(5, 2)
+  dismissed      Boolean    @default(false)
+  clickedAt      DateTime?
+  createdAt      DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dismissed])
+  @@map("provider_recommendations")
+}
+
+// ============================================================================
 // ENUMS
 // ============================================================================
 
@@ -435,7 +525,19 @@ enum AIProvider {
   COHERE
   REPLICATE
   DEEPSEEK
+  XAI
+  PERPLEXITY
+  CEREBRAS
+  SAMBANOVA
+  FIREWORKS
+  MODAL
+  LAMBDA
+  COREWEAVE
   ON_PREM
+  // Decentralized AI compute providers
+  BITTENSOR
+  AKASH
+  HYPERBOLIC
 }
 
 enum SyncStatus {
@@ -473,4 +575,954 @@ enum TeamRole {
   ADMIN
   MEMBER
   VIEWER
+}
+
+// ============================================================================
+// CREDIT TRADING — Prepaid compute marketplace
+// ============================================================================
+
+model CreditBalance {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  totalAllocated  Decimal  @db.Decimal(12, 2) @default(0)
+  available       Decimal  @db.Decimal(12, 2) @default(0)
+  delegatedToPool Decimal  @db.Decimal(12, 2) @default(0)
+  listedOnMarket  Decimal  @db.Decimal(12, 2) @default(0)
+  earned          Decimal  @db.Decimal(12, 2) @default(0)
+  autoDelegate    Boolean  @default(false)
+  autoDelegatePct Int      @default(50) // percentage to auto-delegate (10-100)
+  periodStart     DateTime @default(now())
+  periodEnd       DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("credit_balances")
+}
+
+model CreditTransaction {
+  id             String       @id @default(cuid())
+  userId         String
+  type           CreditTxType
+  amount         Decimal      @db.Decimal(12, 2)
+  balanceBefore  Decimal      @db.Decimal(12, 2)
+  balanceAfter   Decimal      @db.Decimal(12, 2)
+  counterpartyId String?
+  offerId        String?
+  poolCycleId    String?
+  description    String?
+  createdAt      DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([type])
+  @@map("credit_transactions")
+}
+
+model CreditOffer {
+  id           String      @id @default(cuid())
+  sellerId     String
+  amount       Decimal     @db.Decimal(12, 2)
+  pricePerUnit Decimal     @db.Decimal(8, 4)  // dynamic bounds based on time decay
+  totalPrice   Decimal     @db.Decimal(12, 2)
+  minPurchase  Decimal?    @db.Decimal(12, 2)
+  autoReprice  Boolean     @default(false)    // opt-in: auto-reduce price as credits decay
+  repriceFloor Decimal?    @db.Decimal(8, 4)  // seller's minimum acceptable auto-reprice (null = no floor)
+  status       OfferStatus @default(ACTIVE)
+  filledAmount Decimal     @db.Decimal(12, 2) @default(0)
+  buyerId      String?
+  expiresAt    DateTime
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  seller User @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([sellerId])
+  @@map("credit_offers")
+}
+
+model PoolCycle {
+  id             String          @id @default(cuid())
+  periodStart    DateTime
+  periodEnd      DateTime
+  totalDelegated Decimal         @db.Decimal(14, 2) @default(0)
+  totalConsumed  Decimal         @db.Decimal(14, 2) @default(0)
+  revenueRate    Decimal         @db.Decimal(8, 4)  @default(0)
+  status         PoolCycleStatus @default(ACTIVE)
+  settledAt      DateTime?
+  createdAt      DateTime        @default(now())
+
+  delegations PoolDelegation[]
+
+  @@index([status])
+  @@map("pool_cycles")
+}
+
+model PoolDelegation {
+  id           String   @id @default(cuid())
+  userId       String
+  poolCycleId  String
+  amount       Decimal  @db.Decimal(12, 2)
+  earnedAmount Decimal  @db.Decimal(12, 2) @default(0)
+  createdAt    DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  poolCycle PoolCycle @relation(fields: [poolCycleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, poolCycleId])
+  @@index([poolCycleId])
+  @@map("pool_delegations")
+}
+
+enum CreditTxType {
+  ALLOCATION
+  POOL_DELEGATE
+  POOL_RECALL
+  POOL_EARNING
+  MARKET_LIST
+  MARKET_DELIST
+  MARKET_SALE
+  MARKET_PURCHASE
+  MARKET_REPRICE
+  CREDIT_CONSUME
+  EXPIRY
+}
+
+enum OfferStatus {
+  ACTIVE
+  PARTIALLY_FILLED
+  FILLED
+  CANCELLED
+  EXPIRED
+}
+
+enum PoolCycleStatus {
+  ACTIVE
+  SETTLING
+  SETTLED
+}
+
+// ============================================================================
+// DYNAMIC DECAY ROUTING — Workload-aware credit consumption
+// ============================================================================
+
+model CreditConsumption {
+  id              String           @id @default(cuid())
+  userId          String
+  proxyRequestId  String?          // links to ProxyRequest
+  sourceType      CreditSourceType
+  sourceId        String?          // offerId, poolCycleId, or creditBalanceId
+  amountConsumed  Decimal          @db.Decimal(12, 6)
+  costPerCredit   Decimal          @db.Decimal(8, 4)
+  createdAt       DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([proxyRequestId])
+  @@map("credit_consumptions")
+}
+
+enum CreditSourceType {
+  OWN_CREDITS
+  MARKETPLACE_PURCHASE
+  POOL_DELEGATION
+  ON_DEMAND
+}
+
+// ============================================================================
+// PRIVACY — Decentralised routing privacy tiers
+// ============================================================================
+
+model PrivacyPolicy {
+  id              String           @id @default(cuid())
+  userId          String
+  name            String           // "Default", "HIPAA Compliant", "Public Only"
+  isDefault       Boolean          @default(false)
+  tier            RoutingPrivacyTier @default(TRANSPORT_ONLY)
+  allowedRegions  String[]         // ISO 3166-1 alpha-2 codes (empty = any)
+  requireTEE      Boolean          @default(false)
+  minFragments    Int              @default(3)
+  maxFragments    Int              @default(5)
+  piiStripping    Boolean          @default(false)
+  canaryInjection Boolean          @default(true)
+  maxLatencyMs    Int?             // latency budget (null = no limit)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("privacy_policies")
+}
+
+model CanaryEvent {
+  id           String   @id @default(cuid())
+  canaryId     String   @unique
+  token        String
+  userId       String
+  nodeId       String?
+  fragmentId   String?
+  status       CanaryStatus @default(ACTIVE)
+  injectedAt   DateTime @default(now())
+  detectedAt   DateTime?
+  detectedIn   String?  // where the canary was found (URL, API endpoint, etc.)
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([token])
+  @@map("canary_events")
+}
+
+enum RoutingPrivacyTier {
+  TRANSPORT_ONLY    // Tier 0: mTLS only, node sees plaintext
+  BLIND_ROUTING     // Tier 1: prompt fragmented across nodes
+  TEE_PREFERRED     // Tier 1.5: TEE nodes when available, fallback to fragmentation
+  CONFIDENTIAL      // Tier 2: TEE required, cryptographic attestation
+}
+
+enum CanaryStatus {
+  ACTIVE
+  TRIGGERED
+  EXPIRED
+}
+
+// ============================================================================
+// COMPUTE INTELLIGENCE & SETTLEMENT LANES (Stream U)
+// ============================================================================
+
+model ComputeClassification {
+  id                    String   @id @default(cuid())
+  targetType            String                              // 'provider' | 'node'
+  targetId              String                              // AIProvider enum value or NodeOperator ID
+  model                 String                              // specific model being classified
+  inferenceType         ComputeInferenceType
+  qualityTier           ComputeQualityTier
+  latencyClass          ComputeLatencyClass
+  privacyClass          ComputePrivacyClass
+  availabilityClass     ComputeAvailabilityClass
+  hardwareClass         ComputeHardwareClass
+  regions               String[]                            // ISO 3166-1 alpha-2
+
+  // Measured metrics from verification probes
+  measuredLatencyMs     Int?
+  measuredThroughputTps Decimal?   @db.Decimal(10, 2)       // tokens/second
+  measuredAccuracy      Decimal?   @db.Decimal(5, 4)        // 0.0000–1.0000
+
+  // Verification status
+  verificationScore     Int        @default(0)              // 0–100 composite
+  lastVerifiedAt        DateTime?
+  verificationTTLHours  Int        @default(24)
+
+  // Cryptographic attestation
+  signature             String?                             // HMAC-SHA256 hex
+  signedAt              DateTime?
+  signerKeyId           String?
+
+  // Settlement lane assignment
+  settlementLane        ComputeSettlementLane @default(DEFERRED)
+  settlementDelayHours  Int        @default(168)            // 7 days default
+  escrowRequired        Boolean    @default(false)
+  disputeWindowHours    Int        @default(168)
+
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  // Relations
+  verificationResults   ComputeVerificationResult[]
+
+  @@unique([targetType, targetId, model])
+  @@index([settlementLane])
+  @@index([qualityTier, latencyClass])
+  @@index([targetId])
+  @@map("compute_classifications")
+}
+
+model ComputeVerificationResult {
+  id                String                  @id @default(cuid())
+  classificationId  String
+  method            ComputeVerificationMethod
+  outcome           ComputeVerificationOutcome
+  details           Json                    @default("{}")   // method-specific evidence
+  latencyMs         Int
+  executedAt        DateTime                @default(now())
+
+  classification    ComputeClassification   @relation(fields: [classificationId], references: [id], onDelete: Cascade)
+
+  @@index([classificationId, executedAt])
+  @@map("compute_verification_results")
+}
+
+model ComputeSettlementRecord {
+  id                String                  @id @default(cuid())
+  requestId         String?                                  // ProxyRequest linkage
+  lane              ComputeSettlementLane
+  amountUsd         Decimal                 @db.Decimal(12, 6)
+  payeeType         String                                   // 'provider' | 'node'
+  payeeId           String
+  status            ComputeSettlementStatus @default(PENDING)
+  settledAt         DateTime?
+  disputeReason     String?
+  escrowReleaseAt   DateTime?
+  createdAt         DateTime                @default(now())
+
+  @@index([payeeId, status])
+  @@index([status, escrowReleaseAt])
+  @@index([requestId])
+  @@map("compute_settlement_records")
+}
+
+model TrustSnapshot {
+  id              String              @id @default(cuid())
+  entityId        String
+  entityType      String                                     // 'provider' | 'node'
+  trustScore      Int                                        // 0–100
+  uptimeScore     Decimal             @db.Decimal(5, 2)      // 0–25
+  accuracyScore   Decimal             @db.Decimal(5, 2)      // 0–25
+  volumeScore     Decimal             @db.Decimal(5, 2)      // 0–25
+  disputeScore    Decimal             @db.Decimal(5, 2)      // 0–25
+  currentLane     ComputeSettlementLane
+  snapshotAt      DateTime            @default(now())
+
+  @@index([entityId, snapshotAt])
+  @@map("trust_snapshots")
+}
+
+model PlatformMetrics {
+  id                    String   @id @default(cuid())
+  totalSettledUsd       Decimal  @db.Decimal(14, 2)
+  averageDisputeRate    Decimal  @db.Decimal(8, 6)           // 0.000000–1.000000
+  activeNodes           Int
+  activeProviders       Int
+  instantLaneThreshold  Int      @default(80)                // trust score needed for instant
+  deferredDelayDays     Int      @default(30)
+  verificationTTLHours  Int      @default(24)
+  maturityLevel         String   @default("Early")
+  computedAt            DateTime @default(now())
+
+  @@index([computedAt])
+  @@map("platform_metrics")
+}
+
+// --- Compute Intelligence Enums ---
+
+enum ComputeInferenceType {
+  CHAT
+  EMBEDDING
+  IMAGE_GENERATION
+  CODE
+  REASONING
+  AUDIO
+  MULTIMODAL
+}
+
+enum ComputeQualityTier {
+  FRONTIER
+  STANDARD
+  ECONOMY
+  OPEN_WEIGHT
+}
+
+enum ComputeLatencyClass {
+  REALTIME
+  INTERACTIVE
+  BATCH
+  ASYNC
+}
+
+enum ComputePrivacyClass {
+  TRANSPORT
+  BLIND
+  TEE_PREFERRED
+  CONFIDENTIAL
+}
+
+enum ComputeAvailabilityClass {
+  SPOT
+  RESERVED
+  DEDICATED
+}
+
+enum ComputeHardwareClass {
+  CONSUMER_GPU
+  DATACENTER_GPU
+  TEE_CAPABLE
+  CPU_ONLY
+  UNKNOWN
+}
+
+enum ComputeSettlementLane {
+  INSTANT
+  STANDARD
+  DEFERRED
+}
+
+enum ComputeVerificationMethod {
+  PROBE_REQUEST
+  LATENCY_ATTESTATION
+  QUALITY_SAMPLE
+  RESPONSE_FINGERPRINT
+  HARDWARE_ATTESTATION
+  SELF_REPORTED
+}
+
+enum ComputeVerificationOutcome {
+  VERIFIED
+  FAILED
+  INCONCLUSIVE
+  EXPIRED
+}
+
+enum ComputeSettlementStatus {
+  PENDING
+  SETTLED
+  DISPUTED
+  REVERSED
+}
+
+// ============================================================================
+// STREAM T — MICROPAYMENT SETTLEMENT FOR DECENTRALISED NODE OPERATORS
+// ============================================================================
+
+model NodeOperator {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  displayName       String?
+  stripeAccountId   String?   @unique            // Stripe Connect Express account
+  payoutEnabled     Boolean   @default(false)     // Set true after Stripe onboarding
+  pendingBalance    Decimal   @default(0) @db.Decimal(14, 6)   // Unsettled earnings
+  lifetimeEarned    Decimal   @default(0) @db.Decimal(14, 6)
+  capabilities      Json      @default("{}")      // Model support, hardware specs
+  regions           String[]                      // ISO 3166-1 alpha-2
+  privacyTier       RoutingPrivacyTier @default(TRANSPORT_ONLY)
+  teeAttested       Boolean   @default(false)
+  reputationScore   Int       @default(50)        // 0–100, starts at 50
+  totalRequests     Int       @default(0)
+  failedRequests    Int       @default(0)
+  avgLatencyMs      Int       @default(0)
+  isOnline          Boolean   @default(false)
+  lastSeenAt        DateTime?
+  apiEndpoint       String?                       // Node's inference endpoint
+  maxConcurrent     Int       @default(4)         // Max simultaneous requests
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  referredByNodeId  String?                       // Node that referred this operator
+  referredBy        NodeOperator?  @relation("NodeReferrals", fields: [referredByNodeId], references: [id], onDelete: SetNull)
+  referrals         NodeOperator[] @relation("NodeReferrals")
+
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions      NodeTransaction[]
+  payouts           NodePayout[]
+  memoryProfile     NodeMemoryProfile?
+  kvCacheEntries    KvCacheEntry[]
+  supplierSubscription SupplierSubscription?
+
+  @@index([isOnline, reputationScore])
+  @@index([regions])
+  @@index([referredByNodeId])
+  @@map("node_operators")
+}
+
+model NodeTransaction {
+  id              String        @id @default(cuid())
+  nodeOperatorId  String
+  type            NodeTxType
+  amount          Decimal       @db.Decimal(14, 6)
+  balanceBefore   Decimal       @db.Decimal(14, 6)
+  balanceAfter    Decimal       @db.Decimal(14, 6)
+  requestId       String?                          // ProxyRequest linkage
+  payoutId        String?                          // NodePayout linkage
+  description     String?
+  createdAt       DateTime      @default(now())
+
+  nodeOperator    NodeOperator  @relation(fields: [nodeOperatorId], references: [id], onDelete: Cascade)
+
+  @@index([nodeOperatorId, createdAt])
+  @@index([type])
+  @@map("node_transactions")
+}
+
+model NodePayout {
+  id              String        @id @default(cuid())
+  nodeOperatorId  String
+  amount          Decimal       @db.Decimal(14, 6)
+  stripeTransferId String?
+  status          PayoutStatus  @default(PENDING)
+  periodStart     DateTime
+  periodEnd       DateTime
+  requestCount    Int           @default(0)
+  createdAt       DateTime      @default(now())
+  processedAt     DateTime?
+
+  nodeOperator    NodeOperator  @relation(fields: [nodeOperatorId], references: [id], onDelete: Cascade)
+
+  @@index([nodeOperatorId, status])
+  @@index([status, createdAt])
+  @@map("node_payouts")
+}
+
+enum NodeTxType {
+  NODE_EARNING
+  NODE_PENALTY
+  NODE_PAYOUT
+  NODE_BONUS
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// ============================================================================
+// STREAM V — COMPUTE TRADING PROTOCOL (DECENTRALISED EXCHANGE LAYER)
+// ============================================================================
+
+model TradingApiKey {
+  id              String    @id @default(cuid())
+  userId          String
+  name            String                          // "My Trading Bot", "Prediction Market"
+  keyHash         String    @unique               // SHA-256 of ilt_ prefixed key
+  permissions     String[]                        // ['read', 'trade', 'settle']
+  rateLimit       Int       @default(100)         // req/min
+  isActive        Boolean   @default(true)
+  lastUsedAt      DateTime?
+  createdAt       DateTime  @default(now())
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@map("trading_api_keys")
+}
+
+model ComputeOrder {
+  id                String          @id @default(cuid())
+  userId            String
+  side              OrderSide
+  orderType         OrderType
+  status            OrderStatus     @default(OPEN)
+  // What compute is being traded
+  qualityTier       ComputeQualityTier
+  inferenceType     ComputeInferenceType?
+  latencyClass      ComputeLatencyClass?
+  // Pricing
+  quantity          Decimal         @db.Decimal(14, 6)    // Credits
+  pricePerUnit      Decimal         @db.Decimal(8, 4)     // $/credit
+  filledQuantity    Decimal         @default(0) @db.Decimal(14, 6)
+  avgFillPrice      Decimal?        @db.Decimal(8, 4)
+  // Expiry
+  expiresAt         DateTime
+  // Linkage
+  tradingApiKeyId   String?                               // null = placed via dashboard
+  classificationId  String?                               // Optional: specific classification
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fills             OrderFill[]
+
+  @@index([status, qualityTier, side])
+  @@index([userId, status])
+  @@index([expiresAt])
+  @@map("compute_orders")
+}
+
+model OrderFill {
+  id              String        @id @default(cuid())
+  buyOrderId      String
+  sellOrderId     String
+  quantity        Decimal       @db.Decimal(14, 6)
+  pricePerUnit    Decimal       @db.Decimal(8, 4)
+  totalUsd        Decimal       @db.Decimal(14, 6)
+  platformFeeUsd  Decimal       @db.Decimal(10, 4)        // 2.5% take rate
+  createdAt       DateTime      @default(now())
+
+  buyOrder        ComputeOrder  @relation(fields: [buyOrderId], references: [id])
+
+  @@index([buyOrderId])
+  @@index([sellOrderId])
+  @@index([createdAt])
+  @@map("order_fills")
+}
+
+model ComputeFuture {
+  id                String          @id @default(cuid())
+  creatorId         String
+  contractType      FutureType
+  status            FutureStatus    @default(OPEN)
+  // Contract spec
+  qualityTier       ComputeQualityTier
+  inferenceType     ComputeInferenceType?
+  quantity          Decimal         @db.Decimal(14, 6)     // Credits
+  strikePrice       Decimal         @db.Decimal(8, 4)      // $/credit at delivery
+  deliveryDate      DateTime
+  // Settlement
+  settlementPrice   Decimal?        @db.Decimal(8, 4)      // Actual price at delivery
+  pnlUsd            Decimal?        @db.Decimal(14, 6)
+  marginRequired    Decimal         @db.Decimal(14, 6)     // Escrow held
+  // Counterparty
+  counterpartyId    String?
+  createdAt         DateTime        @default(now())
+  settledAt         DateTime?
+
+  creator           User            @relation("FutureCreator", fields: [creatorId], references: [id])
+
+  @@index([status, deliveryDate])
+  @@index([creatorId, status])
+  @@map("compute_futures")
+}
+
+model ComputeIndex {
+  id              String    @id @default(cuid())
+  name            String    @unique                        // "IL-FRONTIER", "IL-ECONOMY"
+  description     String
+  qualityTier     ComputeQualityTier
+  currentValue    Decimal   @db.Decimal(8, 4)              // Current $/credit
+  change24h       Decimal   @default(0) @db.Decimal(8, 4)
+  changePct24h    Decimal   @default(0) @db.Decimal(8, 4)
+  volume24hUsd    Decimal   @default(0) @db.Decimal(14, 2)
+  high24h         Decimal   @default(0) @db.Decimal(8, 4)
+  low24h          Decimal   @default(0) @db.Decimal(8, 4)
+  dataPoints      Int       @default(0)
+  updatedAt       DateTime  @updatedAt
+
+  snapshots       IndexSnapshot[]
+
+  @@map("compute_indices")
+}
+
+model IndexSnapshot {
+  id              String        @id @default(cuid())
+  indexId         String
+  value           Decimal       @db.Decimal(8, 4)
+  volumeUsd       Decimal       @db.Decimal(14, 2)
+  snapshotAt      DateTime      @default(now())
+
+  index           ComputeIndex  @relation(fields: [indexId], references: [id], onDelete: Cascade)
+
+  @@index([indexId, snapshotAt])
+  @@map("index_snapshots")
+}
+
+// --- Subscription tiers for supply side (node operators) ---
+
+model SupplierSubscription {
+  id                   String                @id @default(cuid())
+  nodeOperatorId       String                @unique
+  tier                 SupplierTier          @default(STARTER)
+  stripeSubscriptionId String?               @unique
+  status               SubscriptionStatus    @default(ACTIVE)
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+
+  nodeOperator         NodeOperator          @relation(fields: [nodeOperatorId], references: [id], onDelete: Cascade)
+
+  @@map("supplier_subscriptions")
+}
+
+enum SupplierTier {
+  STARTER           // Free — 100 req/day, weekly payouts, DEFERRED lane
+  PROFESSIONAL      // $29/mo — 10K req/day, daily payouts, STANDARD eligible
+  ENTERPRISE        // $99/mo — unlimited, instant payouts, INSTANT eligible, priority routing
+}
+
+enum OrderSide {
+  BUY
+  SELL
+}
+
+enum OrderType {
+  LIMIT
+  MARKET
+}
+
+enum OrderStatus {
+  OPEN
+  PARTIALLY_FILLED
+  FILLED
+  CANCELLED
+  EXPIRED
+}
+
+enum FutureType {
+  FORWARD            // Binding delivery contract
+  OPTION_CALL        // Right to buy at strike
+  OPTION_PUT         // Right to sell at strike
+  // Stream W: Memory & Decode futures
+  DECODE_FORWARD     // Forward contract on decode throughput (tokens/sec)
+  MEMORY_FORWARD     // Forward contract on memory bandwidth (GB/s)
+  DECODE_OPTION_CALL // Right to buy decode capacity at strike
+  MEMORY_OPTION_PUT  // Right to sell memory bandwidth at strike
+}
+
+enum FutureStatus {
+  OPEN
+  MATCHED
+  SETTLED
+  EXPIRED
+  CANCELLED
+}
+
+// ============================================================================
+// STREAM W — MEMORY & DECODE INTELLIGENCE LAYER
+// ============================================================================
+
+// --- Memory-aware extensions to NodeOperator (W1) ---
+// Fields added directly to NodeOperator model above via migration.
+// The following model captures periodic memory benchmarks from nodes.
+
+model NodeMemoryProfile {
+  id                    String              @id @default(cuid())
+  nodeOperatorId        String              @unique
+  // Hardware specs
+  memoryTechnology      MemoryTechnology    @default(UNKNOWN)
+  vramCapacityGB        Int                 @default(0)
+  memoryBandwidthGBs    Int                 @default(0)           // GB/s measured
+  interconnectType      InterconnectType    @default(ETHERNET)
+  // Measured performance
+  decodeThroughputTps   Decimal             @default(0) @db.Decimal(10, 2)   // tokens/sec decode
+  prefillThroughputTps  Decimal             @default(0) @db.Decimal(10, 2)   // tokens/sec prefill
+  maxKvCacheTokens      Int                 @default(0)           // max context under load
+  kvCacheGBUsed         Decimal             @default(0) @db.Decimal(8, 2)    // current KV usage
+  kvCacheGBAvailable    Decimal             @default(0) @db.Decimal(8, 2)    // free KV capacity
+  // Decode specialisation
+  nodeRole              NodeRole            @default(HYBRID)
+  // P2P KV cache sharing (W4)
+  kvSharingEnabled      Boolean             @default(false)
+  kvShareBandwidthGBs   Int                 @default(0)           // available P2P bandwidth
+  // Benchmarked at
+  lastBenchmarkAt       DateTime?
+  benchmarkModelId      String?                                    // model used for benchmark
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  nodeOperator          NodeOperator        @relation(fields: [nodeOperatorId], references: [id], onDelete: Cascade)
+
+  @@map("node_memory_profiles")
+}
+
+// --- KV Cache Registry (W4) ---
+
+model KvCacheEntry {
+  id                String          @id @default(cuid())
+  nodeOperatorId    String
+  modelId           String                          // which model's KV cache
+  promptHash        String                          // SHA-256 of the prompt/context
+  tokenRangeStart   Int             @default(0)
+  tokenRangeEnd     Int                             // last token cached
+  cacheSizeGB       Decimal         @db.Decimal(8, 4)
+  status            KvCacheStatus   @default(WARM)
+  // Pricing
+  pricePerGBHour    Decimal         @default(0.01) @db.Decimal(8, 4)  // $/GB/hour
+  totalEarnedUsd    Decimal         @default(0) @db.Decimal(10, 4)
+  // Lifecycle
+  lastAccessedAt    DateTime        @default(now())
+  expiresAt         DateTime                        // auto-evict after this
+  createdAt         DateTime        @default(now())
+
+  nodeOperator      NodeOperator    @relation(fields: [nodeOperatorId], references: [id], onDelete: Cascade)
+
+  @@unique([nodeOperatorId, modelId, promptHash])
+  @@index([modelId, promptHash, status])
+  @@index([nodeOperatorId, status])
+  @@index([expiresAt])
+  @@map("kv_cache_entries")
+}
+
+model KvCacheTransfer {
+  id                String          @id @default(cuid())
+  sourceNodeId      String                          // node serving the cache
+  targetNodeId      String                          // node receiving the cache
+  cacheEntryId      String
+  transferSizeGB    Decimal         @db.Decimal(8, 4)
+  transferTimeMs    Int                             // measured P2P transfer time
+  costUsd           Decimal         @db.Decimal(10, 6)
+  platformFeeUsd    Decimal         @db.Decimal(10, 6)  // 15% take
+  status            KvTransferStatus @default(PENDING)
+  createdAt         DateTime        @default(now())
+  completedAt       DateTime?
+
+  @@index([sourceNodeId, createdAt])
+  @@index([targetNodeId, createdAt])
+  @@index([status])
+  @@map("kv_cache_transfers")
+}
+
+// --- Enums (W1) ---
+
+enum MemoryTechnology {
+  HBM3E
+  HBM3
+  HBM2E
+  GDDR6X
+  GDDR6
+  DDR5
+  UNKNOWN
+}
+
+enum InterconnectType {
+  NVLINK
+  PCIE5
+  PCIE4
+  INFINIBAND
+  ETHERNET
+}
+
+enum NodeRole {
+  PREFILL_OPTIMISED     // High compute, moderate memory — good for prompt processing
+  DECODE_OPTIMISED      // High memory bandwidth — good for token generation
+  HYBRID                // Balanced — handles both phases
+  KV_CACHE_SERVER       // Primarily serves cached KV data to other nodes
+}
+
+enum KvCacheStatus {
+  WARM        // Actively in GPU memory, instant access
+  COLD        // Swapped to flash/SSD, needs reload (50-200ms)
+  EVICTING    // Being removed, no new access
+  EXPIRED     // Past TTL, awaiting cleanup
+}
+
+enum KvTransferStatus {
+  PENDING
+  TRANSFERRING
+  COMPLETED
+  FAILED
+}
+
+// ============================================================================
+// STREAM Z — Promotion Intelligence & Prompt Scheduling
+// ============================================================================
+
+enum PromotionType {
+  USAGE_BONUS
+  PRICE_DISCOUNT
+  FREE_TIER
+  CREDIT_GRANT
+  NEW_MODEL_PREVIEW
+  RATE_LIMIT_BOOST
+}
+
+enum PromotionStatus {
+  UPCOMING
+  ACTIVE
+  EXPIRED
+}
+
+enum ScheduledPromptStatus {
+  QUEUED
+  SCHEDULED
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+  EXPIRED
+}
+
+enum ScheduleType {
+  IMMEDIATE
+  TIME_BASED
+  PROMOTION_TRIGGERED
+  PRICE_TRIGGERED
+  RECURRING
+  OPTIMAL_WINDOW
+}
+
+model ProviderPromotion {
+  id                String          @id @default(cuid())
+  provider          String
+  title             String
+  type              PromotionType
+  sourceUrl         String
+  detectedAt        DateTime        @default(now())
+  startsAt          DateTime
+  endsAt            DateTime
+  eligiblePlans     String[]
+  multiplier        Float           @default(1.0)
+  offPeakOnly       Boolean         @default(false)
+  peakHoursStart    String?
+  peakHoursEnd      String?
+  peakTimezone      String?
+  affectedSurfaces  String[]
+  stacksWithOther   Boolean         @default(false)
+  rawDescription    String
+  confidence        Float           @default(0.5)
+  status            PromotionStatus @default(ACTIVE)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  scheduledPrompts  ScheduledPrompt[]
+
+  @@index([provider, status])
+  @@index([startsAt, endsAt])
+  @@map("provider_promotions")
+}
+
+model ScheduledPrompt {
+  id              String                @id @default(cuid())
+  userId          String
+  title           String
+  status          ScheduledPromptStatus @default(QUEUED)
+  priority        String                @default("medium")
+  model           String
+  systemPrompt    String?
+  messages        Json
+  parameters      Json
+  scheduleType    ScheduleType
+  scheduledAt     DateTime?
+  cronExpression  String?
+  promotionFilter Json?
+  priceThreshold  Json?
+  executedAt      DateTime?
+  response        String?
+  tokensUsed      Json?
+  costCents       Float?
+  savingsCents    Float?
+  error           String?
+  batchId         String?
+  dependsOn       String[]
+  chainIndex      Int?
+  promotionId     String?
+
+  user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promotion       ProviderPromotion?    @relation(fields: [promotionId], references: [id])
+
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@index([userId, status])
+  @@index([scheduleType, status])
+  @@index([batchId])
+  @@map("scheduled_prompts")
+}
+
+model PromptTemplate {
+  id            String   @id @default(cuid())
+  userId        String
+  title         String
+  category      String
+  model         String
+  systemPrompt  String?
+  messages      Json
+  parameters    Json
+  autoQueue     Boolean  @default(false)
+  lastUsedAt    DateTime?
+  useCount      Int      @default(0)
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@map("prompt_templates")
 }

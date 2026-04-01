@@ -7,20 +7,22 @@ interface TopUpBannerProps {
 }
 
 export default function TopUpBanner({ providers }: TopUpBannerProps) {
+  if (!providers.length) return null;
+
   // Find the provider closest to running out
   const critical = providers
     .map(p => ({
       ...p,
-      remaining: ((p.monthlyBudget - p.currentSpend) / p.monthlyBudget) * 100,
+      remaining: p.monthlyBudget > 0 ? ((p.monthlyBudget - p.currentSpend) / p.monthlyBudget) * 100 : 100,
     }))
     .sort((a, b) => a.remaining - b.remaining)[0];
 
   if (critical.remaining > 30) return null;
 
-  const daysLeft = Math.floor(
-    (critical.monthlyBudget - critical.currentSpend) /
-    (critical.currentSpend / new Date().getDate())
-  );
+  const dailyRate = critical.currentSpend / Math.max(new Date().getDate(), 1);
+  const daysLeft = dailyRate > 0
+    ? Math.floor((critical.monthlyBudget - critical.currentSpend) / dailyRate)
+    : 99;
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-r from-amber-500/10 via-red-500/10 to-purple-500/10 rounded-2xl border border-amber-500/20 p-5">

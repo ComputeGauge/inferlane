@@ -19,7 +19,7 @@ export default function EarningsPage() {
             </div>
             <h4 className="font-semibold text-white mb-1">1. Signup Bonus</h4>
             <p className="text-xs text-gray-400 leading-relaxed">
-              Earn $5-$50 per new user who signs up through your ComputeGauge dashboard.
+              Earn $5-$50 per new user who signs up through your InferLane dashboard.
               Attribution via cookie tracking (30-90 day window).
             </p>
             <p className="text-lg font-bold text-blue-400 font-mono mt-2">$5 - $50</p>

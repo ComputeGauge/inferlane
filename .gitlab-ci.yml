@@ -1,0 +1,153 @@
+# InferLane — GitLab CI/CD Pipeline
+# Runs on every push: lint, type-check, test, build
+# Blocks merge on failure
+
+image: node:22-alpine
+
+stages:
+  - validate
+  - test
+  - build
+
+variables:
+  # Speed up npm install
+  npm_config_cache: '$CI_PROJECT_DIR/.npm'
+  # Prisma needs OpenSSL
+  PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING: '1'
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - .npm/
+    - node_modules/
+
+# ─── Validate Stage ───────────────────────────────────────────────
+
+lint:
+  stage: validate
+  before_script:
+    - npm ci --prefer-offline
+  script:
+    - npx eslint . --max-warnings 0
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+typecheck:
+  stage: validate
+  before_script:
+    - npm ci --prefer-offline
+    - npx prisma generate
+  script:
+    - npx tsc --noEmit
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+security-audit:
+  stage: validate
+  before_script:
+    - npm ci --prefer-offline
+  script:
+    - echo "Running npm audit (high/critical only)..."
+    - npm audit --audit-level=high
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+dependency-check:
+  stage: validate
+  before_script:
+    - npm ci --prefer-offline
+  script:
+    - npm audit --json > audit-report.json || true
+    - |
+      HIGH_COUNT=$(cat audit-report.json | node -e "
+        const data = require('fs').readFileSync('/dev/stdin', 'utf8');
+        try {
+          const json = JSON.parse(data);
+          const meta = json.metadata?.vulnerabilities || {};
+          console.log((meta.high || 0) + (meta.critical || 0));
+        } catch { console.log(0); }
+      ")
+      echo "High/Critical vulnerabilities: $HIGH_COUNT"
+      if [ "$HIGH_COUNT" -gt "0" ]; then
+        echo "WARNING: $HIGH_COUNT high/critical vulnerabilities found"
+        npm audit --audit-level=high || true
+      else
+        echo "No high/critical vulnerabilities detected"
+      fi
+  artifacts:
+    paths:
+      - audit-report.json
+    when: always
+    expire_in: 1 week
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# ─── Test Stage ───────────────────────────────────────────────────
+
+unit-tests:
+  stage: test
+  before_script:
+    - npm ci --prefer-offline
+  script:
+    - npx vitest run --reporter=verbose
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# ─── Build Stage ──────────────────────────────────────────────────
+
+build:
+  stage: build
+  before_script:
+    - npm ci --prefer-offline
+    - npx prisma generate
+  script:
+    - npx next build
+  artifacts:
+    paths:
+      - .next/
+    expire_in: 1 day
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# ─── Package Builds (MCP + CLI) ──────────────────────────────────
+
+build-mcp:
+  stage: build
+  before_script:
+    - npm ci --prefer-offline
+    - cd packages/mcp && npm install
+  script:
+    - cd packages/mcp && npx tsc --noEmit
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - packages/mcp/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - packages/mcp/**/*
+
+build-cli:
+  stage: build
+  before_script:
+    - npm ci --prefer-offline
+    - cd packages/cli && npm install
+  script:
+    - cd packages/cli && npx tsc --noEmit
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - packages/cli/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - packages/cli/**/*

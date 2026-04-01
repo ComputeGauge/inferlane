@@ -14,7 +14,7 @@
 | gauge.ai | ❌ TAKEN | Active company — consumer insights/feedback platform |
 | Gauge (withgauge.com) | ❌ TAKEN | YC S24 startup — AI visibility/AEO platform |
 | Gauge (gauge.to) | ❌ TAKEN | Enterprise AI data/alignment company (Vivek Shah) |
-| **ComputeGauge** | ✅ CLEAN | No company, trademark, or software found |
+| **InferLane** | ✅ CLEAN | No company, trademark, or software found |
 | **SpendGauge** | ✅ CLEAN | Zero search results — completely available |
 | **TokenGauge** | ✅ CLEAN | Zero search results — completely available |
 | ModelGauge | ⚠️ CAUTION | MLCommons open-source project (archived) — potential confusion |
@@ -49,7 +49,7 @@
 ### ✅ CLEAN (No Conflicts Found)
 | Name | Domain Outlook | Brand Fit | Reflects Growth? |
 |---|---|---|---|
-| **ComputeGauge** | .ai/.io/.com likely available | Strong | ✅ Yes — "compute" scales beyond just spend |
+| **InferLane** | .ai/.io/.com likely available | Strong | ✅ Yes — "compute" scales beyond just spend |
 | **SpendGauge** | .ai/.io/.com likely available | Strong | ⚠️ Somewhat — anchored to "spend" |
 | **TokenGauge** | .ai/.io/.com likely available | Strong | ⚠️ Somewhat — anchored to "tokens" |
 | **Burnlens** | .ai/.io/.com likely available | Good | ❌ No — "burn" implies just cost tracking |
@@ -61,12 +61,12 @@
 
 ## 🏆 Top 3 Recommendations
 
-### 1. ComputeGauge (RECOMMENDED)
+### 1. InferLane (RECOMMENDED)
 - **Why:** "Compute" encompasses everything — API spend, GPU costs, inference, training, proxy routing, governance. Not limited to just "spend tracking."
-- **Growth-proof:** As the platform evolves from dashboard → proxy → FinOps → enterprise governance → financing, "ComputeGauge" stays relevant at every stage.
+- **Growth-proof:** As the platform evolves from dashboard → proxy → FinOps → enterprise governance → financing, "InferLane" stays relevant at every stage.
 - **Brand strength:** "Gauge" implies measurement, monitoring, dashboards — exactly what the product does. The fuel gauge metaphor survives.
 - **IP risk:** CLEAN — no company, trademark, or software found.
-- **Domains to register:** computegauge.ai, computegauge.io, computegauge.com
+- **Domains to register:** inferlane.ai, inferlane.io, inferlane.com
 
 ### 2. TokenGauge
 - **Why:** "Token" is the universal unit of AI spend. Every LLM charges by tokens.
@@ -81,10 +81,10 @@
 ---
 
 ## Next Steps
-1. ✅ Check domain availability at registrar (computegauge.ai, .io, .com)
+1. ✅ Check domain availability at registrar (inferlane.ai, .io, .com)
 2. ✅ Run formal USPTO TESS search at tess2.uspto.gov
 3. ✅ File trademark application (Class 9 + Class 42)
-4. ✅ Register social handles (@computegauge)
+4. ✅ Register social handles (@inferlane)
 5. ✅ Consult IP attorney for professional clearance
 
 *This analysis is based on public web searches and is not legal advice.*

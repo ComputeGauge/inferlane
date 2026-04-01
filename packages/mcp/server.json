@@ -1,0 +1,67 @@
+{
+  "name": "@inferlane/mcp",
+  "description": "The AI agent's cost intelligence layer. Model selection, spend tracking, credibility scoring, local-to-cloud routing, and platform integration via MCP.",
+  "version": "0.5.0",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/aardappvark-group/inferlane"
+  },
+  "homepage": "https://inferlane.com",
+  "license": "Apache-2.0",
+  "runtime": "node",
+  "installation": {
+    "npx": {
+      "command": "npx -y @inferlane/mcp",
+      "description": "Run directly via npx without installation"
+    },
+    "npm": {
+      "command": "npm install -g @inferlane/mcp",
+      "description": "Install globally, then run 'inferlane-mcp'"
+    }
+  },
+  "configuration": {
+    "mcpServers": {
+      "inferlane": {
+        "command": "npx",
+        "args": ["-y", "@inferlane/mcp"],
+        "env": {
+          "INFERLANE_API_KEY": "<optional — 18 tools work without it>"
+        }
+      }
+    }
+  },
+  "authentication": {
+    "type": "api_key",
+    "env_var": "INFERLANE_API_KEY",
+    "required": false,
+    "description": "API key is optional. 22 tools work fully offline with no key — cost intelligence, credibility, local routing, model selection, ratings, real-time monitoring. 4 additional tools (check_promotions, platform_spend, platform_budget, route_via_platform) require an API key for platform connectivity."
+  },
+  "tools": [
+    { "name": "pick_model", "description": "Choose the optimal AI model for a task considering cost, quality, and speed.", "requiresAuth": false },
+    { "name": "log_request", "description": "Track API request costs in the current session.", "requiresAuth": false },
+    { "name": "session_cost", "description": "Get current session cost summary.", "requiresAuth": false },
+    { "name": "rate_recommendation", "description": "Rate a model recommendation for continuous improvement.", "requiresAuth": false },
+    { "name": "model_ratings", "description": "View aggregated model ratings leaderboard.", "requiresAuth": false },
+    { "name": "improvement_cycle", "description": "Run continuous improvement analysis on model recommendations.", "requiresAuth": false },
+    { "name": "integrity_report", "description": "Get rating integrity validation report.", "requiresAuth": false },
+    { "name": "credibility_profile", "description": "View agent credibility score and breakdown.", "requiresAuth": false },
+    { "name": "credibility_leaderboard", "description": "View agent credibility leaderboard.", "requiresAuth": false },
+    { "name": "route_to_cloud", "description": "Record a local-to-cloud routing decision for credibility scoring.", "requiresAuth": false },
+    { "name": "assess_routing", "description": "Get local vs cloud routing recommendation for a task.", "requiresAuth": false },
+    { "name": "cluster_status", "description": "Detect and report local inference endpoints (Ollama, vLLM, etc).", "requiresAuth": false },
+    { "name": "get_spend_summary", "description": "Get offline spend summary by period.", "requiresAuth": false },
+    { "name": "get_budget_status", "description": "Get budget tracking status.", "requiresAuth": false },
+    { "name": "get_model_pricing", "description": "Look up model pricing data.", "requiresAuth": false },
+    { "name": "get_cost_comparison", "description": "Compare costs across models for a given workload.", "requiresAuth": false },
+    { "name": "suggest_savings", "description": "Get personalized cost optimization suggestions.", "requiresAuth": false },
+    { "name": "get_usage_trend", "description": "Show spend trends and anomalies over time.", "requiresAuth": false },
+    { "name": "check_promotions", "description": "Check active provider promotions on the platform.", "requiresAuth": true },
+    { "name": "platform_spend", "description": "Get real spend data from the platform.", "requiresAuth": true },
+    { "name": "platform_budget", "description": "Get real budget status from the platform.", "requiresAuth": true },
+    { "name": "route_via_platform", "description": "Route LLM requests through the cost-optimized platform proxy.", "requiresAuth": true },
+    { "name": "token_tachometer", "description": "Real-time token velocity gauge with state tracking (IDLE→ACTIVE→HIGH_LOAD→REDLINE).", "requiresAuth": false },
+    { "name": "agent_status", "description": "View per-agent traffic light status (green/amber/red/blue).", "requiresAuth": false },
+    { "name": "set_agent_status", "description": "Manually set an agent's traffic light color and label.", "requiresAuth": false },
+    { "name": "sync_ratings", "description": "View/trigger anonymous rating sync to platform.", "requiresAuth": false }
+  ]
+}

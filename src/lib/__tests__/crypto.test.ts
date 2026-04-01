@@ -33,7 +33,7 @@ describe('crypto', () => {
     const { generateApiKey } = await import('../crypto');
     const { raw, hash, prefix } = generateApiKey('live');
 
-    expect(raw).toMatch(/^cg_live_[A-Za-z0-9_-]+$/);
+    expect(raw).toMatch(/^il_live_[A-Za-z0-9_-]+$/);
     expect(prefix).toBe(raw.slice(0, 16));
     expect(hash).toHaveLength(64); // SHA-256 hex
     expect(hash).not.toEqual(raw);
@@ -43,7 +43,7 @@ describe('crypto', () => {
     const { generateApiKey } = await import('../crypto');
     const { raw, prefix } = generateApiKey('test');
 
-    expect(raw).toMatch(/^cg_test_/);
-    expect(prefix).toMatch(/^cg_test_/);
+    expect(raw).toMatch(/^il_test_/);
+    expect(prefix).toMatch(/^il_test_/);
   });
 });

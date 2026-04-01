@@ -28,8 +28,8 @@ No tool unifies cloud API token costs + on-prem GPU costs + hardware TCO. Not Cl
 **Implication:** Hybrid cost management is the defensible gap that's hardest to replicate and most valuable to acquirers.
 
 ### Updated Single-Sentence Strategy:
-**OLD:** "Every AI agent's reputation must be built on ComputeGauge."
-**NEW:** "Every AI agent must know what its decisions cost — and ComputeGauge is the only place to find out."
+**OLD:** "Every AI agent's reputation must be built on InferLane."
+**NEW:** "Every AI agent must know what its decisions cost — and InferLane is the only place to find out."
 
 Cost intelligence is the hook. Reputation is the retention. Hybrid routing is the moat. MCP is the distribution.
 
@@ -143,7 +143,7 @@ Agent calls pick_model → saves 40-70% on API costs → user keeps using agent 
   → every log_request feeds quality data back → pick_model gets smarter → recommendations improve
   → agent earns credibility for smart decisions → reputation grows → switching cost increases
   → MORE agents adopt because pick_model demonstrably saves money → data flywheel accelerates
-  → local agents hit limits → route to cloud via ComputeGauge → revenue bridge activates
+  → local agents hit limits → route to cloud via InferLane → revenue bridge activates
 ```
 
 **Why this is Layer 0 (before everything else):**
@@ -153,6 +153,43 @@ Agent calls pick_model → saves 40-70% on API costs → user keeps using agent 
 - **Credibility is the retention layer.** While the reputation concept isn't novel (ERC-8004, AgentTrust, mTrust exist), nobody else embeds reputation INTO cost decisions. Our unique angle: credibility earned through smart cost decisions, not just task completion. This makes switching painful because you lose your cost-efficiency track record.
 - **Local→cloud routing is the revenue bridge.** Agents earn credibility for smart routing. Users get better results. We capture the conversion from free local inference to paid cloud APIs. This is zero-human-sales revenue.
 - **For acquisition:** MCP installs + pick_model calls/day + $ saved by agents + data points collected + cloud routing revenue = the metrics that make Datadog, IBM, Snowflake say "they own the AI cost intelligence layer."
+
+### ⚡ THE `pick_model` MOAT — Why This Single Tool Is The Entire Defensible Position
+
+Everything above describes Layer 0 in general terms. Here's the specific mechanism that makes it defensible:
+
+**`pick_model` creates a three-sided lock-in that no competitor can replicate without years of adoption:**
+
+```
+AGENTS (demand side)                    INFERLANE                    PROVIDERS (supply side)
+                                     pick_model engine
+Call pick_model 50x/session ──→   Scores 27+ models across     ←── Providers WANT to be in the
+                                  13 providers on cost/quality       database because exclusion =
+Log request after each call ──→   /speed per task type               zero agent traffic
+                                        │
+Rate recommendation ──────────→   Quality data improves ────────→   Better recommendations =
+                                        │                           more agent adoption =
+                                  Data flywheel spins ──────────→   more data = better scores
+                                        │
+                                  After 100K sessions: ─────────→   DATA IS UNREPLICABLE
+                                  quality scores from real            A new entrant needs years
+                                  agent usage beat every              of adoption to match
+                                  static benchmark
+```
+
+**The critical insight: `pick_model` is called PER-REQUEST, not per-session.** A 50-step workflow = 50 calls. 1,000 daily active agents = 50,000 calls/day. Each call is simultaneously a user touchpoint AND a data collection event. No other SaaS tool has this call frequency.
+
+**Four moat layers compound on top of each other:**
+
+1. **Data exclusivity** — Quality scores from real agent ratings (not synthetic benchmarks) that decay without us. After 1M sessions, a competitor with zero data can only offer static benchmark recommendations — demonstrably worse.
+
+2. **Network effects** — Agent A rates "haiku is bad for math" → Agent B gets better math recommendations tomorrow. Every new user improves the product for all existing users.
+
+3. **Provider dependency** — As `pick_model` routes traffic, providers compete for placement. Exclusion from the database = invisible to agents. This flips the power dynamic from "we beg for partnerships" to "providers court us for recommendations."
+
+4. **Switching costs** — Credibility scores, budget tracking, savings history all reset to zero with a competitor. Agents that have built 6 months of cost-efficiency track record won't abandon it.
+
+**See SAAS_LIFECYCLE_PLAN.md § "`pick_model` — The Killer Feature & Primary Moat" for complete competitive threat analysis, revenue path, and acquisition magnet positioning.**
 
 ### Layer 1: Multi-Provider Data Aggregation
 **What:** Unified view of spend across all AI providers
@@ -212,24 +249,24 @@ Agent calls pick_model → saves 40-70% on API costs → user keeps using agent 
 
 ## The Strategic Imperative
 
-**Every AI agent must know what its decisions cost — and ComputeGauge is the only place to find out.**
+**Every AI agent must know what its decisions cost — and InferLane is the only place to find out.**
 
 That is the single sentence strategy. Cost intelligence is the hook that drives adoption. The data flywheel is the moat that prevents replication. Credibility is the retention mechanism that prevents churn. Hybrid routing is the defensible gap that no competitor can cross.
 
 **The four levels of control (build in order):**
-1. **Cost intelligence (v0.2.0 — SHIPPED):** Agent calls `pick_model` → saves 40-70% → can't work efficiently without us
-2. **Data ownership (v0.3.0 — NOW):** Every `log_request` + `rate_recommendation` feeds our quality database → after 10K sessions, our data is unmatched → after 100K, it's unreplicable
-3. **Reputation retention (v0.3.0 — NOW):** Agent builds credibility score → switching means losing track record → churn drops
-4. **Traffic routing (Month 2-3):** Proxy routes calls through `api.computegauge.ai` → we execute the decisions we already influence → revenue scales with traffic
+1. **⚡ `pick_model` adoption (v0.2.0 — SHIPPED):** Agent calls `pick_model` on EVERY request → saves 40-70% → can't work efficiently without us → called 50x per session, not once — this call frequency is the distribution moat
+2. **Data ownership (v0.3.0 — NOW):** Every `log_request` + `rate_recommendation` feeds quality scores that beat static benchmarks → after 10K sessions, data is unmatched → after 100K, it's unreplicable → a competitor launching today starts at zero
+3. **Reputation retention (v0.3.0 — NOW):** Agent builds credibility score through smart cost decisions → switching resets to zero → churn drops
+4. **Traffic routing (Month 2-3):** `pick_model` already RECOMMENDS which provider to use → proxy upgrade means we EXECUTE that recommendation → we convert influence into billable API calls
 
 **Why data > reputation > traffic routing:**
 - A proxy can be replaced by another proxy (Portkey, LiteLLM)
 - A reputation system can be replicated by well-funded competitors (ERC-8004, mTrust, Scorecard already exist)
 - **A data flywheel of cost/quality patterns across 20+ models, 14 task types, and millions of sessions CANNOT be replicated.** It can only be earned through adoption over time. This is the Datadog playbook — their data moat is why they're worth $40B despite dozens of competitors.
 
-**The local→cloud bridge is the revenue engine.** Free local inference (Mac Minis, Ollama) handles 60-80% of tasks at zero cost. But for the 20-40% that need cloud quality, the agent routes through ComputeGauge and earns credibility. This converts free users into cloud revenue — automatically, via agent incentives, with zero human sales involvement.
+**The local→cloud bridge is the revenue engine.** Free local inference (Mac Minis, Ollama) handles 60-80% of tasks at zero cost. But for the 20-40% that need cloud quality, the agent routes through InferLane and earns credibility. This converts free users into cloud revenue — automatically, via agent incentives, with zero human sales involvement.
 
-**The hybrid play = genuinely unoccupied territory.** A cloud-only tool can't price on-prem inference. An on-prem-only tool can't track API spend. A generic FinOps platform can't score AI model quality. Only ComputeGauge spans all three: cost intelligence + hybrid routing + AI-specific quality scoring. This is the gap that $119M CloudZero and $85M Finout don't fill, and that Datadog ($40B) would pay to acquire.
+**The hybrid play = genuinely unoccupied territory.** A cloud-only tool can't price on-prem inference. An on-prem-only tool can't track API spend. A generic FinOps platform can't score AI model quality. Only InferLane spans all three: cost intelligence + hybrid routing + AI-specific quality scoring. This is the gap that $119M CloudZero and $85M Finout don't fill, and that Datadog ($40B) would pay to acquire.
 
 **Cost intelligence comes FIRST.** Layer 0 is cost intelligence because:
 - It has immediate, measurable ROI (saves 40-70% — requires zero explanation)
@@ -263,7 +300,7 @@ Month 18: [██████████] Full hybrid moat — extremely defens
                     INFRASTRUCTURE (routing traffic)
                               ↑
                               |
-            Portkey     [ComputeGauge]        OpenRouter
+            Portkey     [InferLane]        OpenRouter
             LiteLLM     CLOUD + ON-PREM       Together AI
                          ← TARGET →
                               |
@@ -301,7 +338,7 @@ Month 18: [██████████] Full hybrid moat — extremely defens
 | MCP Server Installs | 500 | 5,000 | 25,000 | Each install = agent using our cost intelligence |
 | `pick_model` calls/day | 1,000 | 50,000 | 500,000 | **THE metric.** Every call = we influenced a decision + earned data |
 | `log_request` calls/day | 500 | 25,000 | 250,000 | **Data flywheel** — feeds quality scores + cost patterns |
-| $ Saved by agents (cumulative) | $5K | $500K | $10M+ | **ROI proof** — "ComputeGauge saved agents $X" |
+| $ Saved by agents (cumulative) | $5K | $500K | $10M+ | **ROI proof** — "InferLane saved agents $X" |
 | Active agent sessions/day | 100 | 5,000 | 50,000 | Unique sessions feeding data flywheel |
 | Data points collected | 50K | 5M | 100M+ | **Data moat depth** — unreplicable after 10M+ |
 | Cloud routing events/day | 100 | 5,000 | 50,000 | Each event = free→paid conversion |
@@ -376,13 +413,13 @@ Month 18: [██████████] Full hybrid moat — extremely defens
 - 12% of revenue now from AI-native customers (growing fast)
 - Acquiring aggressively: Metaplane, Eppo (~$220M), Quickwit, Upwind (~$1B)
 - MISSING: AI cost management. They have LLM observability but no FinOps layer.
-- ComputeGauge fills the exact gap in their AI strategy.
+- InferLane fills the exact gap in their AI strategy.
 - Datadog is a strategic investor in LangChain ($1.25B) and Arize AI ($131M).
 
 ### Second Most Likely: IBM
 - Already spent $4.6B on Apptio + acquired Kubecost for FinOps suite
 - Missing AI-specific cost management (Apptio is generic IT spend)
-- ComputeGauge adds the AI layer to their FinOps platform
+- InferLane adds the AI layer to their FinOps platform
 
 ---
 

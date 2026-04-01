@@ -1,7 +1,7 @@
-# Strategic Learnings from Protocommerce — Apply to ComputeGauge
+# Strategic Learnings from Protocommerce — Apply to InferLane
 
 ## Context
-We designed and spec'd Protocommerce — an open-source protocol that makes businesses discoverable and transactable by AI agents via MCP (Model Context Protocol). While building the protocol spec, we identified strategies, architecture patterns, and go-to-market approaches that directly apply to ComputeGauge. ComputeGauge was chosen to ship first because it has an existing MVP, generates revenue faster, has no cold-start problem, and the market is ready NOW.
+We designed and spec'd Protocommerce — an open-source protocol that makes businesses discoverable and transactable by AI agents via MCP (Model Context Protocol). While building the protocol spec, we identified strategies, architecture patterns, and go-to-market approaches that directly apply to InferLane. InferLane was chosen to ship first because it has an existing MVP, generates revenue faster, has no cold-start problem, and the market is ready NOW.
 
 ---
 
@@ -9,11 +9,11 @@ We designed and spec'd Protocommerce — an open-source protocol that makes busi
 
 **What we learned:** The fastest path to community adoption, market credibility, and eventual acquisition is open-sourcing the core protocol/tooling while monetising through commercial layers on top.
 
-**Apply to ComputeGauge:**
+**Apply to InferLane:**
 - Open-source the core cost aggregation SDK and provider adapters (the "plumbing" that connects to OpenAI, Anthropic, AWS Bedrock, etc.)
 - Keep the dashboard UI, smart router, proxy, and FinOps automation as the commercial product
 - Community builds adapters for long-tail providers you'd never get to yourself
-- Every community adapter makes ComputeGauge more valuable for every user
+- Every community adapter makes InferLane more valuable for every user
 - GitHub stars and community size directly increase acquisition valuation
 
 **Concrete structure:**
@@ -41,10 +41,10 @@ Commercial (SaaS):
 
 **What we learned:** MCP (Model Context Protocol) is becoming the standard way AI agents interact with tools. Any product that exposes an MCP server instantly becomes usable by Claude, GPT, and every other agent-capable AI.
 
-**Apply to ComputeGauge:**
-- Build ComputeGauge as an MCP server that AI agents can query
+**Apply to InferLane:**
+- Build InferLane as an MCP server that AI agents can query
 - An engineering lead could ask Claude: "What's our AI spend this month? Which provider is cheapest for GPT-4-class models? Route my next 10K requests to the cheapest option."
-- Claude connects to the ComputeGauge MCP server and gets real data
+- Claude connects to the InferLane MCP server and gets real data
 - This is a massive differentiation — no competitor has this
 - MCP tools to expose:
   - `get_spend_summary(period, provider?, team?)`
@@ -63,7 +63,7 @@ Commercial (SaaS):
 
 **What we learned:** In Protocommerce, the adapter library (connecting to Shopify, Cloudbeds, Square, etc.) IS the moat. Whoever has the most integrations wins because switching costs compound.
 
-**Apply to ComputeGauge:**
+**Apply to InferLane:**
 - Every provider adapter is a moat layer — each one makes it harder for users to leave
 - Prioritise adapters by market share: Anthropic, OpenAI, Google, AWS Bedrock, Azure OpenAI, Together AI, Groq, Mistral, Cohere, Replicate
 - The on-prem GPU agent (NVIDIA DCGM monitoring) is the STRONGEST moat — once it's running on production GPU clusters, nobody is ripping it out
@@ -71,7 +71,7 @@ Commercial (SaaS):
 - Each adapter follows a standard interface — same pattern we designed for Protocommerce:
 
 ```typescript
-interface ComputeGaugeAdapter {
+interface InferLaneAdapter {
   readonly provider: string;
   readonly version: string;
 
@@ -102,7 +102,7 @@ interface ComputeGaugeAdapter {
 
 **What we learned:** Parallel Claude Code sessions (3-4 running simultaneously) roughly halve development time. Each session owns a distinct module with clean boundaries. No merge conflicts because each session owns separate directories.
 
-**Apply to ComputeGauge:**
+**Apply to InferLane:**
 
 **Session 1: Core dashboard + UI polish**
 - Landing page → signup → dashboard flow
@@ -121,7 +121,7 @@ interface ComputeGaugeAdapter {
 - Adapter SDK for community contributions
 
 **Session 4: MCP server + marketplace + auth**
-- ComputeGauge as MCP server (AI-queryable cost data)
+- InferLane as MCP server (AI-queryable cost data)
 - Cloud marketplace with affiliate tracking
 - Auth, billing, Stripe subscription integration
 
@@ -141,7 +141,7 @@ interface ComputeGaugeAdapter {
 - GitHub stars + community contributors (if open-sourcing core)
 - Monthly active users and retention
 
-**Most likely ComputeGauge acquirers:**
+**Most likely InferLane acquirers:**
 1. **Datadog** — extending into AI cost observability (they already do cloud monitoring)
 2. **CloudZero / Finout** — pure FinOps players who lack AI-specific depth
 3. **AWS / Azure / GCP** — want to own the cost management layer for AI (lock-in play)
@@ -160,7 +160,7 @@ interface ComputeGaugeAdapter {
 
 **What we learned:** You don't need Shopify/Stripe/big platform partnerships to start. You build on their public APIs. They don't need to know you exist until you have traction.
 
-**Apply to ComputeGauge:**
+**Apply to InferLane:**
 - Every AI provider has a public usage/billing API — use them directly
 - OpenAI: Usage API, Anthropic: Usage API, AWS: Cost Explorer API, etc.
 - You don't need "partnerships" with Anthropic or OpenAI to track their costs
@@ -171,9 +171,9 @@ interface ComputeGaugeAdapter {
 
 ## 7. Trust and Safety Architecture
 
-**What we learned:** For Protocommerce we designed a tiered trust system and adapter security model. Same principles apply to ComputeGauge where you're handling API keys and spend data.
+**What we learned:** For Protocommerce we designed a tiered trust system and adapter security model. Same principles apply to InferLane where you're handling API keys and spend data.
 
-**Apply to ComputeGauge:**
+**Apply to InferLane:**
 - **Never store raw API keys** — use OAuth where available, encrypted vault for keys that must be stored
 - **Adapter sandboxing** — community-contributed adapters run in isolated contexts (Cloudflare Workers) with no access to other providers' credentials
 - **Tiered adapter trust**: Official (you built), Verified (reviewed), Community (use at own risk)
@@ -187,7 +187,7 @@ interface ComputeGaugeAdapter {
 
 **What we learned:** Multiple revenue streams compound. Don't rely on just one.
 
-**Apply to ComputeGauge (already in your plan, reinforced by Protocommerce thinking):**
+**Apply to InferLane (already in your plan, reinforced by Protocommerce thinking):**
 
 | Layer | Revenue | Timing |
 |---|---|---|
@@ -209,9 +209,9 @@ interface ComputeGaugeAdapter {
 3. Community builds the long tail
 4. Every contribution makes the whole thing more valuable
 
-**Apply to ComputeGauge community strategy:**
+**Apply to InferLane community strategy:**
 - Open-source the adapter SDK with 5 built-in adapters (you build these)
-- Write "Build a ComputeGauge adapter in 30 minutes" tutorial
+- Write "Build a InferLane adapter in 30 minutes" tutorial
 - Community builds adapters for niche providers (RunPod, Modal, Lambda, CoreWeave, etc.)
 - Community builds dashboard widgets/plugins
 - Community shares FinOps automation rules
@@ -222,20 +222,20 @@ interface ComputeGaugeAdapter {
 
 ## 10. Protocommerce Synergy (Future)
 
-Once ComputeGauge is running and generating revenue, there's a natural bridge:
+Once InferLane is running and generating revenue, there's a natural bridge:
 
-- ComputeGauge already tracks AI API costs across providers
+- InferLane already tracks AI API costs across providers
 - Protocommerce needs AI agent transactions to flow through infrastructure
-- ComputeGauge could become the cost/billing layer for Protocommerce agent transactions
-- "How much did that AI agent negotiation cost in compute?" — ComputeGauge answers this
-- Cross-sell: ComputeGauge customers (AI-heavy teams) are exactly who'd want agent commerce capabilities
+- InferLane could become the cost/billing layer for Protocommerce agent transactions
+- "How much did that AI agent negotiation cost in compute?" — InferLane answers this
+- Cross-sell: InferLane customers (AI-heavy teams) are exactly who'd want agent commerce capabilities
 
 ---
 
 ## Summary: Top 5 Things to Apply Immediately
 
 1. **Open-source the adapter layer** — community scales your integrations for free, builds moat, increases valuation
-2. **Build MCP server interface** — make ComputeGauge AI-agent-queryable, massive differentiator nobody else has
+2. **Build MCP server interface** — make InferLane AI-agent-queryable, massive differentiator nobody else has
 3. **Run parallel Claude Code sessions** — 3-4 sessions, each owns a module, ship in 3-4 weeks not 12
 4. **Track acquisition metrics from day 1** — MRR, GMV, connected accounts, GitHub stars
 5. **Don't ask permission from big providers** — build on their public APIs, approach with traction later

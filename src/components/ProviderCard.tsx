@@ -1,12 +1,13 @@
 'use client';
 
+import { memo } from 'react';
 import { ProviderConfig } from '@/lib/types';
 
 interface ProviderCardProps {
   provider: ProviderConfig;
 }
 
-export default function ProviderCard({ provider }: ProviderCardProps) {
+export default memo(function ProviderCard({ provider }: ProviderCardProps) {
   const percentUsed = (provider.currentSpend / provider.monthlyBudget) * 100;
   const remaining = provider.monthlyBudget - provider.currentSpend;
 
@@ -127,4 +128,4 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
       )}
     </div>
   );
-}
+});
