@@ -57,7 +57,7 @@ export default function CreditBalanceCard() {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-6 flex items-center justify-center min-h-[180px]">
+      <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-4 md:p-6 flex items-center justify-center min-h-[180px]">
         <div className="w-6 h-6 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
@@ -77,11 +77,11 @@ export default function CreditBalanceCard() {
   const periodPct = data.periodStart && data.periodEnd ? periodProgress(data.periodStart, data.periodEnd) : 0;
 
   return (
-    <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-6 space-y-6">
+    <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-4 md:p-6 space-y-4 md:space-y-6">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-gray-500 text-sm font-medium mb-1">Available Credits</p>
-          <p className="text-4xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+          <p className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
             ${data.available.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
           <p className="text-xs text-gray-600 mt-1">
@@ -135,7 +135,7 @@ export default function CreditBalanceCard() {
       )}
 
       {/* Stat pills */}
-      <div className="flex gap-3">
+      <div className="grid grid-cols-3 gap-2 md:gap-3">
         {[
           { label: 'In Pool', value: data.delegatedToPool },
           { label: 'Listed', value: data.listedOnMarket },
@@ -143,7 +143,7 @@ export default function CreditBalanceCard() {
         ].map((stat) => (
           <div
             key={stat.label}
-            className="flex-1 rounded-xl bg-[#0a0a0f] border border-[#1e1e2e] px-4 py-3 text-center"
+            className="rounded-xl bg-[#0a0a0f] border border-[#1e1e2e] px-2 md:px-4 py-3 text-center"
           >
             <p className="text-gray-500 text-xs mb-1">{stat.label}</p>
             <p className="text-white font-semibold">${stat.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>

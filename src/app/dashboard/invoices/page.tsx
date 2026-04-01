@@ -63,9 +63,9 @@ export default function InvoicesPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-white">Invoices</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-white">Invoices</h1>
         <p className="text-sm text-gray-500 mt-1">
           Monthly spend summaries with PDF export for finance teams.
         </p>
@@ -92,11 +92,11 @@ export default function InvoicesPage() {
           {invoices.map((invoice) => (
             <div
               key={invoice.month}
-              className="bg-[#12121a] rounded-2xl border border-[#1e1e2e] p-6"
+              className="bg-[#12121a] rounded-2xl border border-[#1e1e2e] p-4 md:p-6"
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-white">
+                  <h3 className="text-base md:text-lg font-semibold text-white">
                     {formatMonth(invoice.month)}
                   </h3>
                   <p className="text-xs text-gray-500 mt-0.5">
@@ -104,20 +104,20 @@ export default function InvoicesPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <p className="text-xl font-bold text-white">
+                  <p className="text-lg md:text-xl font-bold text-white">
                     {formatCurrency(invoice.totalCost)}
                   </p>
                   <button
                     onClick={() => handleExportPdf(invoice.month)}
                     disabled={exporting === invoice.month}
-                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-black text-sm font-semibold rounded-xl hover:brightness-110 transition-all disabled:opacity-50"
+                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-black text-sm font-semibold rounded-xl hover:brightness-110 transition-all disabled:opacity-50 shrink-0"
                   >
                     {exporting === invoice.month ? 'Exporting...' : 'Export PDF'}
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                 {Object.entries(invoice.byProvider)
                   .sort(([, a], [, b]) => b - a)
                   .map(([provider, cost]) => (

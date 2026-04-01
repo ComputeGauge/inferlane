@@ -20,6 +20,7 @@ import { healthTracker } from '@/lib/proxy/health-tracker';
 import { requestCache } from '@/lib/proxy/request-cache';
 import { tokenCompressor } from '@/lib/proxy/token-compressor';
 import { bypassTier } from '@/lib/proxy/bypass-tier';
+import { emitSSE } from '@/lib/events';
 
 // Provider API base URLs
 const PROVIDER_URLS: Record<string, string> = {
@@ -118,8 +119,8 @@ function buildProviderHeaders(provider: string, providerApiKey: string): Record<
       // Google uses API key as query param — handled in URL
       break;
     case 'AWS_BEDROCK':
-      // Bedrock uses IAM or API Gateway key — URL built dynamically in buildTargetUrl
-      headers['Content-Type'] = 'application/json';
+      // Bedrock via API Gateway uses x-api-key header; native Bedrock requires SigV4
+      headers['x-api-key'] = providerApiKey;
       break;
     case 'AZURE_OPENAI':
       // Azure uses 'api-key' header, not 'Authorization: Bearer'
@@ -477,6 +478,21 @@ async function forwardToProvider(
     if (costUsd > 0 && providerRes.status >= 200 && providerRes.status < 300) {
       consumeCreditsAsync(apiKeyId, userId, costUsd);
     }
+
+    // Emit SSE event for real-time dashboard updates
+    emitSSE({
+      type: 'proxy_request',
+      data: {
+        provider,
+        model: resolvedModel,
+        costUsd,
+        latencyMs,
+        status: providerRes.status < 400 ? 'success' : 'error',
+        inputTokens,
+        outputTokens,
+      },
+      timestamp: new Date().toISOString(),
+    });
 
     // Add CG metadata headers to non-streaming response
     const res = NextResponse.json(responseData, { status: providerRes.status });

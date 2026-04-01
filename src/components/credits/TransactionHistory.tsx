@@ -76,8 +76,8 @@ export default function TransactionHistory() {
   const totalPages = data ? Math.ceil(data.total / pageSize) : 1;
 
   return (
-    <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-6 space-y-4">
-      <h3 className="text-white font-semibold text-lg">Transaction History</h3>
+    <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-4 md:p-6 space-y-4">
+      <h3 className="text-white font-semibold text-base md:text-lg">Transaction History</h3>
 
       {error && <p className="text-red-400 text-sm">{error}</p>}
 

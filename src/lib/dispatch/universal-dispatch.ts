@@ -12,6 +12,7 @@ import { capacityOrchestrator } from '@/lib/nodes/orchestrator';
 import { type AIProvider } from '@/generated/prisma/enums';
 import crypto from 'crypto';
 import { isAllowedWebhookUrl } from '@/lib/security/ssrf-guard';
+import { emitSSE } from '@/lib/events';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -428,6 +429,20 @@ class UniversalDispatcher {
         sessionId,
       };
 
+      // Emit SSE event for real-time dashboard updates
+      emitSSE({
+        type: 'dispatch_status',
+        data: {
+          taskId,
+          status: 'completed',
+          provider: resolved.provider,
+          model: resolved.model,
+          costUsd,
+          latencyMs,
+        },
+        timestamp: new Date().toISOString(),
+      });
+
       // Fire webhook asynchronously if requested
       if (request.deliveryMethod === 'webhook' && request.webhookUrl) {
         this.deliverWebhook(taskId, dispatchResult).catch(() => {});
@@ -443,6 +458,19 @@ class UniversalDispatcher {
           error: err instanceof Error ? err.message : String(err),
         },
       }).catch(() => {});
+
+      // Emit SSE event for failed dispatch
+      emitSSE({
+        type: 'dispatch_status',
+        data: {
+          taskId,
+          status: 'failed',
+          provider: resolved.provider,
+          model: resolved.model,
+          error: err instanceof Error ? err.message : String(err),
+        },
+        timestamp: new Date().toISOString(),
+      });
 
       throw err;
     }

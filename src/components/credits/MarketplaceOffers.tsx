@@ -204,14 +204,14 @@ export default function MarketplaceOffers() {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-6 flex items-center justify-center min-h-[300px]">
+      <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-4 md:p-6 flex items-center justify-center min-h-[300px]">
         <div className="w-6 h-6 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-6 space-y-6">
+    <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-4 md:p-6 space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-white font-semibold text-lg">Marketplace Offers</h3>
         <button

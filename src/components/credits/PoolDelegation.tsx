@@ -83,7 +83,7 @@ export default function PoolDelegation() {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-6 flex items-center justify-center min-h-[300px]">
+      <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-4 md:p-6 flex items-center justify-center min-h-[300px]">
         <div className="w-6 h-6 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
@@ -98,7 +98,7 @@ export default function PoolDelegation() {
   }
 
   return (
-    <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-6 space-y-6">
+    <div className="rounded-2xl border border-[#1e1e2e] bg-[#12121a] p-4 md:p-6 space-y-4 md:space-y-6">
       <h3 className="text-white font-semibold text-lg">Pool Delegation</h3>
 
       {error && <p className="text-red-400 text-xs">{error}</p>}

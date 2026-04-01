@@ -75,7 +75,13 @@ export default function NodesPage() {
   const [stats, setStats] = useState<NodeStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState(false);
-  const [regForm, setRegForm] = useState({ displayName: '', apiEndpoint: '', regions: '' });
+  const [regForm, setRegForm] = useState({
+    displayName: '',
+    apiEndpoint: '',
+    regions: '',
+    capabilities: { textGeneration: true, code: false, vision: false, embedding: false },
+    privacyTier: 'STANDARD',
+  });
   const [error, setError] = useState<string | null>(null);
 
   // Referral state
@@ -181,6 +187,8 @@ export default function NodesPage() {
           displayName: regForm.displayName || undefined,
           apiEndpoint: regForm.apiEndpoint || undefined,
           regions: regForm.regions ? regForm.regions.split(',').map((r) => r.trim()).filter(Boolean) : undefined,
+          capabilities: regForm.capabilities,
+          privacyTier: regForm.privacyTier,
           ref: refParam || undefined,
         }),
       });
@@ -253,6 +261,44 @@ export default function NodesPage() {
                 placeholder="US, DE, SG"
                 className="w-full rounded-lg border border-[#1e1e2e] bg-[#0a0a0f] px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Capabilities</label>
+              <div className="grid grid-cols-2 gap-2">
+                {([
+                  { key: 'textGeneration', label: 'Text Generation' },
+                  { key: 'code', label: 'Code' },
+                  { key: 'vision', label: 'Vision' },
+                  { key: 'embedding', label: 'Embedding' },
+                ] as const).map(({ key, label }) => (
+                  <label key={key} className="flex items-center gap-2 p-2 rounded-lg bg-[#0a0a0f] border border-[#1e1e2e] cursor-pointer hover:border-[#2a2a3a] transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={regForm.capabilities[key]}
+                      onChange={(e) => setRegForm({
+                        ...regForm,
+                        capabilities: { ...regForm.capabilities, [key]: e.target.checked },
+                      })}
+                      className="w-3.5 h-3.5 accent-amber-500"
+                    />
+                    <span className="text-sm text-gray-300">{label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Privacy Tier</label>
+              <select
+                value={regForm.privacyTier}
+                onChange={(e) => setRegForm({ ...regForm, privacyTier: e.target.value })}
+                className="w-full rounded-lg border border-[#1e1e2e] bg-[#0a0a0f] px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50"
+              >
+                <option value="STANDARD">Standard</option>
+                <option value="CONFIDENTIAL">Confidential (encrypted in transit)</option>
+                <option value="TEE_REQUIRED">TEE Required (hardware enclave)</option>
+              </select>
             </div>
           </div>
 
@@ -411,6 +457,23 @@ export default function NodesPage() {
                 {profile.payoutEnabled ? 'Enabled' : 'Setup required'}
               </span>
             </div>
+            <div className="flex items-center justify-between p-3 rounded-lg bg-[#0a0a0f]">
+              <span className="text-sm text-gray-400">Last Seen</span>
+              <span className="text-sm text-gray-300">
+                {profile.lastSeenAt ? new Date(profile.lastSeenAt).toLocaleString() : 'Never'}
+              </span>
+            </div>
+          </div>
+
+          {/* Heartbeat Config */}
+          <div className="mt-4 p-3 rounded-lg bg-[#0a0a0f] border border-dashed border-[#1e1e2e]">
+            <p className="text-xs font-medium text-gray-400 mb-1">Heartbeat Endpoint</p>
+            <code className="text-xs text-amber-400 font-mono break-all">
+              POST /api/nodes/heartbeat
+            </code>
+            <p className="text-xs text-gray-600 mt-1">
+              Send every 30 seconds to stay online. Include <code className="text-gray-400">nodeId</code> in the request body.
+            </p>
           </div>
         </div>
       </div>
