@@ -121,6 +121,17 @@ export default function NodesPage() {
   }
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
+  // Subnet state
+  interface SubnetInfo {
+    type: string;
+    name: string;
+    online: number;
+    total: number;
+    avgLatency: number;
+    capacity: number;
+  }
+  const [subnets, setSubnets] = useState<SubnetInfo[]>([]);
+
   // Capture ref param from URL (for registration)
   const refParam = searchParams.get('ref');
 
@@ -172,9 +183,21 @@ export default function NodesPage() {
     }
   }, []);
 
+  const fetchSubnets = useCallback(async () => {
+    try {
+      const res = await fetch('/api/nodes/subnets');
+      if (res.ok) {
+        const data = await res.json();
+        setSubnets(data.subnets || []);
+      }
+    } catch {
+      // Subnets unavailable
+    }
+  }, []);
+
   useEffect(() => {
-    Promise.all([fetchProfile(), fetchStats(), fetchReferralStats(), fetchLeaderboard()]).finally(() => setLoading(false));
-  }, [fetchProfile, fetchStats, fetchReferralStats, fetchLeaderboard]);
+    Promise.all([fetchProfile(), fetchStats(), fetchReferralStats(), fetchLeaderboard(), fetchSubnets()]).finally(() => setLoading(false));
+  }, [fetchProfile, fetchStats, fetchReferralStats, fetchLeaderboard, fetchSubnets]);
 
   async function handleRegister() {
     setRegistering(true);
@@ -889,6 +912,50 @@ export default function NodesPage() {
           </div>
         )}
       </div>
+
+      {/* Subnet Status */}
+      {subnets.length > 0 && (
+        <div className="bg-[#141419] rounded-xl p-6 border border-gray-800/60">
+          <h2 className="text-lg font-semibold text-white mb-4">Network Subnets</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {subnets.map((s) => (
+              <div
+                key={s.type}
+                className="bg-[#1a1a22] rounded-lg p-4 border border-gray-800/40"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-white">{s.name}</span>
+                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${
+                    s.online > 0
+                      ? 'text-emerald-400 bg-emerald-500/15'
+                      : 'text-gray-500 bg-gray-500/15'
+                  }`}>
+                    {s.online > 0 ? 'Active' : 'Empty'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="text-gray-500">Nodes</span>
+                    <p className="text-white font-mono">{s.online}/{s.total}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Latency</span>
+                    <p className="text-white font-mono">
+                      {s.avgLatency > 0 ? `${Math.round(s.avgLatency)}ms` : '--'}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-gray-500">Capacity</span>
+                    <p className="text-white font-mono">
+                      {s.capacity > 0 ? `${s.capacity.toFixed(0)} TFLOPS` : '--'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 

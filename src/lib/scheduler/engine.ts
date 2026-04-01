@@ -10,6 +10,7 @@ import { decrypt } from '@/lib/crypto';
 import { calculateCost, findModelPrice } from '@/lib/pricing/model-prices';
 import { getCurrentCostMultiplier } from '@/lib/scheduler/optimizer';
 import { evaluateQueuedPrompts } from '@/lib/scheduler/smart-queue';
+import { promptAwareScheduler, type QueueItem } from '@/lib/scheduler/prompt-aware';
 
 // -- Inline types (no generated Prisma imports) --
 
@@ -83,6 +84,45 @@ export async function checkExecutablePrompts(): Promise<ScheduledPrompt[]> {
     const ready = await isExecutionReady(prompt, now);
     if (ready) {
       executable.push(prompt as ScheduledPrompt);
+    }
+  }
+
+  // PARS: reorder executable batch by Shortest-Job-First priority
+  if (executable.length > 1) {
+    const queueItems: QueueItem[] = executable.map((p) => {
+      const msgs = p.messages as any[];
+      const promptText = Array.isArray(msgs)
+        ? msgs.map((m: any) => (typeof m.content === 'string' ? m.content : '')).join(' ')
+        : '';
+
+      return {
+        id: p.id,
+        prompt: promptText,
+        model: p.model,
+        queuedAt: p.createdAt,
+        isPremium: p.priority === 'premium',
+        deadline: p.scheduledAt ?? undefined,
+      };
+    });
+
+    const ranked = promptAwareScheduler.rankQueue(queueItems);
+    const idOrder = new Map(ranked.map((item, idx) => [item.id, idx]));
+
+    executable.sort(
+      (a, b) => (idOrder.get(a.id) ?? 0) - (idOrder.get(b.id) ?? 0),
+    );
+
+    // Attach workload estimates to prompt metadata for downstream consumers
+    for (const item of ranked) {
+      const prompt = executable.find((p) => p.id === item.id);
+      if (prompt) {
+        const params = (prompt.parameters as Record<string, any>) || {};
+        params._workloadEstimate = {
+          estimatedTokens: item.estimatedTokens,
+          estimatedLatencyMs: item.estimatedLatencyMs,
+        };
+        (prompt as any).parameters = params;
+      }
     }
   }
 

@@ -19,6 +19,7 @@ import { dispatchToNode } from './dispatch';
 import { callNode } from './dispatch';
 import { getModelTier } from '@/lib/proxy/model-equivalence';
 import { workClaimer, WorkClaimer } from './work-claimer';
+import { subnetManager } from './subnets';
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -219,14 +220,29 @@ class CapacityOrchestrator {
       const isHighOutput = maxTokens > 2048;
       const isHighInput = estimatedInputLength > 16000; // ~4K tokens
 
-      // Find best matching node
-      const bestNode = this.selectNodeForPrompt(
-        idleNodes,
-        allocatedNodeSlots,
-        isHighOutput,
-        isHighInput,
-        prompt.model,
-      );
+      // Determine appropriate subnet based on request content
+      const promptMessages = messages as Array<{ role: string; content: string }> | undefined;
+      const subnet = subnetManager.classifyRequest(prompt.model, promptMessages ?? undefined);
+
+      // Try subnet-aware routing first
+      const subnetNodeId = await subnetManager.routeToSubnet(subnet);
+
+      // Find best matching node — prefer subnet-selected node
+      let bestNode: IdleNode | null = null;
+      if (subnetNodeId) {
+        bestNode = idleNodes.find(
+          (n) => n.id === subnetNodeId && (allocatedNodeSlots.get(n.id) ?? 0) < n.idleSlots,
+        ) ?? null;
+      }
+      if (!bestNode) {
+        bestNode = this.selectNodeForPrompt(
+          idleNodes,
+          allocatedNodeSlots,
+          isHighOutput,
+          isHighInput,
+          prompt.model,
+        );
+      }
 
       if (!bestNode) continue;
 
@@ -398,9 +414,18 @@ class CapacityOrchestrator {
 
     const tier = model ? getModelTier(model) : null;
 
+    // Auto-assign subnets for idle nodes that lack assignments
+    for (const node of idleNodes) {
+      if (!subnetManager.getNodeAssignment(node.id)) {
+        subnetManager.assignNodeToSubnets(node.id, node.capabilities);
+      }
+    }
+
+    // Determine the appropriate subnet for this model
+    const requestSubnet = subnetManager.classifyRequest(model ?? '');
+
     // Filter to nodes that can handle the model tier
-    // For now, all online healthy nodes are considered capable
-    // In future: match node.capabilities to specific model requirements
+    // Prefer nodes in the appropriate subnet
     const capable = idleNodes.filter((node) => {
       // If we know the tier, check capabilities
       if (tier && node.capabilities) {
@@ -418,10 +443,14 @@ class CapacityOrchestrator {
       return true;
     });
 
-    // Sort by composite score: reputation * 2 - latency/100
+    // Sort by composite score: reputation * 2 - latency/100, with subnet bonus
     return capable.sort((a, b) => {
-      const aScore = a.reputationScore * 2 - a.avgLatencyMs / 100;
-      const bScore = b.reputationScore * 2 - b.avgLatencyMs / 100;
+      const aAssignment = subnetManager.getNodeAssignment(a.id);
+      const bAssignment = subnetManager.getNodeAssignment(b.id);
+      const aSubnetBonus = aAssignment?.subnets.includes(requestSubnet) ? 20 : 0;
+      const bSubnetBonus = bAssignment?.subnets.includes(requestSubnet) ? 20 : 0;
+      const aScore = a.reputationScore * 2 - a.avgLatencyMs / 100 + aSubnetBonus;
+      const bScore = b.reputationScore * 2 - b.avgLatencyMs / 100 + bSubnetBonus;
       return bScore - aScore;
     });
   }

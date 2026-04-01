@@ -12,8 +12,10 @@ import { prisma } from '@/lib/db';
 import { decrypt } from '@/lib/crypto';
 import { healthTracker } from '@/lib/proxy/health-tracker';
 import { capacityOrchestrator } from '@/lib/nodes/orchestrator';
+import { subnetManager } from '@/lib/nodes/subnets';
 import { requestClassifier, type Tier } from '@/lib/proxy/request-classifier';
 import { requestCache } from '@/lib/proxy/request-cache';
+import { prefixCache } from '@/lib/proxy/prefix-cache';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -36,6 +38,7 @@ export interface RoutingRequest {
   budget?: number;
   estimatedInputTokens?: number;
   estimatedOutputTokens?: number;
+  messages?: Array<{ role: string; content: string }>;
 }
 
 export interface RoutingDecision {
@@ -738,17 +741,26 @@ async function routeAuto(
 
   if (unhealthyProviders.length > 0) {
     try {
+      // Classify request to pick the right subnet
+      const requestSubnet = subnetManager.classifyRequest(req.model);
+
+      // Try subnet-specific routing first
+      const subnetNodeId = await subnetManager.routeToSubnet(requestSubnet);
+
       const overflowNodes = await capacityOrchestrator.absorbOverflow(
         unhealthyProviders[0]?.provider ?? '',
         req.model,
       );
       if (overflowNodes.length > 0 && healthy.length === 0) {
         // All centralised providers are down — route to decentralised node
-        const bestNode = overflowNodes[0];
+        // Prefer the subnet-selected node if it's in the overflow list
+        const bestNode = (subnetNodeId && overflowNodes.find((n) => n.id === subnetNodeId))
+          ? overflowNodes.find((n) => n.id === subnetNodeId)!
+          : overflowNodes[0];
         return {
           provider: 'openclaw',
           model: req.model,
-          reason: `Auto-overflow to decentralised node ${bestNode.id} (all centralised providers in cooldown)`,
+          reason: `Auto-overflow to decentralised node ${bestNode.id} via ${requestSubnet} subnet (all centralised providers in cooldown)`,
           reasonCode: 'auto_optimal',
           estimatedCost: 0, // node pricing calculated at dispatch time
         };
@@ -760,6 +772,17 @@ async function routeAuto(
 
   // If all providers are in cooldown, use all of them anyway
   const candidates = healthy.length > 0 ? healthy : available;
+
+  // ── Prefix cache: prefer nodes that already have the conversation cached ──
+  let prefixCacheHit = false;
+  let prefixCacheNodeId: string | undefined;
+  if (req.messages && req.messages.length > 1) {
+    const cacheResult = prefixCache.findCachedNode(req.messages, req.model);
+    if (cacheResult.hasCachedPrefix && cacheResult.cacheNodeId) {
+      prefixCacheHit = true;
+      prefixCacheNodeId = cacheResult.cacheNodeId;
+    }
+  }
 
   // Fetch active promotions
   const promos = await getActivePromotions(connectedNames);
@@ -832,7 +855,13 @@ async function routeAuto(
       : 1.0; // not enough data — equal weighting
 
     // Normalize reciprocal scores to 0-1 range (cap at 10x advantage)
-    const score = baseScore * amdahlMultiplier;
+    let score = baseScore * amdahlMultiplier;
+
+    // Prefix cache bonus: strong preference for nodes that already have
+    // the conversation prefix cached (avoids re-prefill)
+    if (prefixCacheHit && prefixCacheNodeId === eq.provider) {
+      score += 0.5;
+    }
 
     const promoMultiplier = promoMap.get(eq.provider) ?? 1;
     return {
@@ -898,10 +927,14 @@ async function routeAuto(
     outputTokens,
   );
 
+  const prefixHitSuffix = prefixCacheHit && prefixCacheNodeId === best.provider
+    ? ' [prefix-cache-hit]'
+    : '';
+
   const decision: RoutingDecision = {
     provider: best.provider,
     model: best.model,
-    reason: `Auto-optimal routing to ${best.provider}/${best.model} (score ${best.score.toFixed(3)}, tier ${classification.tier})${best.hasPromo ? ' with active promotion' : ''}`,
+    reason: `Auto-optimal routing to ${best.provider}/${best.model} (score ${best.score.toFixed(3)}, tier ${classification.tier})${best.hasPromo ? ' with active promotion' : ''}${prefixHitSuffix}`,
     reasonCode: 'auto_optimal',
     estimatedCost: best.effectiveCost,
     promotionActive: best.hasPromo || undefined,

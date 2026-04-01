@@ -10,6 +10,7 @@ import { getProviderHardware } from '@/lib/pricing/provider-hardware';
 import { consumeCredits } from '@/lib/credits/source-resolver';
 import { dispatchToNode, disaggregatedDispatch, type DispatchMessage } from '@/lib/nodes/dispatch';
 import { resultVerifier } from '@/lib/nodes/result-verifier';
+import { proofOfExecution } from '@/lib/nodes/proof-of-execution';
 import { checkApiHeaders } from '@/lib/promotions/monitor';
 import { recordObservedRateLimits } from '@/lib/promotions/crawler';
 import { createStreamTransformer } from '@/lib/proxy/stream-transformer';
@@ -19,7 +20,10 @@ import { sessionManager } from '@/lib/dispatch/session-manager';
 import { healthTracker } from '@/lib/proxy/health-tracker';
 import { requestCache } from '@/lib/proxy/request-cache';
 import { tokenCompressor } from '@/lib/proxy/token-compressor';
+import { advancedCompressor } from '@/lib/proxy/advanced-compressor';
 import { bypassTier } from '@/lib/proxy/bypass-tier';
+import { policyEngine, type PolicyRequest } from '@/lib/proxy/policy-engine';
+import { prefixCache } from '@/lib/proxy/prefix-cache';
 import { emitSSE } from '@/lib/events';
 
 // Provider API base URLs
@@ -638,31 +642,37 @@ async function handlePOST(req: NextRequest) {
     }
   }
 
-  // ── Token compression: compress user messages if prompt is large enough ──
+  // ── Token compression: advanced 12-layer LLMLingua-style pipeline ──
   let compressionSavings = 0;
   let compressionOriginalTokens = 0;
   let compressionCompressedTokens = 0;
+  let compressionLayerNames: string[] = [];
   if (body?.messages && Array.isArray(body.messages)) {
     const totalEstimatedTokens = estimateInputTokens(body.messages);
     if (totalEstimatedTokens > 1000) {
-      const systemPrompt = body.messages.find(
-        (m: { role: string }) => m.role === 'system',
-      )?.content as string | undefined;
+      // Determine aggressiveness from request header (default: moderate)
+      const compressionHeader = req.headers.get('x-il-compression') as
+        | 'none' | 'light' | 'moderate' | 'aggressive'
+        | null;
 
-      for (const msg of body.messages) {
-        if (msg.role === 'user' && typeof msg.content === 'string') {
-          const result = tokenCompressor.compress(msg.content, systemPrompt);
-          if (result.savings > 0) {
-            compressionOriginalTokens += result.originalTokens;
-            compressionCompressedTokens += result.compressedTokens;
-            msg.content = result.compressed;
-          }
+      if (compressionHeader !== 'none') {
+        const aggressiveness = (
+          compressionHeader === 'light' || compressionHeader === 'moderate' || compressionHeader === 'aggressive'
+        ) ? compressionHeader : 'moderate';
+
+        const result = advancedCompressor.compress(body.messages, {
+          aggressiveness,
+        });
+
+        if (result.compressionRatio > 0) {
+          compressionOriginalTokens = result.originalTokens;
+          compressionCompressedTokens = result.compressedTokens;
+          compressionSavings = result.compressionRatio;
+          compressionLayerNames = result.layers.map((l) => l.name);
+
+          // Replace messages with compressed versions
+          body.messages = result.compressedMessages;
         }
-      }
-
-      if (compressionOriginalTokens > 0) {
-        compressionSavings =
-          1 - compressionCompressedTokens / compressionOriginalTokens;
       }
     }
   }
@@ -723,6 +733,31 @@ async function handlePOST(req: NextRequest) {
       );
     }
 
+    // Create execution proof for the node response
+    let proofHeaders: Record<string, string> = {};
+    if (result.nodeId && result.response) {
+      const proof = proofOfExecution.createProof(
+        result.nodeId,
+        prompt || JSON.stringify(body?.messages ?? []),
+        result.response,
+        result.latencyMs,
+        resolvedModel,
+      );
+      proofHeaders = {
+        'X-IL-Proof-Id': proof.proofId,
+        'X-IL-Proof-Confidence': String(
+          ((proof.fingerprintScore + proof.consistencyScore) / 2).toFixed(3),
+        ),
+        'X-IL-Proof-Method': 'fingerprint+consistency',
+      };
+      const avgConfidence = (proof.fingerprintScore + proof.consistencyScore) / 2;
+      if (avgConfidence < 0.3) {
+        console.warn(
+          `[Proxy] Low proof confidence ${avgConfidence.toFixed(3)} for node ${result.nodeId} proof ${proof.proofId}`,
+        );
+      }
+    }
+
     return NextResponse.json({
       id: `il-node-${Date.now()}`,
       object: 'chat.completion',
@@ -741,7 +776,7 @@ async function handlePOST(req: NextRequest) {
         disaggregated: useDisaggregated,
         routingReason: useDisaggregated ? 'disaggregated_dispatch' : 'node_dispatch',
       },
-    });
+    }, { headers: proofHeaders });
   }
 
   // ── Smart routing: determine optimal provider ──
@@ -757,6 +792,7 @@ async function handlePOST(req: NextRequest) {
     budget,
     estimatedInputTokens: estimatedInput || 1000,
     estimatedOutputTokens: estimatedOutput,
+    messages: body?.messages as Array<{ role: string; content: string }> | undefined,
   };
 
   // ── Session pinning: honour pinned provider/model for multi-turn sessions ──
@@ -793,6 +829,43 @@ async function handlePOST(req: NextRequest) {
       },
       { status: 402 },
     );
+  }
+
+  // ── Policy engine: enforce routing constraints ──
+  const policyRequest: PolicyRequest = {
+    model: resolvedModel,
+    provider: routingDecision.provider,
+    tier: routingDecision.tier,
+    estimatedCost: routingDecision.estimatedCost,
+    estimatedTokens: estimatedInput + estimatedOutput,
+    sessionId: sessionId ?? undefined,
+    messages: body?.messages,
+  };
+
+  policyEngine.recordRequest(apiKey.userId);
+  const policyResult = policyEngine.evaluate(policyRequest, routingDecision);
+
+  if (!policyResult.allowed) {
+    const blockReason = policyResult.warnings.join('; ') || 'Blocked by policy';
+    const blockedPolicy = policyResult.matchedPolicies.find(
+      (mp) => mp.action.type === 'block',
+    );
+    return NextResponse.json(
+      {
+        error: 'Request blocked by routing policy',
+        reason: blockReason,
+        policy: blockedPolicy?.policy.name,
+      },
+      { status: 403 },
+    );
+  }
+
+  // Apply policy overrides
+  if (policyResult.overrides.provider) {
+    routingDecision.provider = policyResult.overrides.provider;
+  }
+  if (policyResult.overrides.model) {
+    routingDecision.model = policyResult.overrides.model;
   }
 
   // Determine the provider and model to use
@@ -865,9 +938,10 @@ async function handlePOST(req: NextRequest) {
 
     // Compression headers
     if (compressionSavings > 0) {
-      res.headers.set('X-IL-Compression', compressionSavings.toFixed(4));
+      res.headers.set('X-IL-Compression-Ratio', compressionSavings.toFixed(4));
       res.headers.set('X-IL-Original-Tokens', String(compressionOriginalTokens));
       res.headers.set('X-IL-Compressed-Tokens', String(compressionCompressedTokens));
+      res.headers.set('X-IL-Compression-Layers', compressionLayerNames.join(','));
     }
 
     // Classification headers
@@ -876,6 +950,28 @@ async function handlePOST(req: NextRequest) {
     }
     if (routingDecision.confidence !== undefined) {
       res.headers.set('X-IL-Confidence', routingDecision.confidence.toFixed(4));
+    }
+
+    // Policy warnings header
+    if (policyResult.warnings.length > 0) {
+      res.headers.set('X-IL-Policy-Warnings', policyResult.warnings.join('; '));
+    }
+
+    // Prefix cache hit header
+    if (routingDecision.reason?.includes('[prefix-cache-hit]')) {
+      res.headers.set('X-IL-Prefix-Cache-Hit', 'true');
+    }
+
+    // Record prefix cache for OpenClaw node responses
+    if (
+      targetProvider === 'NODE' ||
+      targetProvider === 'DECENTRALISED' ||
+      targetProvider === 'openclaw'
+    ) {
+      if (body?.messages && Array.isArray(body.messages)) {
+        const nodeId = res.headers.get('X-IL-Node-Id') ?? targetProvider;
+        prefixCache.recordCache(nodeId, body.messages, resolvedModel);
+      }
     }
 
     // Validation override header
@@ -994,6 +1090,24 @@ async function handlePOST(req: NextRequest) {
           // Strip verification block before returning to user
           const cleanResponse1 = resultVerifier.stripVerificationBlock(nodeResult.response, challenge1);
 
+          // Create execution proof
+          const proofHeadersFb1: Record<string, string> = {};
+          if (nodeResult.nodeId) {
+            const proof1 = proofOfExecution.createProof(
+              nodeResult.nodeId,
+              routedBody?.messages?.[0]?.content || routedBody?.prompt || '',
+              cleanResponse1,
+              nodeLatencyMs,
+              resolvedModel,
+              { passed: verification1.passed, confidence: verification1.confidence },
+            );
+            proofHeadersFb1['X-IL-Proof-Id'] = proof1.proofId;
+            proofHeadersFb1['X-IL-Proof-Confidence'] = String(
+              ((proof1.fingerprintScore + proof1.consistencyScore) / 2).toFixed(3),
+            );
+            proofHeadersFb1['X-IL-Proof-Method'] = 'challenge+fingerprint+consistency';
+          }
+
           return NextResponse.json(
             {
               id: `il-node-${Date.now()}`,
@@ -1028,6 +1142,7 @@ async function handlePOST(req: NextRequest) {
                 'X-IL-Fallback-From': `${targetProvider}/${targetModel}`,
                 'X-IL-Verification': verification1.passed ? 'PASS' : 'FAIL',
                 'X-IL-Verification-Confidence': verification1.confidence.toFixed(2),
+                ...proofHeadersFb1,
               },
             },
           );
@@ -1087,6 +1202,24 @@ async function handlePOST(req: NextRequest) {
           // Strip verification block before returning to user
           const cleanResponse2 = resultVerifier.stripVerificationBlock(nodeResult.response, challenge2);
 
+          // Create execution proof
+          const proofHeadersFb2: Record<string, string> = {};
+          if (nodeResult.nodeId) {
+            const proof2 = proofOfExecution.createProof(
+              nodeResult.nodeId,
+              routedBody?.messages?.[0]?.content || routedBody?.prompt || '',
+              cleanResponse2,
+              nodeLatencyMs,
+              resolvedModel,
+              { passed: verification2.passed, confidence: verification2.confidence },
+            );
+            proofHeadersFb2['X-IL-Proof-Id'] = proof2.proofId;
+            proofHeadersFb2['X-IL-Proof-Confidence'] = String(
+              ((proof2.fingerprintScore + proof2.consistencyScore) / 2).toFixed(3),
+            );
+            proofHeadersFb2['X-IL-Proof-Method'] = 'challenge+fingerprint+consistency';
+          }
+
           return NextResponse.json(
             {
               id: `il-node-${Date.now()}`,
@@ -1121,6 +1254,7 @@ async function handlePOST(req: NextRequest) {
                 'X-IL-Fallback-From': `${targetProvider}/${targetModel}`,
                 'X-IL-Verification': verification2.passed ? 'PASS' : 'FAIL',
                 'X-IL-Verification-Confidence': verification2.confidence.toFixed(2),
+                ...proofHeadersFb2,
               },
             },
           );
