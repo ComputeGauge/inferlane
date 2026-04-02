@@ -120,6 +120,11 @@ const ratingSync = new RatingSync(platformClient, persistence);
 // State of Compute report generator
 const computeReport = new StateOfComputeReport(persistence, tracker);
 
+// Upgrade nudge state — track log_request calls for periodic nudges
+let logRequestCallCount = 0;
+let logRequestTotalCost = 0;
+const hasApiKey = !!process.env.INFERLANE_API_KEY || !!apiKey;
+
 // Wire event stream to tachometer and traffic light
 eventStream.setProviders({
   getTachometer: () => tachometer.getReading(),
@@ -218,6 +223,11 @@ server.tool(
       text += `\n\n⚠️ Budget warning: ${result.budgetWarning}`;
     }
 
+    // Upgrade nudge — suggest platform dispatch when no API key
+    if (!hasApiKey) {
+      text += `\n\n> 💡 **Auto-route to this model instantly** — set \`INFERLANE_API_KEY\` to enable smart dispatch. Get your key at [inferlane.ai](https://inferlane.ai)`;
+    }
+
     return { content: [{ type: 'text' as const, text }] };
   }
 );
@@ -277,7 +287,16 @@ server.tool(
     // Accumulate tokens/cost for lifecycle phase tracking (Stream AG)
     trafficLight.accumulatePhaseUsage(params.agent_id || 'default', totalTokens, cost);
 
-    return { content: [{ type: 'text' as const, text: result }] };
+    // Track log_request calls for periodic upgrade nudge
+    logRequestCallCount++;
+    logRequestTotalCost += cost;
+
+    let logText = result;
+    if (!hasApiKey && logRequestCallCount > 0 && logRequestCallCount % 10 === 0) {
+      logText += `\n\n> 💰 **You've logged ${logRequestCallCount} requests totaling $${logRequestTotalCost.toFixed(4)}.** Smart routing could save up to 78%. Get your API key at [inferlane.ai](https://inferlane.ai)`;
+    }
+
+    return { content: [{ type: 'text' as const, text: logText }] };
   }
 );
 
@@ -297,7 +316,14 @@ server.tool(
     if (agentId) {
       credSummary = '\n\n---\n_Use `credibility_profile` to see your full credibility breakdown._';
     }
-    return { content: [{ type: 'text' as const, text: costResult + credSummary }] };
+
+    // Upgrade nudge
+    let sessionNudge = '';
+    if (!hasApiKey) {
+      sessionNudge = '\n\n> 📊 **Track savings & trends over time** — set `INFERLANE_API_KEY` to unlock savings intelligence. [inferlane.ai](https://inferlane.ai)';
+    }
+
+    return { content: [{ type: 'text' as const, text: costResult + credSummary + sessionNudge }] };
   }
 );
 
@@ -481,7 +507,13 @@ server.tool(
       });
     }
 
-    return { content: [{ type: 'text' as const, text: result }] };
+    // Upgrade nudge
+    let credText = result;
+    if (!hasApiKey) {
+      credText += `\n\n> 🏆 **Unlock cloud routing bonuses & leaderboard competition** — connect to the InferLane platform with \`INFERLANE_API_KEY\`. [inferlane.ai](https://inferlane.ai)`;
+    }
+
+    return { content: [{ type: 'text' as const, text: credText }] };
   }
 );
 
@@ -587,6 +619,12 @@ server.tool(
       lines.push('**Tip**: Using local inference when it\'s good enough saves money AND is honest about capabilities. Both build credibility.');
     }
 
+    // Upgrade nudge
+    if (!hasApiKey) {
+      lines.push('');
+      lines.push('> ☁️ **Execute this routing decision automatically** — dispatch with `INFERLANE_API_KEY`. [inferlane.ai](https://inferlane.ai)');
+    }
+
     return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
   }
 );
@@ -653,7 +691,14 @@ server.tool(
   },
   async ({ prompt_tokens, completion_tokens, models }) => {
     const comparison = await tracker.getCostComparison(prompt_tokens, completion_tokens, models);
-    return { content: [{ type: 'text' as const, text: comparison }] };
+
+    // Upgrade nudge
+    let compText = comparison;
+    if (!hasApiKey) {
+      compText += `\n\n> 🔄 **Route to the cheapest option automatically** — InferLane dispatch picks the best provider per-request. Set \`INFERLANE_API_KEY\` → [inferlane.ai](https://inferlane.ai)`;
+    }
+
+    return { content: [{ type: 'text' as const, text: compText }] };
   }
 );
 
@@ -663,7 +708,14 @@ server.tool(
   {},
   async () => {
     const suggestions = await tracker.suggestSavings();
-    return { content: [{ type: 'text' as const, text: suggestions }] };
+
+    // Upgrade nudge
+    let savingsText = suggestions;
+    if (!hasApiKey) {
+      savingsText += `\n\n> ⚡ **Enable auto-routing to save automatically** — smart dispatch routes every request to the cheapest viable provider. Set \`INFERLANE_API_KEY\` → [inferlane.ai](https://inferlane.ai)`;
+    }
+
+    return { content: [{ type: 'text' as const, text: savingsText }] };
   }
 );
 
