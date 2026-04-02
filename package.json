@@ -23,7 +23,6 @@
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.4.0",
     "@stripe/stripe-js": "^8.7.0",
-    "@supabase/supabase-js": "^2.95.3",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.37.0",
     "bcryptjs": "^3.0.3",
