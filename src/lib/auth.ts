@@ -113,7 +113,7 @@ export const authOptions: NextAuthOptions = {
 
   events: {
     async createUser({ user }) {
-      console.log(`[InferLane] New user created: ${user.email}`);
+      console.log(`[InferLane] New user created: ${user.id}`);
 
       // Partner attribution — read slug from cookie set by middleware
       try {
@@ -128,7 +128,7 @@ export const authOptions: NextAuthOptions = {
               where: { id: user.id },
               data: { partnerId: partner.id },
             });
-            console.log(`[InferLane] User ${user.email} attributed to partner: ${partner.name}`);
+            console.log(`[InferLane] User ${user.id} attributed to partner: ${partner.name}`);
           }
         }
       } catch (err) {
@@ -141,7 +141,7 @@ export const authOptions: NextAuthOptions = {
           userId: user.id,
           action: 'USER_CREATED',
           resource: 'user',
-          details: { email: user.email },
+          details: { userId: user.id },
         },
       });
 

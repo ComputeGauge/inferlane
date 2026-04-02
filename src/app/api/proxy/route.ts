@@ -26,6 +26,69 @@ import { policyEngine, type PolicyRequest } from '@/lib/proxy/policy-engine';
 import { prefixCache } from '@/lib/proxy/prefix-cache';
 import { emitSSE } from '@/lib/events';
 
+// ---------------------------------------------------------------------------
+// Daily spend cap — in-memory tracker (resets on deploy / server restart)
+// ---------------------------------------------------------------------------
+const DEFAULT_DAILY_SPEND_CAP_USD = 100;
+
+interface DailySpendEntry {
+  date: string; // YYYY-MM-DD
+  total: number; // USD spent today
+}
+
+const dailySpendMap = new Map<string, DailySpendEntry>();
+
+function getTodayKey(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function getDailySpend(userId: string): number {
+  const entry = dailySpendMap.get(userId);
+  if (!entry || entry.date !== getTodayKey()) return 0;
+  return entry.total;
+}
+
+function addDailySpend(userId: string, amount: number): void {
+  const today = getTodayKey();
+  const entry = dailySpendMap.get(userId);
+  if (!entry || entry.date !== today) {
+    dailySpendMap.set(userId, { date: today, total: amount });
+  } else {
+    entry.total += amount;
+  }
+}
+
+// Pre-flight spend check: verify credit balance and daily cap
+async function checkSpendLimits(
+  userId: string,
+  estimatedCostUsd: number,
+): Promise<{ allowed: true } | { allowed: false; error: string; status: number }> {
+  // 1. Check daily spend cap
+  const todaySpend = getDailySpend(userId);
+  if (todaySpend + estimatedCostUsd > DEFAULT_DAILY_SPEND_CAP_USD) {
+    return {
+      allowed: false,
+      error: `Daily spend limit reached ($${todaySpend.toFixed(2)}/$${DEFAULT_DAILY_SPEND_CAP_USD} used). Resets at midnight UTC.`,
+      status: 429,
+    };
+  }
+
+  // 2. Check credit balance
+  const balance = await prisma.creditBalance.findUnique({ where: { userId } });
+  if (!balance) {
+    return { allowed: false, error: 'Insufficient credits — no credit balance found.', status: 402 };
+  }
+  if (Number(balance.available) < estimatedCostUsd) {
+    return {
+      allowed: false,
+      error: `Insufficient credits. Available: $${Number(balance.available).toFixed(4)}, estimated cost: $${estimatedCostUsd.toFixed(4)}.`,
+      status: 402,
+    };
+  }
+
+  return { allowed: true };
+}
+
 // Provider API base URLs
 const PROVIDER_URLS: Record<string, string> = {
   ANTHROPIC: 'https://api.anthropic.com',
@@ -244,13 +307,16 @@ function logProxyRequest(
   });
 }
 
-// Consume credits (fire-and-forget)
+// Consume credits (fire-and-forget) + track daily spend
 function consumeCreditsAsync(
   apiKeyId: string,
   userId: string,
   costUsd: number,
 ) {
   if (costUsd <= 0) return;
+
+  // Track daily spend for rate limiting
+  addDailySpend(userId, costUsd);
 
   (async () => {
     try {
@@ -574,6 +640,20 @@ async function handlePOST(req: NextRequest) {
   // Resolve model from multiple possible locations
   const resolvedModel = model || body?.model || 'unknown';
   const isStreaming = stream === true || body?.stream === true;
+
+  // ── Spend limits: pre-flight credit & daily cap check ──
+  const estimatedInputTokens = estimateInputTokens(body?.messages);
+  const estimatedOutputTokens = body?.max_tokens ?? 1024;
+  const { costUsd: estimatedCost } = calculateRequestCost(
+    provider?.toUpperCase() || detectProvider(resolvedModel),
+    resolvedModel,
+    estimatedInputTokens,
+    estimatedOutputTokens,
+  );
+  const spendCheck = await checkSpendLimits(apiKey.userId, estimatedCost);
+  if (!spendCheck.allowed) {
+    return NextResponse.json({ error: spendCheck.error }, { status: spendCheck.status });
+  }
 
   // ── Tier 0 Bypass: answer deterministic requests without any LLM call ──
   const bypassResult = bypassTier.canBypass(body?.messages);

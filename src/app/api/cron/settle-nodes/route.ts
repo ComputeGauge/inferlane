@@ -4,6 +4,8 @@ import { getPayoutTier } from '@/lib/nodes/dispatch';
 import { sendEmail } from '@/lib/email';
 import { buildPayoutConfirmationHtml } from '@/lib/email-templates';
 import { verifyCronSecret, unauthorizedResponse } from '@/lib/cron-auth';
+import { payoutToOperator } from '@/lib/stripe-connect';
+import { sanctionsScreener } from '@/lib/compliance/sanctions';
 
 // ---------------------------------------------------------------------------
 // POST /api/cron/settle-nodes — Batch settlement for node operators
@@ -28,6 +30,7 @@ export async function POST(req: NextRequest) {
   let payoutsCreated = 0;
   let totalPaidOut = 0;
   let errors = 0;
+  let frozen = 0;
 
   try {
     // Find all node operators with pending balance
@@ -55,7 +58,74 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        // Create payout record
+        // Sanctions compliance check — freeze payouts to sanctioned regions
+        const operatorUser = await prisma.user.findUnique({
+          where: { id: node.userId },
+          select: { email: true },
+        });
+        if (operatorUser?.email) {
+          const emailCheck = sanctionsScreener.checkEmail(operatorUser.email);
+          if (!emailCheck.allowed) {
+            console.warn(`[SettleNodes] FROZEN payout for node ${node.id}: ${emailCheck.reason}`);
+            await prisma.nodePayout.create({
+              data: {
+                nodeOperatorId: node.id,
+                amount: balance,
+                status: 'FROZEN' as any,
+                periodStart: node.createdAt,
+                periodEnd: now,
+                requestCount: 0,
+              },
+            });
+            frozen++;
+            continue;
+          }
+        }
+        // Check node regions against sanctions list
+        if (node.regions && node.regions.length > 0) {
+          const sanctionedRegion = node.regions.find(
+            (r: string) => !sanctionsScreener.checkCountry(r).allowed,
+          );
+          if (sanctionedRegion) {
+            console.warn(`[SettleNodes] FROZEN payout for node ${node.id}: sanctioned region ${sanctionedRegion}`);
+            await prisma.nodePayout.create({
+              data: {
+                nodeOperatorId: node.id,
+                amount: balance,
+                status: 'FROZEN' as any,
+                periodStart: node.createdAt,
+                periodEnd: now,
+                requestCount: 0,
+              },
+            });
+            frozen++;
+            continue;
+          }
+        }
+
+        // Create payout record and attempt Stripe transfer
+        let stripeTransferId: string | null = null;
+        let payoutStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' = 'PENDING';
+
+        // Attempt Stripe Connect transfer if operator has a connected account
+        if (node.stripeAccountId) {
+          try {
+            const amountCents = Math.round(balance * 100);
+            const transfer = await payoutToOperator(
+              node.stripeAccountId,
+              amountCents,
+              `InferLane node payout — ${balance.toFixed(2)} USD`
+            );
+            stripeTransferId = transfer.id;
+            payoutStatus = 'COMPLETED';
+          } catch (stripeErr) {
+            console.error(`[SettleNodes] Stripe transfer failed for node ${node.id}:`, stripeErr);
+            // Fall through to create PENDING payout — operator can withdraw later
+            payoutStatus = 'PENDING';
+          }
+        }
+        // If no Connect account, earnings accumulate as PENDING (withdraw later via credit system)
+
         await prisma.$transaction(async (tx) => {
           // Get period for this payout
           const lastPayout = await tx.nodePayout.findFirst({
@@ -79,10 +149,12 @@ export async function POST(req: NextRequest) {
             data: {
               nodeOperatorId: node.id,
               amount: balance,
-              status: 'PENDING', // Would be PROCESSING after Stripe transfer
+              status: payoutStatus,
+              stripeTransferId,
               periodStart,
               periodEnd: now,
               requestCount,
+              ...(payoutStatus === 'COMPLETED' ? { processedAt: now } : {}),
             },
           });
 
@@ -101,7 +173,7 @@ export async function POST(req: NextRequest) {
               amount: balance,
               balanceBefore,
               balanceAfter: 0,
-              description: `Payout of $${balance.toFixed(2)} for ${requestCount} requests`,
+              description: `Payout of $${balance.toFixed(2)} for ${requestCount} requests${stripeTransferId ? ` (Stripe: ${stripeTransferId})` : ' (pending withdrawal)'}`,
             },
           });
         });
@@ -138,6 +210,7 @@ export async function POST(req: NextRequest) {
       payoutsCreated,
       totalPaidOut: totalPaidOut.toFixed(2),
       errors,
+      frozen,
       operatorsChecked: operators.length,
     });
   } catch (err) {

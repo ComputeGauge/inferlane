@@ -1,11 +1,43 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import { complianceCheck } from '@/lib/compliance/middleware';
 
 export async function middleware(req: NextRequest) {
+  const startTime = Date.now();
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = req.nextUrl;
+
+  // -------------------------------------------------------------------------
+  // Sanctions / compliance screening (skip static assets + health endpoints)
+  // -------------------------------------------------------------------------
+  const isStaticOrHealth =
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon') ||
+    pathname === '/api/proxy/health' ||
+    pathname.startsWith('/api/cron/');
+
+  let complianceHighRisk = false;
+
+  if (!isStaticOrHealth) {
+    const compliance = await complianceCheck(req, (token?.sub as string) || undefined);
+
+    if (!compliance.allowed) {
+      return NextResponse.json(
+        { error: 'Service unavailable in your region', reason: compliance.reason },
+        { status: 451 }, // Unavailable For Legal Reasons
+      );
+    }
+
+    complianceHighRisk = !!compliance.highRisk;
+  }
+
   const response = NextResponse.next();
+
+  // Tag high-risk jurisdictions for downstream enhanced diligence
+  if (complianceHighRisk) {
+    response.headers.set('X-IL-Compliance', 'enhanced-diligence');
+  }
 
   // Partner attribution — capture ?partner=<slug> into a 90-day cookie
   const partnerSlug = req.nextUrl.searchParams.get('partner') || req.nextUrl.searchParams.get('ref');
@@ -100,6 +132,24 @@ export async function middleware(req: NextRequest) {
         return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 });
       }
     }
+  }
+
+  // ── API access logging (structured JSON) ──
+  if (pathname.startsWith('/api/')) {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || req.headers.get('x-real-ip')
+      || 'unknown';
+    console.log(
+      JSON.stringify({
+        type: 'api_access',
+        timestamp: new Date().toISOString(),
+        method: req.method,
+        path: pathname,
+        userId: (token?.sub as string) || null,
+        ip,
+        durationMs: Date.now() - startTime,
+      }),
+    );
   }
 
   return response;

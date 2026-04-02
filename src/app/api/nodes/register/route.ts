@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db';
 import { rateLimit } from '@/lib/rate-limit';
 import { withTiming } from '@/lib/api-timing';
 import { handleApiError } from '@/lib/api-errors';
+import { complianceCheck } from '@/lib/compliance/middleware';
+import { validateRegions, isRegionSanctioned } from '@/lib/regions';
 
 // ---------------------------------------------------------------------------
 // POST /api/nodes/register — Register as a node operator (MCP skill entry point)
@@ -21,6 +23,16 @@ async function handlePOST(req: NextRequest) {
     }
 
     const userId = session.user.id as string;
+
+    // Compliance check — block sanctioned regions from running compute nodes
+    const compliance = await complianceCheck(req, userId);
+    if (!compliance.allowed) {
+      return NextResponse.json(
+        { error: 'Node registration unavailable in your region', reason: compliance.reason },
+        { status: 451 },
+      );
+    }
+
     const rl = await rateLimit(`node-register:${userId}`, 3, 60_000);
     if (!rl.success) {
       return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
@@ -57,6 +69,24 @@ async function handlePOST(req: NextRequest) {
 
     if (!Array.isArray(regions) || regions.length === 0) {
       return NextResponse.json({ error: 'At least one region is required' }, { status: 400 });
+    }
+
+    // Validate region IDs against canonical list
+    const regionCheck = validateRegions(regions as string[]);
+    if (regionCheck.invalid.length > 0) {
+      return NextResponse.json(
+        { error: `Invalid region(s): ${regionCheck.invalid.join(', ')}` },
+        { status: 400 },
+      );
+    }
+
+    // Block nodes in sanctioned regions
+    const sanctionedRegions = regionCheck.valid.filter(isRegionSanctioned);
+    if (sanctionedRegions.length > 0) {
+      return NextResponse.json(
+        { error: `Region(s) unavailable due to sanctions: ${sanctionedRegions.join(', ')}` },
+        { status: 451 },
+      );
     }
 
     if (apiEndpoint && typeof apiEndpoint !== 'string') {

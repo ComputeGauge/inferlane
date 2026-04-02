@@ -6,6 +6,7 @@ import { encrypt } from '@/lib/crypto';
 import { rateLimit } from '@/lib/rate-limit';
 import { withTiming } from '@/lib/api-timing';
 import { handleApiError } from '@/lib/api-errors';
+import { complianceCheck } from '@/lib/compliance/middleware';
 
 // ---------------------------------------------------------------------------
 // Key verification — makes a minimal API call per provider to confirm validity
@@ -189,6 +190,15 @@ async function handlePOST(req: NextRequest) {
   }
 
   const userId = (session.user as { id: string }).id;
+
+  // Compliance check — block sanctioned regions from connecting providers
+  const compliance = await complianceCheck(req, userId);
+  if (!compliance.allowed) {
+    return NextResponse.json(
+      { error: 'Provider connections unavailable in your region', reason: compliance.reason },
+      { status: 451 },
+    );
+  }
 
   // Global rate limit (all users combined)
   const { success: globalOk } = await rateLimit('verify:global', 100, 60 * 1000);

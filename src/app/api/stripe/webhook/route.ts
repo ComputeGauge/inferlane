@@ -5,6 +5,27 @@ import Stripe from 'stripe';
 import { withTiming } from '@/lib/api-timing';
 import { sendEmail } from '@/lib/email';
 import { buildSubscriptionUpgradeHtml } from '@/lib/email-templates';
+import crypto from 'crypto';
+
+// ---------------------------------------------------------------------------
+// Pending API key store — holds raw keys temporarily so the success page can
+// retrieve them once without exposing them in Stripe metadata.
+// Keys expire after 10 minutes and are deleted on first retrieval.
+// ---------------------------------------------------------------------------
+const pendingApiKeys = new Map<string, { rawKey: string; expiresAt: number }>();
+const PENDING_KEY_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+export function getPendingApiKey(userId: string): string | null {
+  const entry = pendingApiKeys.get(userId);
+  if (!entry) return null;
+  if (entry.expiresAt < Date.now()) {
+    pendingApiKeys.delete(userId);
+    return null;
+  }
+  // One-time retrieval — delete after reading
+  pendingApiKeys.delete(userId);
+  return entry.rawKey;
+}
 
 const TIER_PRICING: Record<string, number> = {
   FREE: 0,
@@ -16,6 +37,35 @@ const TIER_PRICING: Record<string, number> = {
 
 // Disable body parsing — Stripe needs raw body for signature verification
 export const dynamic = 'force-dynamic';
+
+// ---------------------------------------------------------------------------
+// Webhook idempotency — prevent processing the same Stripe event twice.
+// Uses in-memory Set with 24-hour TTL. Entries are cleaned up lazily.
+// ---------------------------------------------------------------------------
+const processedEvents = new Map<string, number>(); // eventId → timestamp
+const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+function isEventProcessed(eventId: string): boolean {
+  const ts = processedEvents.get(eventId);
+  if (!ts) return false;
+  if (Date.now() - ts > IDEMPOTENCY_TTL_MS) {
+    processedEvents.delete(eventId);
+    return false;
+  }
+  return true;
+}
+
+function markEventProcessed(eventId: string): void {
+  processedEvents.set(eventId, Date.now());
+
+  // Lazy cleanup: prune expired entries when map exceeds 10k
+  if (processedEvents.size > 10_000) {
+    const cutoff = Date.now() - IDEMPOTENCY_TTL_MS;
+    for (const [id, ts] of processedEvents) {
+      if (ts < cutoff) processedEvents.delete(id);
+    }
+  }
+}
 
 async function handlePOST(req: NextRequest) {
   const body = await req.text();
@@ -33,6 +83,12 @@ async function handlePOST(req: NextRequest) {
     console.error('[Stripe Webhook] Signature verification failed:', err);
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
+
+  // Idempotency check — skip already-processed events
+  if (isEventProcessed(event.id)) {
+    return NextResponse.json({ received: true, duplicate: true });
+  }
+  markEventProcessed(event.id);
 
   try {
     switch (event.type) {
@@ -75,6 +131,61 @@ async function handlePOST(req: NextRequest) {
 
               console.log(`[Stripe] Supplier subscription upgraded: node ${nodeOperatorId} → ${tier}`);
             }
+          } else if (session.mode === 'payment' && session.metadata?.purchaseType === 'credits') {
+            // Credit purchase (one-time payment)
+            const amountUsd = Number(session.metadata?.amountUsd || 0);
+            if (amountUsd > 0) {
+              const existingBalance = await prisma.creditBalance.findUnique({
+                where: { userId },
+              });
+              const availBefore = existingBalance ? Number(existingBalance.available) : 0;
+
+              const now = new Date();
+              const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+              const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+              await prisma.creditBalance.upsert({
+                where: { userId },
+                create: {
+                  userId,
+                  totalAllocated: amountUsd,
+                  available: amountUsd,
+                  delegatedToPool: 0,
+                  listedOnMarket: 0,
+                  earned: 0,
+                  autoDelegate: false,
+                  autoDelegatePct: 0,
+                  periodStart,
+                  periodEnd,
+                },
+                update: {
+                  totalAllocated: { increment: amountUsd },
+                  available: { increment: amountUsd },
+                },
+              });
+
+              await prisma.creditTransaction.create({
+                data: {
+                  userId,
+                  type: 'MARKET_PURCHASE',
+                  amount: amountUsd,
+                  balanceBefore: availBefore,
+                  balanceAfter: availBefore + amountUsd,
+                  description: `Purchased $${amountUsd.toFixed(2)} in credits via Stripe`,
+                },
+              });
+
+              await prisma.auditLog.create({
+                data: {
+                  userId,
+                  action: 'CREDITS_PURCHASED',
+                  resource: 'credit_balance',
+                  details: { amountUsd, sessionId: session.id },
+                },
+              });
+
+              console.log(`[Stripe] Credits purchased: user ${userId} → $${amountUsd}`);
+            }
           } else {
             // Buyer subscription checkout (existing flow)
             await prisma.subscription.update({
@@ -86,12 +197,33 @@ async function handlePOST(req: NextRequest) {
               },
             });
 
+            // Generate API key for new subscriber
+            const rawKey = `il_${crypto.randomBytes(24).toString('hex')}`;
+            const keyHash = crypto.createHash('sha256').update(rawKey).digest('hex');
+            const keyPrefix = rawKey.slice(0, 12);
+
+            await prisma.apiKey.create({
+              data: {
+                userId,
+                name: 'Auto-generated',
+                keyHash,
+                keyPrefix,
+                isActive: true,
+              },
+            });
+
+            // Store raw key temporarily in-memory so success page can retrieve it once
+            pendingApiKeys.set(userId, {
+              rawKey,
+              expiresAt: Date.now() + PENDING_KEY_TTL_MS,
+            });
+
             await prisma.auditLog.create({
               data: {
                 userId,
                 action: 'SUBSCRIPTION_UPGRADED',
                 resource: 'subscription',
-                details: { tier, sessionId: session.id },
+                details: { tier, sessionId: session.id, apiKeyGenerated: true },
               },
             });
 
@@ -104,6 +236,8 @@ async function handlePOST(req: NextRequest) {
               const html = buildSubscriptionUpgradeHtml(upgradeUser.name || 'there', tier);
               sendEmail({ to: upgradeUser.email, subject: `Welcome to ${tier.charAt(0) + tier.slice(1).toLowerCase()}! — InferLane`, html }).catch(() => {});
             }
+
+            console.log(`[Stripe] Subscription upgraded + API key generated: user ${userId} → ${tier}`);
           }
         }
         break;
@@ -139,10 +273,12 @@ async function handlePOST(req: NextRequest) {
           });
 
           if (dbSub) {
+            const mappedStatus = mapStripeStatus(sub.status);
+
             await prisma.subscription.update({
               where: { stripeSubscriptionId: sub.id },
               data: {
-                status: mapStripeStatus(sub.status),
+                status: mappedStatus,
                 ...(subAny.current_period_start && {
                   currentPeriodStart: new Date(subAny.current_period_start * 1000),
                 }),
@@ -152,6 +288,17 @@ async function handlePOST(req: NextRequest) {
                 cancelAtPeriodEnd: subAny.cancel_at_period_end ?? false,
               },
             });
+
+            // Deactivate API keys if subscription is cancelled or expired
+            if (mappedStatus === 'CANCELED') {
+              const deactivated = await prisma.apiKey.updateMany({
+                where: { userId: dbSub.userId, isActive: true },
+                data: { isActive: false },
+              });
+              if (deactivated.count > 0) {
+                console.log(`[Stripe] Deactivated ${deactivated.count} API key(s) for user ${dbSub.userId} — subscription ${mappedStatus}`);
+              }
+            }
           }
         }
         break;
