@@ -50,7 +50,7 @@ async function handlePOST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
   }
 
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://inferlane.com';
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://inferlane.ai';
   const referralLink = `${baseUrl}/dashboard/nodes?ref=${node.id}`;
 
   const inviterName = node.displayName ?? 'A node operator';

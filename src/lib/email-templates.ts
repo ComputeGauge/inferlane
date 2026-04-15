@@ -5,7 +5,7 @@
 // and welcome emails. 600px max-width, #0a0a0f background, amber/orange CTAs.
 // ---------------------------------------------------------------------------
 
-const BASE_URL = process.env.APP_URL || process.env.NEXTAUTH_URL || 'https://inferlane.com';
+const BASE_URL = process.env.APP_URL || process.env.NEXTAUTH_URL || 'https://inferlane.ai';
 
 // ── Shared Layout ────────────────────────────────────────────────────────
 

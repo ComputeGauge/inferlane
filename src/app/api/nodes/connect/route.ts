@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Incomplete onboarding — generate fresh link
-    const returnUrl = `${process.env.NEXTAUTH_URL || 'https://inferlane.com'}/dashboard/nodes/settings`;
+    const returnUrl = `${process.env.NEXTAUTH_URL || 'https://inferlane.ai'}/dashboard/nodes/settings`;
     const onboardingUrl = await createOnboardingLink(nodeOperator.stripeAccountId, returnUrl);
 
     return NextResponse.json({
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     data: { stripeAccountId: account.id },
   });
 
-  const returnUrl = `${process.env.NEXTAUTH_URL || 'https://inferlane.com'}/dashboard/nodes/settings`;
+  const returnUrl = `${process.env.NEXTAUTH_URL || 'https://inferlane.ai'}/dashboard/nodes/settings`;
   const onboardingUrl = await createOnboardingLink(account.id, returnUrl);
 
   await prisma.auditLog.create({
