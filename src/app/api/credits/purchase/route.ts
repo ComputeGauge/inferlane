@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   const roundedAmount = Math.round(amountUsd * 100) / 100;
   const amountCents = Math.round(roundedAmount * 100);
 
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://inferlane.ai';
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://inferlane.dev';
 
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: 'payment',

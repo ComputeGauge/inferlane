@@ -1,0 +1,58 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0a0a0f"/>
+
+  <!-- Subtle radial glow top-right -->
+  <circle cx="1050" cy="120" r="420" fill="url(#glowA)" opacity="0.35"/>
+  <circle cx="160" cy="540" r="340" fill="url(#glowB)" opacity="0.28"/>
+
+  <!-- Diagonal accent lines (suggesting routing / throughput) -->
+  <g opacity="0.08" stroke="#ffffff" stroke-width="1">
+    <line x1="0" y1="420" x2="1200" y2="120"/>
+    <line x1="0" y1="480" x2="1200" y2="180"/>
+    <line x1="0" y1="540" x2="1200" y2="240"/>
+  </g>
+
+  <!-- Logo mark -->
+  <g transform="translate(80, 100)">
+    <rect width="120" height="120" rx="28" fill="url(#markGradient)"/>
+    <path d="M66 40V60L82 70L66 80V100L40 70L66 40Z" fill="#0a0a0f" stroke="#0a0a0f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="230" y="195" font-family="-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif" font-size="84" font-weight="800" letter-spacing="-2" fill="#ffffff">InferLane</text>
+
+  <!-- Tagline -->
+  <text x="80" y="330" font-family="-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif" font-size="44" font-weight="700" letter-spacing="-0.5" fill="#ffffff">The cost intelligence layer</text>
+  <text x="80" y="380" font-family="-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif" font-size="44" font-weight="700" letter-spacing="-0.5" fill="#ffffff">for AI agents.</text>
+
+  <!-- Feature pills -->
+  <g transform="translate(80, 445)">
+    <rect x="0" y="0" width="220" height="52" rx="26" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.15"/>
+    <text x="110" y="34" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, Inter, sans-serif" font-size="20" font-weight="600" fill="#FBBF24">Model routing</text>
+
+    <rect x="240" y="0" width="220" height="52" rx="26" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.15"/>
+    <text x="350" y="34" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, Inter, sans-serif" font-size="20" font-weight="600" fill="#FBBF24">Spend tracking</text>
+
+    <rect x="480" y="0" width="260" height="52" rx="26" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.15"/>
+    <text x="610" y="34" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, Inter, sans-serif" font-size="20" font-weight="600" fill="#FBBF24">Local → cloud routing</text>
+  </g>
+
+  <!-- URL -->
+  <text x="80" y="575" font-family="-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif" font-size="24" font-weight="500" fill="#6b7280">inferlane.dev</text>
+
+  <defs>
+    <linearGradient id="markGradient" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#F97316"/>
+      <stop offset="1" stop-color="#F97316" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#FBBF24" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
