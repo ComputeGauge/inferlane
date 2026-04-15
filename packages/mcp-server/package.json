@@ -1,16 +1,35 @@
 {
   "name": "@inferlane/mcp-server",
-  "version": "1.0.0",
-  "description": "MCP server for InferLane — multi-provider LLM cost optimization tools for AI agents",
+  "version": "1.2.1",
+  "description": "MCP server for InferLane — smart model routing and cost optimization for AI agents. Works with Claude Code, Claude Desktop, Goose, Cursor, and any MCP client. Includes stdio and HTTP transports.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ComputeGauge/inferlane.git"
+  },
+  "homepage": "https://inferlane.dev",
+  "bugs": "https://github.com/ComputeGauge/inferlane/issues",
   "bin": {
-    "inferlane-mcp": "./dist/index.js"
+    "mcp-server": "./dist/index.js",
+    "inferlane-mcp": "./dist/index.js",
+    "inferlane-mcp-http": "./dist/http-server.js",
+    "inferlane-persist": "./bin/inferlane-persist.mjs",
+    "inferlane-unpersist": "./bin/inferlane-unpersist.mjs"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": ["dist", "bin", "templates", "README.md", "LICENSE"],
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "publish:provenance": "npm publish --access public --provenance"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "keywords": [
     "mcp", "mcp-server", "claude", "claude-code", "ai-agent", "ai-agent-tools",

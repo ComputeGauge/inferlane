@@ -9,7 +9,7 @@ export class InferLaneClient {
 
   constructor(apiKey: string, baseUrl?: string) {
     this.apiKey = apiKey;
-    this.baseUrl = (baseUrl || 'https://inferlane.com').replace(/\/$/, '');
+    this.baseUrl = (baseUrl || 'https://inferlane.dev').replace(/\/$/, '');
   }
 
   private async request(path: string, options?: { method?: string; body?: any; captureHeaders?: boolean }): Promise<any> {

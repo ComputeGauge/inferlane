@@ -24,6 +24,8 @@ const MODEL_TIERS: Record<string, Array<{ provider: string; model: string; input
     { provider: 'GOOGLE', model: 'gemini-2.0-flash', inputPerMToken: 0.1, outputPerMToken: 0.4, qualityScore: 78, latencyClass: 'fast', contextWindow: 1048576 },
     { provider: 'DEEPSEEK', model: 'deepseek-chat', inputPerMToken: 0.27, outputPerMToken: 1.1, qualityScore: 82, latencyClass: 'medium', contextWindow: 64000 },
     { provider: 'MISTRAL', model: 'mistral-large', inputPerMToken: 2, outputPerMToken: 6, qualityScore: 83, latencyClass: 'medium', contextWindow: 128000 },
+    { provider: 'GOOGLE', model: 'gemma-4-31b', inputPerMToken: 0.15, outputPerMToken: 0.6, qualityScore: 84, latencyClass: 'medium', contextWindow: 256000 },
+    { provider: 'OLLAMA', model: 'ollama/gemma4', inputPerMToken: 0, outputPerMToken: 0, qualityScore: 84, latencyClass: 'medium', contextWindow: 256000 },
   ],
   speed: [
     { provider: 'ANTHROPIC', model: 'claude-haiku-3.5', inputPerMToken: 0.25, outputPerMToken: 1.25, qualityScore: 85, latencyClass: 'fast', contextWindow: 200000 },
@@ -31,6 +33,8 @@ const MODEL_TIERS: Record<string, Array<{ provider: string; model: string; input
     { provider: 'GOOGLE', model: 'gemini-2.0-flash-lite', inputPerMToken: 0.075, outputPerMToken: 0.3, qualityScore: 70, latencyClass: 'fast', contextWindow: 1048576 },
     { provider: 'GROQ', model: 'groq/llama-3.3-70b', inputPerMToken: 0.59, outputPerMToken: 0.79, qualityScore: 75, latencyClass: 'fast', contextWindow: 128000 },
     { provider: 'XAI', model: 'grok-3-mini', inputPerMToken: 0.3, outputPerMToken: 0.5, qualityScore: 74, latencyClass: 'fast', contextWindow: 131072 },
+    { provider: 'GOOGLE', model: 'gemma-4-4b', inputPerMToken: 0.04, outputPerMToken: 0.15, qualityScore: 72, latencyClass: 'fast', contextWindow: 256000 },
+    { provider: 'OLLAMA', model: 'ollama/gemma4:2b', inputPerMToken: 0, outputPerMToken: 0, qualityScore: 65, latencyClass: 'fast', contextWindow: 256000 },
   ],
   reasoning: [
     { provider: 'ANTHROPIC', model: 'claude-opus-4', inputPerMToken: 15, outputPerMToken: 75, qualityScore: 95, latencyClass: 'slow', contextWindow: 200000 },
@@ -86,6 +90,17 @@ const MODEL_ALIASES: Record<string, string> = {
   // xAI aliases
   'grok': 'grok-3',
   'grok-mini': 'grok-3-mini',
+  // Google Gemma 4 aliases
+  'gemma4': 'gemma-4-31b',
+  'gemma-4': 'gemma-4-31b',
+  'gemma4:26b': 'gemma-4-31b',
+  'gemma4:4b': 'gemma-4-4b',
+  'gemma4:2b': 'gemma-4-4b',
+  'gemma': 'gemma-4-31b',
+  // Ollama local aliases
+  'ollama/gemma4': 'ollama/gemma4',
+  'local/gemma4': 'ollama/gemma4',
+  'local': 'ollama/gemma4',
 };
 
 // Normalize model name: resolve aliases, then find in tiers
@@ -278,21 +293,103 @@ function suggestModel(taskDescription: string, priority: string): { model: strin
 // Tools that work offline (no API key needed)
 const OFFLINE_TOOLS = new Set(['il_estimate_cost', 'il_compare_models', 'il_suggest_model']);
 
-async function main() {
-  const apiKey = process.env.INFERLANE_API_KEY;
-  const baseUrl = process.env.INFERLANE_BASE_URL;
+// ---------------------------------------------------------------------------
+// Demo mode — synthetic (but clearly labeled) responses for the "paid" tools
+// when no API key is configured. Keeps the MCP surface discoverable so new
+// users can see what the tool would do before signing up.
+// ---------------------------------------------------------------------------
+
+const DEMO_BANNER = '⚠️  **DEMO MODE** — sample data. Connect an InferLane API key (https://inferlane.dev/dashboard/settings) for live numbers from your actual usage.\n\n';
+
+function demoResponse(toolName: string, args: Record<string, unknown> = {}): { content: { type: 'text'; text: string }[] } {
+  let body: string;
+  switch (toolName) {
+    case 'il_check_promotions':
+      body = [
+        '## Active promotions (sample)',
+        '',
+        '| Provider | Model | Discount | Expires |',
+        '|---|---|---|---|',
+        '| DeepSeek | deepseek-chat | 50% off input | 2026-04-30 |',
+        '| Groq | llama-3.3-70b | 2x free tier | 2026-05-15 |',
+        '| Together | mixtral-8x22b | $50 bonus credit | ongoing |',
+        '| Fireworks | new accounts | $5 free credit | ongoing |',
+        '',
+        '_These are representative examples, not live data. Real InferLane accounts see the current, curated list — updated hourly._',
+      ].join('\n');
+      break;
+
+    case 'il_get_spend': {
+      const period = (args.period as string) || 'month';
+      body = [
+        `## Spend summary — ${period} (sample)`,
+        '',
+        '| Provider | Requests | Tokens (in/out) | Cost |',
+        '|---|---|---|---|',
+        '| Anthropic | 2,418 | 14.2M / 2.1M | $96.30 |',
+        '| OpenAI | 312 | 1.1M / 180K | $8.42 |',
+        '| DeepSeek | 541 | 2.3M / 410K | $2.18 |',
+        '| **Total** | **3,271** | **17.6M / 2.7M** | **$106.90** |',
+        '',
+        '### By model',
+        '- claude-sonnet-4: $62.10 (58%)',
+        '- claude-haiku-4.5: $34.20 (32%)',
+        '- gpt-4o-mini: $8.42 (8%)',
+        '- deepseek-chat: $2.18 (2%)',
+        '',
+        '### Compared to last period',
+        '- Total spend: **-12%** (routing more to Haiku)',
+        '- Cost per request: **-18%**',
+        '',
+        '_Synthetic sample data. Connect an InferLane API key to see your real spend across Anthropic, OpenAI, Google, DeepSeek, and 10+ other providers._',
+      ].join('\n');
+      break;
+    }
+
+    case 'il_route_request': {
+      const model = (args.model as string) || 'claude-sonnet-4';
+      const routing = (args.routing as string) || 'cheapest';
+      body = [
+        `## Route preview — ${model} (routing: ${routing})`,
+        '',
+        '**Chosen route**: `deepseek-chat` via DeepSeek',
+        '',
+        '**Reasoning**: Task appears to be routine code generation. DeepSeek V3 scores within 3 points of Sonnet 4 on the InferLane benchmark for this category, at 1/11th the cost. Quality threshold met.',
+        '',
+        '**Cost estimate**:',
+        '- Sonnet 4 (requested): $0.042 per 1K/500 tokens',
+        '- DeepSeek (routed):    $0.003 per 1K/500 tokens',
+        '- **Savings: $0.039 (93%)**',
+        '',
+        '**Alternative options**:',
+        '- gpt-4o-mini: $0.003 (similar quality)',
+        '- groq/llama-3.3-70b: $0.004 (faster, similar quality)',
+        '',
+        '_Preview only — this demo response did NOT send anything. Connect an InferLane API key to actually dispatch routed requests through the smart router._',
+      ].join('\n');
+      break;
+    }
+
+    default:
+      body = `Tool "${toolName}" is not available in offline mode. Connect an InferLane API key at https://inferlane.dev/dashboard/settings.`;
+  }
+
+  return { content: [{ type: 'text', text: DEMO_BANNER + body }] };
+}
+
+/**
+ * Create a configured InferLane MCP server instance.
+ * Exported so transports (stdio, HTTP, SSE) can all share the same server logic.
+ */
+export function createInferLaneServer(options?: { apiKey?: string; baseUrl?: string }) {
+  const apiKey = options?.apiKey ?? process.env.INFERLANE_API_KEY;
+  const baseUrl = options?.baseUrl ?? process.env.INFERLANE_BASE_URL;
 
   // API key is optional — offline tools (estimate, compare, suggest) work without it
   const client = apiKey ? new InferLaneClient(apiKey, baseUrl) : null;
 
-  if (!apiKey) {
-    console.error('Note: INFERLANE_API_KEY not set. Running in offline mode.');
-    console.error('Tools available: il_estimate_cost, il_compare_models, il_suggest_model');
-    console.error('Set API key to unlock: il_check_promotions, il_get_spend, il_route_request');
-  }
-
   const server = new Server(
-    { name: 'inferlane', version: '1.0.0' },
+    { name: 'inferlane', version: '1.2.0' },
     { capabilities: { tools: {} } },
   );
 
@@ -310,15 +407,12 @@ async function main() {
     const { name, arguments: args } = request.params;
 
     try {
-      // Gate tools that require an API key
+      // When no API key is configured, paid tools return labeled demo data
+      // instead of erroring. This keeps the MCP surface discoverable and
+      // demonstrates what the tool would produce, so new users can try before
+      // they sign up.
       if (!client && !OFFLINE_TOOLS.has(name)) {
-        return {
-          content: [{
-            type: 'text',
-            text: `Tool "${name}" requires a InferLane API key. Set INFERLANE_API_KEY in your MCP server config.\n\nFree tools available without API key: il_estimate_cost, il_compare_models, il_suggest_model\n\nGet an API key at https://inferlane.com/dashboard/settings`,
-          }],
-          isError: true,
-        };
+        return demoResponse(name, args as Record<string, unknown>);
       }
 
       switch (name) {
@@ -557,12 +651,28 @@ async function main() {
     }
   });
 
+  return server;
+}
+
+async function main() {
+  const apiKey = process.env.INFERLANE_API_KEY;
+  if (!apiKey) {
+    console.error('Note: INFERLANE_API_KEY not set. Running in offline mode.');
+    console.error('Tools available: il_estimate_cost, il_compare_models, il_suggest_model');
+    console.error('Set API key to unlock: il_check_promotions, il_get_spend, il_route_request');
+  }
+
+  const server = createInferLaneServer();
+
   // Start server with stdio transport
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
 
-main().catch((error) => {
-  console.error('Fatal error:', error);
-  process.exit(1);
-});
+// Only run main() if this file is executed directly (not imported)
+if (require.main === module) {
+  main().catch((error) => {
+    console.error('Fatal error:', error);
+    process.exit(1);
+  });
+}
