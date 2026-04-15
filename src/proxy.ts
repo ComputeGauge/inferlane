@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { complianceCheck } from '@/lib/compliance/middleware';
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const startTime = Date.now();
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = req.nextUrl;
