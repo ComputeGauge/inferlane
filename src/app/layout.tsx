@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     siteName: "InferLane",
     images: [
       {
-        url: '/hero-comparison.png',
+        url: 'https://inferlane.dev/hero-comparison.png',
         width: 1200,
         height: 630,
         alt: 'Sonnet 4 beat Opus and Grok 4 on 20 real coding tasks — InferLane benchmark',
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Sonnet 4 beat Opus 4 AND Grok 4 on 20 real coding tasks",
     description: "5-model blind benchmark. Reasoning models lost to plain Sonnet while costing 4-5\u00d7 more.",
-    images: ['/hero-comparison.png'],
+    images: ['https://inferlane.dev/hero-comparison.png'],
   },
   alternates: {
     canonical: "https://inferlane.dev",
