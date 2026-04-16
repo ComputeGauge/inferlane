@@ -41,14 +41,17 @@ export async function GET(req: NextRequest) {
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
 
   try {
-    const [user, subscription, apiKeys, kycSessions, disputes, wallet] =
-      await Promise.all([
+    const [
+      user, subscription, apiKeys, kycSessions, disputes, wallet,
+      notificationPrefs, spendSnapshots, scheduledPrompts, teamMemberships,
+    ] = await Promise.all([
         prisma.user.findUnique({
           where: { id: auth.userId },
           select: {
             id: true,
             email: true,
             name: true,
+            image: true,
             createdAt: true,
             role: true,
           },
@@ -95,6 +98,61 @@ export async function GET(req: NextRequest) {
           },
         }),
         getBalance(auth.userId),
+        // GDPR expansion: notification preferences (channels configured)
+        prisma.notificationPreferences.findUnique({
+          where: { userId: auth.userId },
+          select: {
+            weeklyDigest: true,
+            alertEmails: true,
+            tradeNotifs: true,
+            payoutNotifs: true,
+            marketingEmails: true,
+            // Credential fields masked — never export raw tokens/URLs
+            slackWebhookUrl: false,
+            telegramBotToken: false,
+            telegramChatId: true,
+            discordWebhookUrl: false,
+            webhookUrl: false,
+            createdAt: true,
+          },
+        }),
+        // GDPR expansion: spend history (last 1 year)
+        prisma.spendSnapshot.findMany({
+          where: { userId: auth.userId, createdAt: { gte: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000) } },
+          select: {
+            period: true,
+            periodType: true,
+            totalSpend: true,
+            tokenCount: true,
+            requestCount: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 500,
+        }),
+        // GDPR expansion: scheduled prompts (user-generated content)
+        prisma.scheduledPrompt.findMany({
+          where: { userId: auth.userId },
+          select: {
+            id: true,
+            model: true,
+            scheduleType: true,
+            status: true,
+            createdAt: true,
+            // Include prompt content — it's the user's data
+            systemPrompt: true,
+          },
+          take: 100,
+        }),
+        // GDPR expansion: team memberships
+        prisma.teamMember.findMany({
+          where: { userId: auth.userId },
+          select: {
+            teamId: true,
+            role: true,
+            createdAt: true,
+          },
+        }),
       ]);
 
     if (!user) {
@@ -124,11 +182,20 @@ export async function GET(req: NextRequest) {
           ...d,
           amountUsdCents: d.amountUsdCents.toString(),
         })),
+        notificationPreferences: notificationPrefs ?? null,
+        spendHistory: spendSnapshots.map((s) => ({
+          ...s,
+          totalSpend: s.totalSpend.toString(),
+          tokenCount: s.tokenCount?.toString() ?? null,
+        })),
+        scheduledPrompts,
+        teamMemberships,
         note:
-          'This export covers the fields in your account plus 90 days of ' +
-          'dispute metadata. Longer-retention fields (financial records, ' +
-          'audit logs) are available on written request per our Privacy ' +
-          'Policy. Contact privacy@inferlane.dev.',
+          'This export covers all personal data in your account including ' +
+          'notification preferences, spend history (1 year), scheduled prompts, ' +
+          'team memberships, and 90 days of dispute metadata. Credential fields ' +
+          '(API keys, webhook URLs, bot tokens) are excluded for security — ' +
+          'contact privacy@inferlane.dev for questions.',
       },
       {
         headers: {

@@ -18,6 +18,7 @@ import { logger } from '@/lib/telemetry';
 interface CorrectionRequest {
   name?: string;
   email?: string;
+  image?: string | null;
   notificationPrefs?: {
     weeklyDigest?: boolean;
     alertEmails?: boolean;
@@ -47,9 +48,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  const updates: { name?: string; email?: string } = {};
+  const updates: { name?: string; email?: string; image?: string | null } = {};
   const nameOk = typeof body.name === 'string' && body.name.length > 0 && body.name.length <= 200;
   if (nameOk) updates.name = body.name!.trim();
+
+  // Image correction: allow setting a profile image URL or clearing
+  // it (set to null). Primarily for users who want to override the
+  // OAuth-sourced avatar.
+  if (body.image !== undefined) {
+    if (body.image === null || body.image === '') {
+      updates.image = null; // clear image
+    } else if (typeof body.image === 'string' && body.image.startsWith('https://') && body.image.length <= 2048) {
+      updates.image = body.image;
+    }
+  }
 
   // Email correction: validate format + check it's not already in
   // use by another account.
