@@ -1,6 +1,6 @@
 {
   "name": "@inferlane/mcp-server",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "MCP server for InferLane — smart model routing and cost optimization for AI agents. Works with Claude Code, Claude Desktop, Goose, Cursor, and any MCP client. Includes stdio and HTTP transports.",
   "license": "MIT",
   "engines": {
