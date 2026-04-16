@@ -83,7 +83,7 @@ const PRICING: Record<string, { input: number; output: number }> = {
   // Anthropic
   'claude-opus-4': { input: 15.0, output: 75.0 },
   'claude-sonnet-4': { input: 3.0, output: 15.0 },
-  'claude-haiku-3.5': { input: 0.80, output: 4.0 },
+  'claude-haiku-4-5': { input: 1.00, output: 5.0 },
   'claude-sonnet-3.5': { input: 3.0, output: 15.0 },
   'claude-3-opus': { input: 15.0, output: 75.0 },
   'claude-3-sonnet': { input: 3.0, output: 15.0 },

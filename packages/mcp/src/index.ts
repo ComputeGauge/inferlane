@@ -743,7 +743,7 @@ server.tool(
   {},
   async () => {
     if (!platformClient) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to unlock platform features (check_promotions, platform_spend, platform_budget, route_via_platform).' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to unlock platform features. Get a free key at https://inferlane.dev' }] };
     }
     try {
       const data: any = await platformClient.getPromotions();
@@ -771,7 +771,7 @@ server.tool(
   },
   async ({ period }) => {
     if (!platformClient) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to unlock platform features (check_promotions, platform_spend, platform_budget, route_via_platform).' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to unlock platform features. Get a free key at https://inferlane.dev' }] };
     }
     try {
       const data: any = await platformClient.getSpendSummary(period);
@@ -809,7 +809,7 @@ server.tool(
   {},
   async () => {
     if (!platformClient) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to unlock platform features (check_promotions, platform_spend, platform_budget, route_via_platform).' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to unlock platform features. Get a free key at https://inferlane.dev' }] };
     }
     try {
       const data: any = await platformClient.getBudgetStatus();
@@ -852,7 +852,7 @@ server.tool(
     trafficLight.onToolCall('default', 'route_via_platform');
 
     if (!platformClient) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to unlock platform features (check_promotions, platform_spend, platform_budget, route_via_platform).' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to unlock platform features. Get a free key at https://inferlane.dev' }] };
     }
 
     // Budget enforcement: estimate cost and check before making the API call
@@ -1400,7 +1400,7 @@ server.tool(
   },
   async (params) => {
     if (!apiKey) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use scheduling features.' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use scheduling features. Get a free key at https://inferlane.dev' }] };
     }
     try {
       const result = await schedulerRequest('/api/scheduler/prompts', {
@@ -1445,7 +1445,7 @@ server.tool(
   },
   async (params) => {
     if (!apiKey) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use scheduling features.' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use scheduling features. Get a free key at https://inferlane.dev' }] };
     }
     try {
       const queryParts: string[] = [];
@@ -1494,7 +1494,7 @@ server.tool(
   },
   async (params) => {
     if (!apiKey) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use scheduling features.' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use scheduling features. Get a free key at https://inferlane.dev' }] };
     }
     try {
       await schedulerRequest(`/api/scheduler/prompts/${params.prompt_id}`, {
@@ -1521,7 +1521,7 @@ server.tool(
   },
   async (params) => {
     if (!apiKey) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use scheduling features.' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use scheduling features. Get a free key at https://inferlane.dev' }] };
     }
     try {
       const result = await schedulerRequest('/api/scheduler/chains', {
@@ -1565,7 +1565,7 @@ server.tool(
   },
   async (params) => {
     if (!apiKey) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use scheduling features.' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use scheduling features. Get a free key at https://inferlane.dev' }] };
     }
     try {
       const result = await schedulerRequest(`/api/scheduler/chains/${params.batch_id}`);
@@ -1610,7 +1610,7 @@ server.tool(
   },
   async (params) => {
     if (!apiKey) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use savings tracking.' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use savings tracking. Get a free key at https://inferlane.dev' }] };
     }
     try {
       const queryParams = new URLSearchParams({
@@ -1687,7 +1687,7 @@ server.tool(
   },
   async (params) => {
     if (!apiKey) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use dispatch features. Add it as an environment variable.' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use dispatch features. Get a free key at https://inferlane.dev' }] };
     }
     try {
       const result = await schedulerRequest('/api/dispatch', {
@@ -1741,7 +1741,7 @@ server.tool(
   },
   async (params) => {
     if (!apiKey) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use dispatch features. Add it as an environment variable.' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use dispatch features. Get a free key at https://inferlane.dev' }] };
     }
     try {
       const result = await schedulerRequest(`/api/dispatch?taskId=${encodeURIComponent(params.taskId)}`);
@@ -1790,7 +1790,7 @@ server.tool(
   },
   async (params) => {
     if (!apiKey) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use dispatch chain features. Add it as an environment variable.' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use dispatch chain features. Get a free key at https://inferlane.dev' }] };
     }
     try {
       const result = await schedulerRequest('/api/dispatch/chain', {
@@ -1853,7 +1853,7 @@ server.tool(
   },
   async (params) => {
     if (!apiKey) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use triage features. Add it as an environment variable.' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use triage features. Get a free key at https://inferlane.dev' }] };
     }
     try {
       const body: Record<string, unknown> = {
@@ -1925,7 +1925,7 @@ server.tool(
   },
   async (params) => {
     if (!apiKey) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use triage settings. Add it as an environment variable.' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use triage settings. Get a free key at https://inferlane.dev' }] };
     }
     try {
       // Get defaults from the API
@@ -1991,7 +1991,7 @@ server.tool(
   },
   async (params) => {
     if (!apiKey) {
-      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use session history features. Add it as an environment variable.' }] };
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use session history features. Get a free key at https://inferlane.dev' }] };
     }
     try {
       if (params.sessionId) {

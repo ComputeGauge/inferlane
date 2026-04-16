@@ -422,8 +422,9 @@ export class AgentTrafficLightSystem {
     for (const t of recent) {
       const fromEmoji = PHASE_EMOJI[t.from] || '•';
       const toEmoji = PHASE_EMOJI[t.to] || '•';
-      const ago = Math.floor((Date.now() - t.timestamp) / 1000);
-      lines.push(`- ${fromEmoji} ${t.from} → ${toEmoji} ${t.to} (${t.tokensDuringPhase} tokens, $${t.costDuringPhase.toFixed(4)}, ${formatDuration(t.durationMs)}) — ${ago}s ago`);
+      const agoSec = Math.floor((Date.now() - t.timestamp) / 1000);
+      const agoStr = agoSec < 60 ? `${agoSec}s ago` : agoSec < 3600 ? `${Math.floor(agoSec / 60)}m ago` : agoSec < 86400 ? `${Math.floor(agoSec / 3600)}h ago` : `${Math.floor(agoSec / 86400)}d ago`;
+      lines.push(`- ${fromEmoji} ${t.from} → ${toEmoji} ${t.to} (${t.tokensDuringPhase} tokens, $${t.costDuringPhase.toFixed(4)}, ${formatDuration(t.durationMs)}) — ${agoStr}`);
     }
 
     return lines.join('\n');
@@ -551,8 +552,9 @@ export class AgentTrafficLightSystem {
       lines.push('');
       lines.push('**Recent transitions**:');
       for (const change of recent) {
-        const ago = Math.floor((now - change.timestamp) / 1000);
-        lines.push(`- ${COLOR_EMOJI[change.from]} → ${COLOR_EMOJI[change.to]} ${change.label} (${ago}s ago)`);
+        const agoSec = Math.floor((now - change.timestamp) / 1000);
+        const agoStr = agoSec < 60 ? `${agoSec}s ago` : agoSec < 3600 ? `${Math.floor(agoSec / 60)}m ago` : agoSec < 86400 ? `${Math.floor(agoSec / 3600)}h ago` : `${Math.floor(agoSec / 86400)}d ago`;
+        lines.push(`- ${COLOR_EMOJI[change.from]} → ${COLOR_EMOJI[change.to]} ${change.label} (${agoStr})`);
       }
     }
 

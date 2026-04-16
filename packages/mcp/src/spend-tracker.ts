@@ -95,7 +95,7 @@ const MODEL_CAPABILITIES: Record<string, ModelCapability> = {
     speed: 75, toolUse: true, vision: false, tier: 'value',
   },
   // === BUDGET TIER — Cheapest options that still work well for simple tasks ===
-  'claude-haiku-3.5': {
+  'claude-haiku-4-5': {
     quality: { complex_reasoning: 68, code_generation: 72, code_review: 70, simple_qa: 82, classification: 84, extraction: 83, summarization: 78, translation: 76, data_analysis: 72, math: 68, conversation: 80, general: 75 },
     speed: 90, toolUse: true, vision: true, tier: 'budget',
   },
@@ -158,7 +158,7 @@ const MODEL_PRICES: ModelPrice[] = [
   // Anthropic
   { provider: 'Anthropic', model: 'claude-opus-4', inputPerMToken: 15.0, outputPerMToken: 75.0, context: 200000, category: 'chat' },
   { provider: 'Anthropic', model: 'claude-sonnet-4', inputPerMToken: 3.0, outputPerMToken: 15.0, context: 200000, category: 'chat' },
-  { provider: 'Anthropic', model: 'claude-haiku-3.5', inputPerMToken: 0.25, outputPerMToken: 1.25, context: 200000, category: 'chat' },
+  { provider: 'Anthropic', model: 'claude-haiku-4-5', inputPerMToken: 1.00, outputPerMToken: 5.00, context: 200000, category: 'chat' },
   { provider: 'Anthropic', model: 'claude-sonnet-3.5', inputPerMToken: 3.0, outputPerMToken: 15.0, context: 200000, category: 'chat' },
   // OpenAI
   { provider: 'OpenAI', model: 'gpt-4o', inputPerMToken: 2.50, outputPerMToken: 10.0, context: 128000, category: 'chat' },
@@ -1012,19 +1012,24 @@ export class SpendTracker {
 
   private detectProviders(): string[] {
     const providers: string[] = [];
-    if (process.env.ANTHROPIC_API_KEY) providers.push('anthropic');
-    if (process.env.OPENAI_API_KEY) providers.push('openai');
-    if (process.env.GOOGLE_API_KEY) providers.push('google');
-    if (process.env.TOGETHER_API_KEY) providers.push('together');
-    if (process.env.GROQ_API_KEY) providers.push('groq');
-    if (process.env.MISTRAL_API_KEY) providers.push('mistral');
-    if (process.env.DEEPSEEK_API_KEY) providers.push('deepseek');
-    if (process.env.COHERE_API_KEY) providers.push('cohere');
-    if (process.env.XAI_API_KEY) providers.push('xai');
-    if (process.env.PERPLEXITY_API_KEY) providers.push('perplexity');
-    if (process.env.CEREBRAS_API_KEY) providers.push('cerebras');
-    if (process.env.SAMBANOVA_API_KEY) providers.push('sambanova');
-    if (process.env.FIREWORKS_API_KEY) providers.push('fireworks');
+    // Check for non-empty API keys (Claude Code sets ANTHROPIC_API_KEY="" to shadow it)
+    const hasKey = (key: string) => {
+      const val = process.env[key];
+      return val !== undefined && val !== '' && val !== 'null';
+    };
+    if (hasKey('ANTHROPIC_API_KEY')) providers.push('anthropic');
+    if (hasKey('OPENAI_API_KEY')) providers.push('openai');
+    if (hasKey('GOOGLE_API_KEY')) providers.push('google');
+    if (hasKey('TOGETHER_API_KEY')) providers.push('together');
+    if (hasKey('GROQ_API_KEY')) providers.push('groq');
+    if (hasKey('MISTRAL_API_KEY')) providers.push('mistral');
+    if (hasKey('DEEPSEEK_API_KEY')) providers.push('deepseek');
+    if (hasKey('COHERE_API_KEY')) providers.push('cohere');
+    if (hasKey('XAI_API_KEY')) providers.push('xai');
+    if (hasKey('PERPLEXITY_API_KEY')) providers.push('perplexity');
+    if (hasKey('CEREBRAS_API_KEY')) providers.push('cerebras');
+    if (hasKey('SAMBANOVA_API_KEY')) providers.push('sambanova');
+    if (hasKey('FIREWORKS_API_KEY')) providers.push('fireworks');
     return providers;
   }
 

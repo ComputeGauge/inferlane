@@ -311,7 +311,7 @@ export class RatingIntegrityEngine {
       flags.push({
         type: 'spam',
         severity: 'warning',
-        message: `Model "${sub.model}" not found in session request history — rating may be fabricated.`,
+        message: `Model "${sub.model}" not found in session request history — rating weighted at 50% until confirmed by logged usage.`,
       });
     }
 

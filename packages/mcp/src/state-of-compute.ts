@@ -217,7 +217,7 @@ export class StateOfComputeReport {
     const tiers = [
       { name: 'Frontier', model: 'claude-opus-4', inputPerM: 15.0, outputPerM: 75.0 },
       { name: 'Workhorse', model: 'claude-sonnet-4', inputPerM: 3.0, outputPerM: 15.0 },
-      { name: 'Speed', model: 'claude-haiku-3.5', inputPerM: 0.25, outputPerM: 1.25 },
+      { name: 'Speed', model: 'claude-haiku-4-5', inputPerM: 1.00, outputPerM: 5.00 },
       { name: 'Budget', model: 'deepseek-chat', inputPerM: 0.14, outputPerM: 0.28 },
     ];
 
@@ -378,7 +378,7 @@ export class StateOfComputeReport {
     const tiers = [
       { name: 'Frontier', models: ['claude-opus-4', 'gpt-4o', 'gemini-2.5-pro'] },
       { name: 'Workhorse', models: ['claude-sonnet-4', 'gpt-4o-mini', 'gemini-2.0-flash', 'deepseek-chat'] },
-      { name: 'Speed/Budget', models: ['claude-haiku-3.5', 'groq/llama-3.3-70b', 'together/llama-3.3-70b'] },
+      { name: 'Speed/Budget', models: ['claude-haiku-4-5', 'groq/llama-3.3-70b', 'together/llama-3.3-70b'] },
     ];
 
     for (const tier of tiers) {
@@ -392,13 +392,9 @@ export class StateOfComputeReport {
         const outCost = this.tracker.estimateCost(model, 0, 1_000_000);
         if (inCost > 0 || outCost > 0) {
           const premium = inCost > 0 ? `${(outCost / inCost).toFixed(1)}×` : '—';
-          const phaseResult = calculatePhaseAwareCost({
-            inputTokens: 1000,
-            outputTokens: 1000,
-            memoryTechnology: 'HBM3',
-            memoryBandwidthGBs: 3350,
-          });
-          lines.push(`| ${model} | $${inCost.toFixed(2)} | $${outCost.toFixed(2)} | ${premium} | $${phaseResult.totalCost.toFixed(6)} |`);
+          // Use model's actual pricing for 1K in / 1K out (not hardware-level phase cost)
+          const modelCost1K = this.tracker.estimateCost(model, 1000, 1000);
+          lines.push(`| ${model} | $${inCost.toFixed(2)} | $${outCost.toFixed(2)} | ${premium} | $${modelCost1K.toFixed(6)} |`);
         }
       }
       lines.push('');
