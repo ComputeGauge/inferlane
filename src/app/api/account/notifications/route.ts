@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { encrypt } from '@/lib/crypto';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -53,8 +54,19 @@ export async function PUT(req: NextRequest) {
   for (const f of boolFields) {
     if (typeof body[f] === 'boolean') allowed[f] = body[f];
   }
+  // Credential fields are encrypted at rest using the same vault
+  // as API keys (AES-256-GCM via HKDF). telegramChatId is NOT
+  // encrypted — it's not a credential, just an identifier.
+  const credentialFields = ['slackWebhookUrl', 'telegramBotToken', 'discordWebhookUrl', 'webhookUrl'];
   for (const f of strFields) {
-    if (typeof body[f] === 'string') allowed[f] = body[f] || null; // empty string → null
+    if (typeof body[f] === 'string') {
+      const val = body[f] || null;
+      if (val && credentialFields.includes(f)) {
+        allowed[f] = encrypt(val); // encrypt credentials at rest
+      } else {
+        allowed[f] = val;
+      }
+    }
   }
 
   const prefs = await prisma.notificationPreferences.upsert({

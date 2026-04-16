@@ -14,6 +14,7 @@
 //      configure alerts per-provider — they configure once in settings.
 
 import { sendEmail } from '@/lib/email';
+import { decrypt } from '@/lib/crypto';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -105,43 +106,48 @@ export async function deliverToUserChannels(
     if (ok) succeeded++;
   }
 
+  // Helper: decrypt a credential field. If it looks like a v1:
+  // ciphertext (contains 3+ colons), decrypt it. Otherwise treat
+  // as plaintext (legacy / not-yet-encrypted values).
+  const maybeDecrypt = (val: string | null | undefined): string | null => {
+    if (!val) return null;
+    try {
+      // v1 ciphertext format: "v1:iv:tag:ct" (4 parts)
+      if (val.includes(':') && val.split(':').length >= 3) {
+        return decrypt(val);
+      }
+      return val; // plaintext (legacy)
+    } catch {
+      return val; // decryption failed — try plaintext
+    }
+  };
+
   // Slack — if user has a webhook URL configured
-  if ((prefs as Record<string, unknown>)?.slackWebhookUrl) {
-    const ok = await deliverSlack({
-      ...alert,
-      slackWebhookUrl: (prefs as Record<string, unknown>).slackWebhookUrl as string,
-    });
+  const slackUrl = maybeDecrypt((prefs as Record<string, unknown>)?.slackWebhookUrl as string);
+  if (slackUrl) {
+    const ok = await deliverSlack({ ...alert, slackWebhookUrl: slackUrl });
     if (ok) succeeded++;
   }
 
   // Telegram — if user has bot token + chat ID configured
-  if (
-    (prefs as Record<string, unknown>)?.telegramBotToken &&
-    (prefs as Record<string, unknown>)?.telegramChatId
-  ) {
-    const ok = await deliverTelegram({
-      ...alert,
-      telegramBotToken: (prefs as Record<string, unknown>).telegramBotToken as string,
-      telegramChatId: (prefs as Record<string, unknown>).telegramChatId as string,
-    });
+  const tgToken = maybeDecrypt((prefs as Record<string, unknown>)?.telegramBotToken as string);
+  const tgChat = (prefs as Record<string, unknown>)?.telegramChatId as string; // chat ID is not sensitive
+  if (tgToken && tgChat) {
+    const ok = await deliverTelegram({ ...alert, telegramBotToken: tgToken, telegramChatId: tgChat });
     if (ok) succeeded++;
   }
 
   // Discord — if user has a webhook URL configured
-  if ((prefs as Record<string, unknown>)?.discordWebhookUrl) {
-    const ok = await deliverDiscord({
-      ...alert,
-      discordWebhookUrl: (prefs as Record<string, unknown>).discordWebhookUrl as string,
-    });
+  const discordUrl = maybeDecrypt((prefs as Record<string, unknown>)?.discordWebhookUrl as string);
+  if (discordUrl) {
+    const ok = await deliverDiscord({ ...alert, discordWebhookUrl: discordUrl });
     if (ok) succeeded++;
   }
 
   // Generic webhook — if user has a URL configured
-  if ((prefs as Record<string, unknown>)?.webhookUrl) {
-    const ok = await deliverWebhook({
-      ...alert,
-      webhookUrl: (prefs as Record<string, unknown>).webhookUrl as string,
-    });
+  const whUrl = maybeDecrypt((prefs as Record<string, unknown>)?.webhookUrl as string);
+  if (whUrl) {
+    const ok = await deliverWebhook({ ...alert, webhookUrl: whUrl });
     if (ok) succeeded++;
   }
 

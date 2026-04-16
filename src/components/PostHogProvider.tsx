@@ -33,6 +33,9 @@ function PostHogIdentify() {
 
   useEffect(() => {
     if (user && posthogClient) {
+      // GDPR: never send PII (email, name) to PostHog. Use the
+      // opaque user ID only — sufficient for funnel analytics without
+      // creating a personal data export obligation to PostHog.
       if (isDemo) {
         posthogClient.identify('demo_user', {
           plan: 'pro',
@@ -40,10 +43,7 @@ function PostHogIdentify() {
         });
       } else {
         posthogClient.identify(user.id, {
-          email: user.email,
-          name: user.name,
           plan: user.plan,
-          provider: user.provider,
           is_demo: false,
         });
       }
@@ -63,7 +63,13 @@ export default function PostHogProviderWrapper({ children }: { children: ReactNo
     // Skip if no PostHog key configured — library never loads
     if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) return;
 
-    // Dynamic import — only loads posthog-js when key exists
+    // GDPR: only load analytics if user has consented. The consent
+    // state is stored in localStorage by the CookieConsent component.
+    // If no consent decision has been made, we don't load PostHog.
+    const consent = localStorage.getItem('il_analytics_consent');
+    if (consent !== 'granted') return;
+
+    // Dynamic import — only loads posthog-js when key exists AND consent granted
     Promise.all([
       import('posthog-js'),
       import('posthog-js/react'),

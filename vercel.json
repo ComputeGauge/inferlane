@@ -23,7 +23,8 @@
     { "path": "/api/cron/reconcile-ledger", "schedule": "10 3 * * *" },
     { "path": "/api/cron/sweep-treasury", "schedule": "15 17 * * *" },
     { "path": "/api/cron/execute-payouts", "schedule": "30 18 * * 1" },
-    { "path": "/api/cron/purge-deleted-accounts", "schedule": "45 2 * * *" }
+    { "path": "/api/cron/purge-deleted-accounts", "schedule": "45 2 * * *" },
+    { "path": "/api/cron/purge-stale-data", "schedule": "30 3 * * *" }
   ],
   "headers": [
     {

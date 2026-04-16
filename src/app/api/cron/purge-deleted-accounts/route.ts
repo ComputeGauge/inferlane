@@ -50,14 +50,37 @@ export async function GET(req: NextRequest) {
         // Hard-delete API keys — no legal retention reason.
         await tx.apiKey.deleteMany({ where: { userId: candidate.id } });
 
-        // Hard-delete notification prefs and privacy policies.
+        // Hard-delete notification prefs.
         await tx.notificationPreferences.deleteMany({
           where: { userId: candidate.id },
+        });
+
+        // Hard-delete provider connections (encrypted API keys).
+        await tx.providerConnection.deleteMany({
+          where: { userId: candidate.id },
+        });
+
+        // Hard-delete scheduled prompts + prompt templates — these
+        // contain user-generated prompt content (GDPR Art. 17).
+        await tx.scheduledPrompt.deleteMany({
+          where: { userId: candidate.id },
+        });
+        await tx.promptTemplate.deleteMany({
+          where: { userId: candidate.id },
+        });
+
+        // Anonymize fleet sessions — preserve aggregate metrics but
+        // remove the user association.
+        await tx.fleetSession.updateMany({
+          where: { userId: candidate.id },
+          data: { userId: 'deleted' },
         });
 
         // NOTE: we do NOT delete ProxyRequest, AuditLog, KycSession,
         // or financial records. Those have statutory retention
         // obligations (see commercial/legal/PRIVACY_POLICY.md § 6).
+        // They are purged by the purge-stale-data cron after
+        // their retention period expires.
       });
       purged++;
       logger.info('privacy.purge.completed', { userId: candidate.id });
