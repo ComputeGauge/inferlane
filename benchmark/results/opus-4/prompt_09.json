@@ -1,0 +1,13 @@
+{
+  "prompt_id": 9,
+  "category": "refactor",
+  "model_id": "opus-4",
+  "model_label": "Claude Opus 4",
+  "api_model": "claude-opus-4-20250514",
+  "input_tokens": 84,
+  "output_tokens": 193,
+  "latency_ms": 6712,
+  "cost_usd": 0.015735,
+  "stop_reason": "end_turn",
+  "output": "Here's a simplified version with improved readability:\n\n```ts\n// Recursively makes all properties in an object (and nested objects) optional\ntype DeepPartial<T> = T extends object \n  ? { [K in keyof T]?: DeepPartial<T[K]> }\n  : T;\n```\n\nThe key simplifications:\n1. Removed the redundant nested conditional `T[P] extends object ? DeepPartial<T[P]> : T[P]` - we can just apply `DeepPartial` to all properties since it already handles non-objects correctly\n2. Changed `P` to `K` for clarity (K for Key is a common convention)\n3. Added line breaks for better readability\n\nThe behavior remains identical - it recursively traverses the type structure making all properties optional at every level."
+}

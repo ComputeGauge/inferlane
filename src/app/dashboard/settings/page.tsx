@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTrack, EVENTS } from '@/hooks/useTrack';
 import ReferralSection from '@/components/ReferralSection';
 import ExitSurvey from '@/components/ExitSurvey';
+import NotificationSettings from '@/components/NotificationSettings';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -390,7 +391,7 @@ export default function SettingsPage() {
               Email
             </label>
             <p className="text-sm text-white mt-1">
-              {user?.email || 'demo@inferlane.ai'}
+              {user?.email || 'demo@inferlane.dev'}
             </p>
           </div>
           <div>
@@ -522,6 +523,11 @@ export default function SettingsPage() {
             placeholder="Key name (e.g. Production MCP)"
             className="flex-1 px-4 py-2 bg-[#0a0a0f] border border-[#1e1e2e] rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50"
             onKeyDown={(e) => e.key === 'Enter' && createKey()}
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            data-1p-ignore
+            data-lpignore="true"
           />
           <button
             onClick={createKey}
@@ -626,6 +632,11 @@ export default function SettingsPage() {
           )}
         </div>
       </SettingsSection>
+
+      {/* ================================================================ */}
+      {/* Notification Channels                                            */}
+      {/* ================================================================ */}
+      <NotificationSettings />
 
       {/* ================================================================ */}
       {/* Referral / Invite                                                */}

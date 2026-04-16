@@ -1,0 +1,69 @@
+{
+  "window_days": 90,
+  "records_analyzed": 116251,
+  "parse_errors": 0,
+  "actual_total_usd": 18136.36,
+  "conservative": {
+    "counterfactual_total_usd": 4162.92,
+    "savings_usd": 13973.44,
+    "savings_pct": 77.0,
+    "description": "Benchmark-backed: Sonnet \u2192 Haiku on Haiku-winning categories only. Opus untouched."
+  },
+  "aggressive": {
+    "counterfactual_total_usd": 3544.38,
+    "savings_usd": 14591.98,
+    "savings_pct": 80.5,
+    "description": "Extrapolates beyond benchmark: also downgrades Opus \u2192 Sonnet for non-Haiku categories. NOT directly supported by the benchmark data.",
+    "routed_to_haiku": 45806,
+    "routed_to_sonnet": 70445
+  },
+  "actual_by_model": {
+    "opus-4.6": 17692.58,
+    "sonnet-4.6": 287.03,
+    "sonnet-4.5": 2.4,
+    "haiku-4.5": 152.96,
+    "opus-4.5": 1.39
+  },
+  "actual_by_category": {
+    "implement": 1413.66,
+    "general": 9136.89,
+    "debug": 2012.96,
+    "review": 1885.95,
+    "config": 477.38,
+    "explain": 877.45,
+    "test": 304.4,
+    "refactor": 807.81,
+    "data": 396.22,
+    "ui": 598.52,
+    "docs": 225.12
+  },
+  "category_message_counts": {
+    "implement": 9484,
+    "general": 31868,
+    "debug": 25477,
+    "review": 17008,
+    "config": 7244,
+    "explain": 4861,
+    "test": 1576,
+    "refactor": 4859,
+    "data": 3692,
+    "ui": 7180,
+    "docs": 3002
+  },
+  "routing_rules": {
+    "haiku_categories": [
+      "data",
+      "docs",
+      "explain",
+      "implement",
+      "test"
+    ],
+    "sonnet_categories": [
+      "config",
+      "debug",
+      "refactor",
+      "review",
+      "ui"
+    ]
+  }
+}

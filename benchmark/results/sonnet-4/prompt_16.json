@@ -1,0 +1,13 @@
+{
+  "prompt_id": 16,
+  "category": "data",
+  "model_id": "sonnet-4",
+  "model_label": "Claude Sonnet 4",
+  "api_model": "claude-sonnet-4-20250514",
+  "input_tokens": 86,
+  "output_tokens": 329,
+  "latency_ms": 5024,
+  "cost_usd": 0.005193,
+  "stop_reason": "end_turn",
+  "output": "```python\nimport json, sys\nfrom datetime import datetime, timedelta\nfrom collections import defaultdict\n\ncutoff = datetime.now() - timedelta(days=7); user_events = defaultdict(set); [user_events[json.loads(line)['user_id']].add(json.loads(line)['event']) for line in sys.stdin if datetime.fromisoformat(json.loads(line)['timestamp'].replace('Z', '+00:00')) >= cutoff]; [print(f\"{user}: {len(events)}\") for user, events in sorted(user_events.items(), key=lambda x: len(x[1]), reverse=True)[:5]]\n```\n\nOr as a slightly more readable short block:\n\n```python\nimport json, sys\nfrom datetime import datetime, timedelta\nfrom collections import defaultdict\n\ncutoff = datetime.now() - timedelta(days=7)\nuser_events = defaultdict(set)\nfor line in sys.stdin:\n    data = json.loads(line)\n    if datetime.fromisoformat(data['timestamp'].replace('Z', '+00:00')) >= cutoff:\n        user_events[data['user_id']].add(data['event'])\nfor user, events in sorted(user_events.items(), key=lambda x: len(x[1]), reverse=True)[:5]:\n    print(f\"{user}: {len(events)}\")\n```"
+}

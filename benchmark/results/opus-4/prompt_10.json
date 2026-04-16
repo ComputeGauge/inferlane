@@ -1,0 +1,13 @@
+{
+  "prompt_id": 10,
+  "category": "explain",
+  "model_id": "opus-4",
+  "model_label": "Claude Opus 4",
+  "api_model": "claude-opus-4-20250514",
+  "input_tokens": 67,
+  "output_tokens": 510,
+  "latency_ms": 13360,
+  "cost_usd": 0.039255000000000005,
+  "stop_reason": "end_turn",
+  "output": "The JavaScript event loop is the mechanism that allows JavaScript to perform non-blocking operations despite being single-threaded. When your code runs, synchronous operations execute immediately on the call stack. Asynchronous operations (like timers, promises, or I/O) are handled by browser/Node.js APIs and their callbacks are placed in task queues when ready. The event loop continuously checks if the call stack is empty, and if so, it picks up tasks from these queues and pushes them onto the stack for execution. This cycle repeats indefinitely, allowing JavaScript to handle multiple operations concurrently without blocking.\n\nThere are two main types of task queues: the microtask queue (for promises, `queueMicrotask()`, mutation observers) and the macrotask queue (for `setTimeout`, `setInterval`, I/O operations). The crucial difference is their priority: after each macrotask completes, the event loop processes **all** pending microtasks before moving to the next macrotask. This means microtasks have higher priority and will always run before the next macrotask, even if that macrotask was scheduled first. This is why promise callbacks (including `await`, which is syntactic sugar for promises) execute before `setTimeout` callbacks.\n\nWhen you use `await`, you're essentially creating a promise under the hood. The code after `await` is wrapped in a microtask that runs when the promise resolves. Since microtasks are processed before the next macrotask, code resumed by `await` will execute before any `setTimeout(fn, 0)` callbacks, even though the timeout is set to zero. Here's a concrete example:\n\n```javascript\nconsole.log('1: Sync start');\n\nsetTimeout(() => console.log('2: setTimeout'), 0);\n\nPromise.resolve().then(() => console.log('3: Promise.then'));\n\n(async () => {\n  console.log('4: Async function start');\n  await Promise.resolve();\n  console.log('5: After await');\n})();\n\nconsole.log('6: Sync end');\n\n// Output:\n// 1: Sync start\n// 4: Async function start\n// 6: Sync end\n// 3: Promise.then\n// 5: After await\n// 2: setTimeout\n```"
+}

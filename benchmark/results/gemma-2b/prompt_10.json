@@ -1,0 +1,13 @@
+{
+  "prompt_id": 10,
+  "category": "explain",
+  "model_id": "gemma-2b",
+  "model_label": "Gemma 2 2B (local)",
+  "api_model": "ollama/gemma2:2b",
+  "input_tokens": 63,
+  "output_tokens": 484,
+  "latency_ms": 10276,
+  "cost_usd": 0.0,
+  "stop_reason": "stop",
+  "output": "The JavaScript event loop is the heart of how your code executes. It's a continuous cycle that handles all asynchronous operations in your application. Imagine it as a busy waiter constantly taking orders (tasks), serving them (execution), and clearing tables (cleaning up).  When you call `setTimeout` or `fetch`, these actions are added to the event loop's queue, waiting for their turn. The event loop then checks for available resources and executes tasks in the order they were queued. This ensures your code runs smoothly even when dealing with long-running operations like network requests or timers.\n\nMicrotasks and macrotasks are two different types of tasks that get handled by the event loop. Microtasks are small, quick operations that can be done quickly, like updating a UI element after a user clicks a button.  Macrotasks are larger, more complex actions that take longer to complete, like reading data from a server or performing calculations. The event loop prioritizes microtasks for immediate execution, ensuring responsiveness and smooth user experience. \n\nThe `await` keyword is a powerful tool in JavaScript that allows you to pause your code's execution until an asynchronous operation completes.  When you use `await`, the event loop pauses the current task and adds it back into the queue after the awaited operation finishes. This ensures that your program doesn't block while waiting for data from a server or network request.  `setTimeout(fn, 0)` is different; it schedules a function to run after a specific delay (in milliseconds), but it doesn't pause execution until the delay is over. The `await` keyword resumes before `setTimeout(fn, 0)` because it prioritizes immediate execution of tasks and ensures responsiveness.\n\n**Concrete example:** Imagine you have a website that needs to fetch data from a server and then display it on the screen.  You use `fetch()` to make the request, which is added to the event loop's queue. The event loop will handle this task by fetching the data, but it also handles other tasks like updating the UI based on user interactions. \nThe `await` keyword allows you to pause your code until the server response arrives.  This ensures that the website doesn't reload or become unresponsive while waiting for data. Once the response is received, the event loop resumes execution and displays the fetched data on the screen.\n\n\n"
+}

@@ -1,0 +1,1142 @@
+{
+  "prompt_01": {
+    "prompt_id": 1,
+    "category": "implement",
+    "order": [
+      "opus-4",
+      "haiku-4.5",
+      "gemma-2b",
+      "sonnet-4",
+      "grok-4"
+    ],
+    "letter_to_model": {
+      "A": "opus-4",
+      "B": "haiku-4.5",
+      "C": "gemma-2b",
+      "D": "sonnet-4",
+      "E": "grok-4"
+    },
+    "scores": {
+      "opus-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Excellent implementation with proper cleanup, clear explanations, and comprehensive examples including advanced features."
+      },
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 10,
+        "total": 27,
+        "notes": "Good implementation with extra features but uses type assertions which reduces type safety slightly."
+      },
+      "gemma-2b": {
+        "correctness": 6,
+        "quality": 5,
+        "completeness": 6,
+        "total": 17,
+        "notes": "Basic implementation works but has type issues with NodeJS.Timeout and lacks proper null initialization checks."
+      },
+      "sonnet-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 9,
+        "total": 28,
+        "notes": "Solid implementation with context preservation via `apply` and good cleanup, though slightly less comprehensive than A."
+      },
+      "grok-4": {
+        "correctness": 8,
+        "quality": 7,
+        "completeness": 7,
+        "total": 22,
+        "notes": "Clean minimal implementation but uses NodeJS.Timeout type which may not work in all environments."
+      }
+    },
+    "winner": "opus-4",
+    "winner_reason": "Provides the most complete solution with excellent cleanup, comprehensive examples, and even includes an advanced version with additional features."
+  },
+  "prompt_02": {
+    "prompt_id": 2,
+    "category": "implement",
+    "order": [
+      "grok-4",
+      "haiku-4.5",
+      "opus-4",
+      "gemma-2b",
+      "sonnet-4"
+    ],
+    "letter_to_model": {
+      "A": "grok-4",
+      "B": "haiku-4.5",
+      "C": "opus-4",
+      "D": "gemma-2b",
+      "E": "sonnet-4"
+    },
+    "scores": {
+      "grok-4": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 7,
+        "total": 23,
+        "notes": "Clean implementation that works correctly but lacks error handling and comprehensive examples."
+      },
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Excellent implementation with comprehensive documentation, examples, error handling, and type hints."
+      },
+      "opus-4": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Solid implementation with good error handling and examples, though slightly more verbose than needed."
+      },
+      "gemma-2b": {
+        "correctness": 6,
+        "quality": 5,
+        "completeness": 4,
+        "total": 15,
+        "notes": "Basic implementation that fails to handle dictionary keys properly and lacks comprehensive testing."
+      },
+      "sonnet-4": {
+        "correctness": 8,
+        "quality": 7,
+        "completeness": 8,
+        "total": 23,
+        "notes": "Good implementation with decent error handling but uses less conventional exception handling approach."
+      }
+    },
+    "winner": "haiku-4.5",
+    "winner_reason": "Most comprehensive solution with excellent documentation, thorough examples, proper error handling, and full type annotations."
+  },
+  "prompt_03": {
+    "prompt_id": 3,
+    "category": "implement",
+    "order": [
+      "gemma-2b",
+      "opus-4",
+      "haiku-4.5",
+      "sonnet-4",
+      "grok-4"
+    ],
+    "letter_to_model": {
+      "A": "gemma-2b",
+      "B": "opus-4",
+      "C": "haiku-4.5",
+      "D": "sonnet-4",
+      "E": "grok-4"
+    },
+    "scores": {
+      "gemma-2b": {
+        "correctness": 2,
+        "quality": 2,
+        "completeness": 2,
+        "total": 6,
+        "notes": "Fundamentally broken approach that doesn't understand CSV parsing or the line-by-line structure of the problem."
+      },
+      "opus-4": {
+        "correctness": 8,
+        "quality": 9,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Well-structured streaming solution with proper CSV parsing, though delimiter detection could be more robust."
+      },
+      "haiku-4.5": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 9,
+        "total": 25,
+        "notes": "Comprehensive solution with good error handling and multi-line quote support, but uses readline instead of true streaming."
+      },
+      "sonnet-4": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 8,
+        "total": 24,
+        "notes": "Clean streaming implementation with proper CSV parsing, though delimiter detection logic could handle edge cases better."
+      },
+      "grok-4": {
+        "correctness": 7,
+        "quality": 6,
+        "completeness": 7,
+        "total": 20,
+        "notes": "Simple working solution but reads entire input into memory and has basic delimiter detection."
+      }
+    },
+    "winner": "opus-4",
+    "winner_reason": "Best combination of proper streaming architecture, robust CSV parsing, and clean code structure."
+  },
+  "prompt_04": {
+    "prompt_id": 4,
+    "category": "implement",
+    "order": [
+      "haiku-4.5",
+      "opus-4",
+      "sonnet-4",
+      "gemma-2b",
+      "grok-4"
+    ],
+    "letter_to_model": {
+      "A": "haiku-4.5",
+      "B": "opus-4",
+      "C": "sonnet-4",
+      "D": "gemma-2b",
+      "E": "grok-4"
+    },
+    "scores": {
+      "haiku-4.5": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Correct, well-explained solution with proper type casting and alternative formatting options."
+      },
+      "opus-4": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 9,
+        "total": 25,
+        "notes": "Good solution but EXTRACT(DAY FROM interval) may not work as expected for date differences spanning months/years."
+      },
+      "sonnet-4": {
+        "correctness": 10,
+        "quality": 8,
+        "completeness": 9,
+        "total": 27,
+        "notes": "Correct implementation with clear explanation, though keeps values in cents rather than converting to dollars."
+      },
+      "gemma-2b": {
+        "correctness": 3,
+        "quality": 5,
+        "completeness": 6,
+        "total": 14,
+        "notes": "Major issues: missing HAVING clause for 2+ orders filter and incorrect EPOCH calculation for days since signup."
+      },
+      "grok-4": {
+        "correctness": 10,
+        "quality": 7,
+        "completeness": 8,
+        "total": 25,
+        "notes": "Correct and concise solution but lacks explanation and keeps monetary values in cents."
+      }
+    },
+    "winner": "haiku-4.5",
+    "winner_reason": "Provides the most complete solution with proper type casting, detailed explanation, and helpful alternative formatting approach."
+  },
+  "prompt_05": {
+    "prompt_id": 5,
+    "category": "debug",
+    "order": [
+      "grok-4",
+      "sonnet-4",
+      "opus-4",
+      "haiku-4.5",
+      "gemma-2b"
+    ],
+    "letter_to_model": {
+      "A": "grok-4",
+      "B": "sonnet-4",
+      "C": "opus-4",
+      "D": "haiku-4.5",
+      "E": "gemma-2b"
+    },
+    "scores": {
+      "grok-4": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Correctly identifies that the original code works for power sets and provides thoughtful analysis of potential interpretations of the 'bug'."
+      },
+      "sonnet-4": {
+        "correctness": 9,
+        "quality": 7,
+        "completeness": 8,
+        "total": 24,
+        "notes": "Correctly concludes the code works as intended and provides good analysis, though doesn't fully resolve the prompt's assertion of a bug."
+      },
+      "opus-4": {
+        "correctness": 3,
+        "quality": 4,
+        "completeness": 6,
+        "total": 13,
+        "notes": "Incorrectly claims there's a reference bug when the code actually creates new lists properly via concatenation."
+      },
+      "haiku-4.5": {
+        "correctness": 4,
+        "quality": 5,
+        "completeness": 6,
+        "total": 15,
+        "notes": "Correctly identifies the code works but then makes incorrect claims about list reference issues that don't actually exist."
+      },
+      "gemma-2b": {
+        "correctness": 1,
+        "quality": 2,
+        "completeness": 4,
+        "total": 7,
+        "notes": "Completely misunderstands the problem and provides a fundamentally broken 'fix' that would corrupt existing sublists."
+      }
+    },
+    "winner": "grok-4",
+    "winner_reason": "Provides the most thorough and accurate analysis, correctly identifying that the code works for power sets while thoughtfully exploring why it might be considered 'wrong' under different interpretations."
+  },
+  "prompt_07": {
+    "prompt_id": 7,
+    "category": "debug",
+    "order": [
+      "gemma-2b",
+      "grok-4",
+      "sonnet-4",
+      "haiku-4.5",
+      "opus-4"
+    ],
+    "letter_to_model": {
+      "A": "gemma-2b",
+      "B": "grok-4",
+      "C": "sonnet-4",
+      "D": "haiku-4.5",
+      "E": "opus-4"
+    },
+    "scores": {
+      "gemma-2b": {
+        "correctness": 2,
+        "quality": 3,
+        "completeness": 4,
+        "total": 9,
+        "notes": "Misidentifies the problem as needing to close channels and provides incorrect solution that doesn't fix the goroutine leak."
+      },
+      "grok-4": {
+        "correctness": 10,
+        "quality": 8,
+        "completeness": 7,
+        "total": 25,
+        "notes": "Correctly identifies the goroutine leak but doesn't provide a code fix, though mentions additional relevant issues."
+      },
+      "sonnet-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Perfectly identifies the bug, explains why it happens differently in dev vs production, and provides both buffered channel and context solutions."
+      },
+      "haiku-4.5": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 9,
+        "total": 28,
+        "notes": "Correctly identifies the leak, provides clear fix with buffered channel, and offers context-based alternative with good formatting."
+      },
+      "opus-4": {
+        "correctness": 10,
+        "quality": 8,
+        "completeness": 9,
+        "total": 27,
+        "notes": "Accurately identifies the goroutine leak and provides both buffered channel and context solutions with clear explanation."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Most comprehensive response with perfect bug identification, clear dev vs production explanation, and multiple solution approaches."
+  },
+  "prompt_08": {
+    "prompt_id": 8,
+    "category": "refactor",
+    "order": [
+      "haiku-4.5",
+      "opus-4",
+      "sonnet-4",
+      "gemma-2b",
+      "grok-4"
+    ],
+    "letter_to_model": {
+      "A": "haiku-4.5",
+      "B": "opus-4",
+      "C": "sonnet-4",
+      "D": "gemma-2b",
+      "E": "grok-4"
+    },
+    "scores": {
+      "haiku-4.5": {
+        "correctness": 6,
+        "quality": 8,
+        "completeness": 8,
+        "total": 22,
+        "notes": "Assumes functions are already promisified but provides multiple approaches with good step tracking."
+      },
+      "opus-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Correctly handles promisification, logs failing steps, and provides both simple and advanced approaches."
+      },
+      "sonnet-4": {
+        "correctness": 10,
+        "quality": 8,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Properly promisifies functions and handles error logging, though the first approach chains awaits awkwardly."
+      },
+      "gemma-2b": {
+        "correctness": 7,
+        "quality": 6,
+        "completeness": 7,
+        "total": 20,
+        "notes": "Assumes functions are promisified and keeps callback parameter unnecessarily, but logs step name generically."
+      },
+      "grok-4": {
+        "correctness": 10,
+        "quality": 5,
+        "completeness": 9,
+        "total": 24,
+        "notes": "Correctly wraps callbacks in promises and preserves original signature but uses verbose inline Promise construction."
+      }
+    },
+    "winner": "opus-4",
+    "winner_reason": ""
+  },
+  "prompt_09": {
+    "prompt_id": 9,
+    "category": "refactor",
+    "order": [
+      "sonnet-4",
+      "grok-4",
+      "opus-4",
+      "gemma-2b",
+      "haiku-4.5"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "grok-4",
+      "C": "opus-4",
+      "D": "gemma-2b",
+      "E": "haiku-4.5"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Correctly simplifies the type by removing redundant check and provides excellent explanation of why the simplification works."
+      },
+      "grok-4": {
+        "correctness": 10,
+        "quality": 8,
+        "completeness": 8,
+        "total": 26,
+        "notes": "Correctly simplifies the type with good JSDoc comment but lacks explanation of the simplification rationale."
+      },
+      "opus-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 9,
+        "total": 28,
+        "notes": "Correctly simplifies with good explanation and formatting improvements, though the variable name change is minor."
+      },
+      "gemma-2b": {
+        "correctness": 2,
+        "quality": 3,
+        "completeness": 3,
+        "total": 8,
+        "notes": "Fails to simplify the code correctly (removes optional operator) and completely misunderstands what DeepPartial does."
+      },
+      "haiku-4.5": {
+        "correctness": 10,
+        "quality": 8,
+        "completeness": 9,
+        "total": 27,
+        "notes": "Correctly simplifies the type with good comment and clear explanation of the redundancy removal."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Provides the most thorough explanation of why the simplification works while maintaining correctness and completeness."
+  },
+  "prompt_10": {
+    "prompt_id": 10,
+    "category": "explain",
+    "order": [
+      "haiku-4.5",
+      "opus-4",
+      "gemma-2b",
+      "sonnet-4",
+      "grok-4"
+    ],
+    "letter_to_model": {
+      "A": "haiku-4.5",
+      "B": "opus-4",
+      "C": "gemma-2b",
+      "D": "sonnet-4",
+      "E": "grok-4"
+    },
+    "scores": {
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Accurate technical explanation with correct example, though could be slightly more detailed on async/await mechanics."
+      },
+      "opus-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Excellent technical accuracy with comprehensive example that clearly demonstrates both promises and async/await behavior."
+      },
+      "gemma-2b": {
+        "correctness": 3,
+        "quality": 4,
+        "completeness": 6,
+        "total": 13,
+        "notes": "Contains fundamental misconceptions about microtasks/macrotasks and lacks a proper code example as requested."
+      },
+      "sonnet-4": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Technically accurate with good structure and clear example, though formatting with headers wasn't requested."
+      },
+      "grok-4": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Comprehensive and accurate explanation with excellent example that clearly demonstrates the microtask/macrotask priority."
+      }
+    },
+    "winner": "opus-4",
+    "winner_reason": "Provides the most comprehensive and technically accurate explanation with an excellent example that demonstrates both promise and async/await behavior."
+  },
+  "prompt_11": {
+    "prompt_id": 11,
+    "category": "explain",
+    "order": [
+      "haiku-4.5",
+      "sonnet-4",
+      "gemma-2b",
+      "opus-4",
+      "grok-4"
+    ],
+    "letter_to_model": {
+      "A": "haiku-4.5",
+      "B": "sonnet-4",
+      "C": "gemma-2b",
+      "D": "opus-4",
+      "E": "grok-4"
+    },
+    "scores": {
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Excellent technical accuracy with clear operational examples and proper CAP classification."
+      },
+      "sonnet-4": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Correct CAP analysis with good practical insights, though less detailed on operational scenarios."
+      },
+      "gemma-2b": {
+        "correctness": 6,
+        "quality": 5,
+        "completeness": 7,
+        "total": 18,
+        "notes": "Contains some conceptual confusion about CAP classifications and incomplete conclusion."
+      },
+      "opus-4": {
+        "correctness": 8,
+        "quality": 7,
+        "completeness": 8,
+        "total": 23,
+        "notes": "Good technical content with practical examples, though slightly less comprehensive than top responses."
+      },
+      "grok-4": {
+        "correctness": 8,
+        "quality": 6,
+        "completeness": 9,
+        "total": 23,
+        "notes": "Comprehensive coverage but overly verbose with some minor technical imprecision."
+      }
+    },
+    "winner": "haiku-4.5",
+    "winner_reason": "Most accurate, complete, and practically useful explanation with excellent operational details and clear trade-off analysis."
+  },
+  "prompt_12": {
+    "prompt_id": 12,
+    "category": "explain",
+    "order": [
+      "haiku-4.5",
+      "gemma-2b",
+      "sonnet-4",
+      "grok-4",
+      "opus-4"
+    ],
+    "letter_to_model": {
+      "A": "haiku-4.5",
+      "B": "gemma-2b",
+      "C": "sonnet-4",
+      "D": "grok-4",
+      "E": "opus-4"
+    },
+    "scores": {
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 9,
+        "total": 27,
+        "notes": "Excellent technical accuracy with clear explanation of argument limits and V8 implementation details."
+      },
+      "gemma-2b": {
+        "correctness": 3,
+        "quality": 4,
+        "completeness": 4,
+        "total": 11,
+        "notes": "Contains fundamental misunderstandings about the problem being call stack vs argument limits."
+      },
+      "sonnet-4": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 8,
+        "total": 24,
+        "notes": "Good explanation with accurate technical details and practical solutions, though slightly less comprehensive."
+      },
+      "grok-4": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 10,
+        "total": 27,
+        "notes": "Most comprehensive answer with deep V8 implementation details and thorough coverage of all aspects."
+      },
+      "opus-4": {
+        "correctness": 8,
+        "quality": 7,
+        "completeness": 7,
+        "total": 22,
+        "notes": "Good explanation with practical examples but some minor technical imprecision about the root cause."
+      }
+    },
+    "winner": "grok-4",
+    "winner_reason": "Most thorough and technically accurate explanation covering V8 internals, argument limits, and implementation differences comprehensively."
+  },
+  "prompt_13": {
+    "prompt_id": 13,
+    "category": "review",
+    "order": [
+      "sonnet-4",
+      "gemma-2b",
+      "opus-4",
+      "grok-4",
+      "haiku-4.5"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "gemma-2b",
+      "C": "opus-4",
+      "D": "grok-4",
+      "E": "haiku-4.5"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Correctly identifies all major security issues with proper severity ranking and excellent code examples."
+      },
+      "gemma-2b": {
+        "correctness": 7,
+        "quality": 6,
+        "completeness": 6,
+        "total": 19,
+        "notes": "Identifies main issues but has incorrect severity rankings and misses some critical vulnerabilities like user enumeration."
+      },
+      "opus-4": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Very good analysis with correct identification of issues and proper severity ranking, plus a complete secure implementation example."
+      },
+      "grok-4": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 8,
+        "total": 26,
+        "notes": "Extremely thorough and well-structured analysis with detailed explanations, though slightly verbose for the format."
+      },
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Good identification of issues with clear severity ranking and practical fixes, plus a complete working example."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Most comprehensive coverage with perfect severity ranking, clear explanations, and actionable fixes for all major security vulnerabilities."
+  },
+  "prompt_14": {
+    "prompt_id": 14,
+    "category": "review",
+    "order": [
+      "opus-4",
+      "haiku-4.5",
+      "gemma-2b",
+      "sonnet-4",
+      "grok-4"
+    ],
+    "letter_to_model": {
+      "A": "opus-4",
+      "B": "haiku-4.5",
+      "C": "gemma-2b",
+      "D": "sonnet-4",
+      "E": "grok-4"
+    },
+    "scores": {
+      "opus-4": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 9,
+        "total": 27,
+        "notes": "Excellent comprehensive review with accurate fixes and well-structured optimized Dockerfile."
+      },
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 8,
+        "total": 25,
+        "notes": "Strong technical review with good comparison table and clear improvements."
+      },
+      "gemma-2b": {
+        "correctness": 6,
+        "quality": 5,
+        "completeness": 6,
+        "total": 17,
+        "notes": "Identifies some issues but misses key security concerns and provides suboptimal solutions."
+      },
+      "sonnet-4": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 8,
+        "total": 24,
+        "notes": "Good technical analysis with multi-stage build but slightly less comprehensive than top responses."
+      },
+      "grok-4": {
+        "correctness": 9,
+        "quality": 7,
+        "completeness": 10,
+        "total": 26,
+        "notes": "Most thorough analysis covering all aspects but somewhat verbose and repetitive."
+      }
+    },
+    "winner": "opus-4",
+    "winner_reason": "Best balance of accuracy, clarity, and practical solutions with an excellent optimized Dockerfile example."
+  },
+  "prompt_15": {
+    "prompt_id": 15,
+    "category": "data",
+    "order": [
+      "gemma-2b",
+      "haiku-4.5",
+      "grok-4",
+      "opus-4",
+      "sonnet-4"
+    ],
+    "letter_to_model": {
+      "A": "gemma-2b",
+      "B": "haiku-4.5",
+      "C": "grok-4",
+      "D": "opus-4",
+      "E": "sonnet-4"
+    },
+    "scores": {
+      "gemma-2b": {
+        "correctness": 2,
+        "quality": 4,
+        "completeness": 6,
+        "total": 12,
+        "notes": "Completely misunderstands the problem by suggesting HTML parsing for Markdown text, which doesn't make sense."
+      },
+      "haiku-4.5": {
+        "correctness": 6,
+        "quality": 9,
+        "completeness": 10,
+        "total": 25,
+        "notes": "Provides a working regex with honest assessment of limitations and comprehensive alternatives with proper code examples."
+      },
+      "grok-4": {
+        "correctness": 4,
+        "quality": 8,
+        "completeness": 9,
+        "total": 21,
+        "notes": "Attempts a complex regex that has flaws but provides thorough explanation of limitations and proper parser alternatives."
+      },
+      "opus-4": {
+        "correctness": 3,
+        "quality": 6,
+        "completeness": 8,
+        "total": 17,
+        "notes": "Provides basic regex patterns with good explanation of limitations but the regex solutions are too simplistic."
+      },
+      "sonnet-4": {
+        "correctness": 5,
+        "quality": 7,
+        "completeness": 9,
+        "total": 21,
+        "notes": "Offers a reasonable regex attempt with clear breakdown and good coverage of limitations plus proper alternatives."
+      }
+    },
+    "winner": "haiku-4.5",
+    "winner_reason": "Provides the most practical regex solution while being completely honest about its limitations and offering the best alternative approaches with working code."
+  },
+  "prompt_16": {
+    "prompt_id": 16,
+    "category": "data",
+    "order": [
+      "sonnet-4",
+      "opus-4",
+      "gemma-2b",
+      "haiku-4.5",
+      "grok-4"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "opus-4",
+      "C": "gemma-2b",
+      "D": "haiku-4.5",
+      "E": "grok-4"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 8,
+        "quality": 7,
+        "completeness": 9,
+        "total": 24,
+        "notes": "Works correctly with proper timestamp handling and provides both one-liner and readable versions."
+      },
+      "opus-4": {
+        "correctness": 6,
+        "quality": 5,
+        "completeness": 8,
+        "total": 19,
+        "notes": "Has logical issues in the one-liner with groupby usage but the short block version works correctly."
+      },
+      "gemma-2b": {
+        "correctness": 0,
+        "quality": 2,
+        "completeness": 2,
+        "total": 4,
+        "notes": "Provides only a template with placeholder logic instead of actual working code."
+      },
+      "haiku-4.5": {
+        "correctness": 5,
+        "quality": 6,
+        "completeness": 8,
+        "total": 19,
+        "notes": "Has timezone handling issues that could cause runtime errors in some environments."
+      },
+      "grok-4": {
+        "correctness": 9,
+        "quality": 6,
+        "completeness": 9,
+        "total": 24,
+        "notes": "Correctly implements all requirements in a true one-liner with proper UTC timezone handling."
+      }
+    },
+    "winner": "grok-4",
+    "winner_reason": "Provides the most correct implementation with proper timezone handling in a true one-liner format as requested."
+  },
+  "prompt_17": {
+    "prompt_id": 17,
+    "category": "test",
+    "order": [
+      "haiku-4.5",
+      "grok-4",
+      "sonnet-4",
+      "opus-4",
+      "gemma-2b"
+    ],
+    "letter_to_model": {
+      "A": "haiku-4.5",
+      "B": "grok-4",
+      "C": "sonnet-4",
+      "D": "opus-4",
+      "E": "gemma-2b"
+    },
+    "scores": {
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 10,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Comprehensive test suite with correct implementation, excellent organization, and thorough coverage of all requirements."
+      },
+      "grok-4": {
+        "correctness": 6,
+        "quality": 6,
+        "completeness": 7,
+        "total": 19,
+        "notes": "Basic test structure is correct but tests floating-point inputs which contradicts the cents parameter type and has minimal coverage."
+      },
+      "sonnet-4": {
+        "correctness": 7,
+        "quality": 8,
+        "completeness": 9,
+        "total": 24,
+        "notes": "Good test coverage and organization but the implementation has issues with negative number formatting and JPY handling."
+      },
+      "opus-4": {
+        "correctness": 6,
+        "quality": 7,
+        "completeness": 8,
+        "total": 21,
+        "notes": "Decent test coverage but the mock implementation has significant issues with negative formatting and JPY decimal handling."
+      },
+      "gemma-2b": {
+        "correctness": 4,
+        "quality": 4,
+        "completeness": 6,
+        "total": 14,
+        "notes": "Several test expectations are incorrect (wrong conversions, formatting issues) and lacks proper test organization."
+      }
+    },
+    "winner": "haiku-4.5",
+    "winner_reason": "Provides the most comprehensive, well-organized test suite with correct implementation and covers all requirements thoroughly."
+  },
+  "prompt_19": {
+    "prompt_id": 19,
+    "category": "ui",
+    "order": [
+      "sonnet-4",
+      "gemma-2b",
+      "grok-4",
+      "opus-4",
+      "haiku-4.5"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "gemma-2b",
+      "C": "grok-4",
+      "D": "opus-4",
+      "E": "haiku-4.5"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Excellent implementation with proper timeout management, fallback support, and complete accessibility features."
+      },
+      "gemma-2b": {
+        "correctness": 4,
+        "quality": 3,
+        "completeness": 3,
+        "total": 10,
+        "notes": "Incomplete implementation that doesn't handle the 1.5-second revert timing and has missing ARIA live region."
+      },
+      "grok-4": {
+        "correctness": 8,
+        "quality": 7,
+        "completeness": 8,
+        "total": 23,
+        "notes": "Good implementation but lacks timeout cleanup and proper error handling for edge cases."
+      },
+      "opus-4": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Solid implementation with proper cleanup and accessibility, though slightly less polished than the best response."
+      },
+      "haiku-4.5": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 8,
+        "total": 24,
+        "notes": "Well-structured implementation but missing timeout cleanup on unmount and some edge case handling."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Most comprehensive solution with fallback browser support, proper timeout management, cleanup on unmount, and excellent accessibility implementation."
+  },
+  "prompt_20": {
+    "prompt_id": 20,
+    "category": "docs",
+    "order": [
+      "opus-4",
+      "haiku-4.5",
+      "gemma-2b",
+      "grok-4",
+      "sonnet-4"
+    ],
+    "letter_to_model": {
+      "A": "opus-4",
+      "B": "haiku-4.5",
+      "C": "gemma-2b",
+      "D": "grok-4",
+      "E": "sonnet-4"
+    },
+    "scores": {
+      "opus-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Complete JSDoc with all required elements, clear documentation, and accurate example."
+      },
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Excellent JSDoc with multiple examples, but contains a calculation error in the 2.5h example."
+      },
+      "gemma-2b": {
+        "correctness": 10,
+        "quality": 7,
+        "completeness": 8,
+        "total": 25,
+        "notes": "Accurate JSDoc but includes unnecessary explanation text outside the documentation block."
+      },
+      "grok-4": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Comprehensive JSDoc with detailed description, but contains a calculation error in the example."
+      },
+      "sonnet-4": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Well-structured JSDoc with multiple examples, but contains a calculation error in the 2.5h example."
+      }
+    },
+    "winner": "opus-4",
+    "winner_reason": "Response A provides complete, accurate JSDoc documentation with correct calculations and meets all requirements without extraneous content."
+  },
+  "prompt_06": {
+    "prompt_id": 6,
+    "category": "debug",
+    "order": [
+      "grok-4",
+      "opus-4",
+      "haiku-4.5",
+      "gemma-2b",
+      "sonnet-4"
+    ],
+    "letter_to_model": {
+      "A": "grok-4",
+      "B": "opus-4",
+      "C": "haiku-4.5",
+      "D": "gemma-2b",
+      "E": "sonnet-4"
+    },
+    "scores": {
+      "grok-4": {
+        "correctness": 8,
+        "quality": 9,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Correctly identifies the performance issue and provides the right fix with useMemo, though slightly misinterprets the 'renders twice' aspect."
+      },
+      "opus-4": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 8,
+        "total": 24,
+        "notes": "Provides correct solution with useMemo but incorrectly suggests the array reference itself causes re-renders of this component."
+      },
+      "haiku-4.5": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 8,
+        "total": 24,
+        "notes": "Good analysis and correct fix, though the explanation about breaking memoization is somewhat misleading for this specific case."
+      },
+      "gemma-2b": {
+        "correctness": 3,
+        "quality": 4,
+        "completeness": 3,
+        "total": 10,
+        "notes": "Completely misses the actual issue and provides no real fix, just restates the original problematic code."
+      },
+      "sonnet-4": {
+        "correctness": 7,
+        "quality": 8,
+        "completeness": 9,
+        "total": 24,
+        "notes": "Correct primary solution with useMemo and good alternative approaches, though slightly overstates how array recreation causes re-renders."
+      }
+    },
+    "winner": "grok-4",
+    "winner_reason": "Provides the most accurate analysis of the performance issue, correct solution, and best explanation of the likely causes including StrictMode."
+  },
+  "prompt_18": {
+    "prompt_id": 18,
+    "category": "config",
+    "order": [
+      "sonnet-4",
+      "haiku-4.5",
+      "opus-4",
+      "grok-4",
+      "gemma-2b"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "haiku-4.5",
+      "C": "opus-4",
+      "D": "grok-4",
+      "E": "gemma-2b"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 6,
+        "quality": 7,
+        "completeness": 8,
+        "total": 21,
+        "notes": "Good structure but coverage parsing with grep is fragile and may not work reliably across different test runners."
+      },
+      "haiku-4.5": {
+        "correctness": 5,
+        "quality": 8,
+        "completeness": 9,
+        "total": 22,
+        "notes": "Well-structured with good comments but relies on bc command (not available by default) and comments on every PR regardless of threshold."
+      },
+      "opus-4": {
+        "correctness": 7,
+        "quality": 8,
+        "completeness": 9,
+        "total": 24,
+        "notes": "Most complete solution with proper error handling and comment updating, though git checkout approach could be cleaner."
+      },
+      "grok-4": {
+        "correctness": 8,
+        "quality": 7,
+        "completeness": 8,
+        "total": 23,
+        "notes": "Clean parallel job approach using jq for JSON parsing, but lacks proper permissions and error handling."
+      },
+      "gemma-2b": {
+        "correctness": 2,
+        "quality": 3,
+        "completeness": 4,
+        "total": 9,
+        "notes": "Multiple critical issues including missing checkout, wrong setup-node usage, broken shell logic, and incomplete implementation."
+      }
+    },
+    "winner": "grok-4",
+    "winner_reason": "Most reliable approach with parallel jobs, proper JSON parsing with jq, and clean separation of concerns despite minor missing elements."
+  }
+}

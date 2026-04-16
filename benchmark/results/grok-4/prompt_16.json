@@ -1,0 +1,13 @@
+{
+  "prompt_id": 16,
+  "category": "data",
+  "model_id": "grok-4",
+  "model_label": "Grok 4",
+  "api_model": "grok-4-0709",
+  "input_tokens": 755,
+  "output_tokens": 1316,
+  "latency_ms": 15904,
+  "cost_usd": 0.022004999999999997,
+  "stop_reason": "stop",
+  "output": "```python\nimport sys, json; from datetime import datetime, timedelta, timezone; from collections import defaultdict; now = datetime.now(timezone.utc); ago = now - timedelta(days=7); ue = defaultdict(set); for l in sys.stdin: d = json.loads(l.strip()); ts = d['timestamp']; ts = ts[:-1] + '+00:00' if ts.endswith('Z') else ts; t = datetime.fromisoformat(ts); if t >= ago: ue[d['user_id']].add(d['event']); items = sorted([(u, len(s)) for u, s in ue.items()], key=lambda x: (-x[1], x[0])); for u, c in items[:5]: print(f\"{u}: {c}\")\n```"
+}

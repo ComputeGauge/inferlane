@@ -1,0 +1,26 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "inferlane",
+  "description": "InferLane plugins for Claude Code — smart model routing, cost optimization, and fleet observability.",
+  "owner": {
+    "name": "InferLane"
+  },
+  "plugins": [
+    {
+      "name": "inferlane",
+      "description": "Smart model routing and cost optimization for Claude. Picks the cheapest model for each task, routes between local (Ollama) and cloud inference, and tracks AI spend across providers.",
+      "category": "productivity",
+      "source": "./",
+      "homepage": "https://inferlane.dev",
+      "keywords": [
+        "cost-optimization",
+        "model-routing",
+        "llm-router",
+        "ai-cost",
+        "multi-provider",
+        "observability",
+        "ollama"
+      ]
+    }
+  ]
+}

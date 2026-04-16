@@ -13,11 +13,34 @@ describe('crypto', () => {
     const encrypted = encrypt(plaintext);
 
     expect(encrypted).not.toEqual(plaintext);
-    expect(encrypted).toContain(':'); // iv:tag:ciphertext format
-    expect(encrypted.split(':')).toHaveLength(3);
+    expect(encrypted).toContain(':');
+    // Post-HKDF migration (ASVS V6.3.1): ciphertext is v1:iv:tag:ct.
+    // Legacy 3-part ciphertexts still decrypt via the fallback path.
+    const parts = encrypted.split(':');
+    expect(parts).toHaveLength(4);
+    expect(parts[0]).toBe('v1');
 
     const decrypted = decrypt(encrypted);
     expect(decrypted).toEqual(plaintext);
+  });
+
+  it('decrypts legacy 3-part ciphertexts (backwards compatibility)', async () => {
+    // Legacy ciphertexts were encrypted with a SHA-256 derived key
+    // and stored as iv:tag:ct. The decrypt() function falls back to
+    // that path when it sees 3 parts. We construct a legacy
+    // ciphertext here using the same algorithm the old encrypt() used.
+    const { decrypt } = await import('../crypto');
+    const crypto = await import('node:crypto');
+
+    const legacyKey = crypto.createHash('sha256').update(process.env.ENCRYPTION_KEY!).digest();
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-gcm', legacyKey, iv);
+    let enc = cipher.update('legacy-secret', 'utf8', 'hex');
+    enc += cipher.final('hex');
+    const tag = cipher.getAuthTag();
+    const legacyCiphertext = `${iv.toString('hex')}:${tag.toString('hex')}:${enc}`;
+
+    expect(decrypt(legacyCiphertext)).toBe('legacy-secret');
   });
 
   it('produces different ciphertext for same input (random IV)', async () => {

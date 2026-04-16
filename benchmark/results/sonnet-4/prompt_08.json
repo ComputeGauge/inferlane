@@ -1,0 +1,13 @@
+{
+  "prompt_id": 8,
+  "category": "refactor",
+  "model_id": "sonnet-4",
+  "model_label": "Claude Sonnet 4",
+  "api_model": "claude-sonnet-4-20250514",
+  "input_tokens": 158,
+  "output_tokens": 610,
+  "latency_ms": 7702,
+  "cost_usd": 0.009624,
+  "stop_reason": "end_turn",
+  "output": "Here's the refactored code using async/await with proper error handling:\n\n```js\nasync function run() {\n  try {\n    const user = await fetchUserAsync(id);\n    return { user, orders: await enrichOrdersAsync(await fetchOrdersAsync(user.id)) };\n  } catch (err) {\n    const step = err.step || 'unknown';\n    console.error(`Step failed: ${step}`);\n    throw err;\n  }\n}\n\n// Helper functions to promisify the callback-based functions\nfunction fetchUserAsync(id) {\n  return new Promise((resolve, reject) => {\n    fetchUser(id, (err, user) => {\n      if (err) {\n        err.step = 'fetchUser';\n        reject(err);\n      } else {\n        resolve(user);\n      }\n    });\n  });\n}\n\nfunction fetchOrdersAsync(userId) {\n  return new Promise((resolve, reject) => {\n    fetchOrders(userId, (err, orders) => {\n      if (err) {\n        err.step = 'fetchOrders';\n        reject(err);\n      } else {\n        resolve(orders);\n      }\n    });\n  });\n}\n\nfunction enrichOrdersAsync(orders) {\n  return new Promise((resolve, reject) => {\n    enrichOrders(orders, (err, enriched) => {\n      if (err) {\n        err.step = 'enrichOrders';\n        reject(err);\n      } else {\n        resolve(enriched);\n      }\n    });\n  });\n}\n```\n\n**Alternative approach** if you prefer to keep the logic more explicit:\n\n```js\nasync function run() {\n  let user, orders, enriched;\n  \n  try {\n    user = await fetchUserAsync(id);\n  } catch (err) {\n    console.error('Step failed: fetchUser');\n    throw err;\n  }\n  \n  try {\n    orders = await fetchOrdersAsync(user.id);\n  } catch (err) {\n    console.error('Step failed: fetchOrders');\n    throw err;\n  }\n  \n  try {\n    enriched = await enrichOrdersAsync(orders);\n  } catch (err) {\n    console.error('Step failed: enrichOrders');\n    throw err;\n  }\n  \n  return { user, orders: enriched };\n}\n```\n\nThe first approach is more concise, while the second gives you more granular control over error handling for each step. Both preserve the original error handling behavior while eliminating callback hell."
+}

@@ -90,8 +90,8 @@ export default function PrivacyPolicyPage() {
       <h2>10. Contact</h2>
       <p>
         For privacy inquiries, data export requests, or deletion requests, contact us at{' '}
-        <a href="mailto:privacy@inferlane.ai" className="text-blue-400 hover:underline">
-          privacy@inferlane.ai
+        <a href="mailto:privacy@inferlane.dev" className="text-blue-400 hover:underline">
+          privacy@inferlane.dev
         </a>.
       </p>
     </main>

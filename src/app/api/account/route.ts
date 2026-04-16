@@ -188,7 +188,7 @@ async function handleDELETE(req: NextRequest) {
     }
 
     // Soft-delete: anonymize and mark as deleted
-    const anonymizedEmail = `deleted_${userId}@inferlane.ai`;
+    const anonymizedEmail = `deleted_${userId}@inferlane.dev`;
     await prisma.user.update({
       where: { id: userId },
       data: {

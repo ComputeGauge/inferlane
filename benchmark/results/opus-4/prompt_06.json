@@ -1,0 +1,13 @@
+{
+  "prompt_id": 6,
+  "category": "debug",
+  "model_id": "opus-4",
+  "model_label": "Claude Opus 4",
+  "api_model": "claude-opus-4-20250514",
+  "input_tokens": 109,
+  "output_tokens": 370,
+  "latency_ms": 10409,
+  "cost_usd": 0.029385,
+  "stop_reason": "end_turn",
+  "output": "The issue causing unnecessary re-renders is that `doubled` is being recalculated on every render, creating a new array reference each time. Even though the content might be the same, React sees it as a new array, which can trigger re-renders in child components or cause other performance issues.\n\nHere's the fix using `useMemo` to memoize the calculated value:\n\n```jsx\nimport { useState, useMemo } from 'react';\n\nfunction Counter({ items }) {\n  const [count, setCount] = useState(0);\n  const doubled = useMemo(() => items.map(x => x * 2), [items]);\n  \n  return (\n    <div onClick={() => setCount(c => c + 1)}>\n      {count} ({doubled.join(',')})\n    </div>\n  );\n}\n```\n\n**Key improvements:**\n1. **`useMemo` hook** - Memoizes the `doubled` array calculation\n2. **Dependency array `[items]`** - Only recalculates when `items` prop changes\n3. **Stable reference** - The `doubled` array maintains the same reference between renders if `items` hasn't changed\n\nThis ensures that:\n- The expensive mapping operation only runs when necessary\n- The component doesn't create unnecessary new array references\n- Performance is optimized, especially important if this component has child components that receive `doubled` as a prop\n\nNote: The component rendering twice initially might also be due to React's StrictMode in development, which intentionally double-invokes components to detect side effects. This is normal behavior in development mode and doesn't occur in production."
+}

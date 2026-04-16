@@ -1,0 +1,13 @@
+{
+  "prompt_id": 9,
+  "category": "refactor",
+  "model_id": "haiku-4.5",
+  "model_label": "Claude Haiku 4.5",
+  "api_model": "claude-haiku-4-5-20251001",
+  "input_tokens": 84,
+  "output_tokens": 145,
+  "latency_ms": 1771,
+  "cost_usd": 0.0008089999999999999,
+  "stop_reason": "end_turn",
+  "output": "```ts\n// Recursively makes all properties of T and nested objects optional\ntype DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;\n```\n\nThe key simplification is removing the ternary check `T[P] extends object ? DeepPartial<T[P]> : T[P]` and replacing it with just `DeepPartial<T[P]>`. This works because `DeepPartial` already handles non-objects by returning them unchanged in the base case (`T`), so the extra condition was redundant."
+}

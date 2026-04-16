@@ -1,0 +1,13 @@
+{
+  "prompt_id": 16,
+  "category": "data",
+  "model_id": "opus-4",
+  "model_label": "Claude Opus 4",
+  "api_model": "claude-opus-4-20250514",
+  "input_tokens": 86,
+  "output_tokens": 363,
+  "latency_ms": 9305,
+  "cost_usd": 0.028515,
+  "stop_reason": "end_turn",
+  "output": "Here's a Python one-liner that accomplishes this:\n\n```python\nimport sys, json, datetime; [(user, len(events)) for user, events in sorted({user: set(event for ts, event in events if (datetime.datetime.now() - datetime.datetime.fromisoformat(ts.replace('Z', '+00:00'))).days < 7) for user, events in __import__('itertools').groupby(sorted((json.loads(line)['user_id'], json.loads(line)['timestamp'], json.loads(line)['event']) for line in sys.stdin), key=lambda x: x[0])}.items(), key=lambda x: -len(x[1]))[:5]]\n```\n\nHere's a more readable short block version that's easier to understand:\n\n```python\nimport sys, json, datetime\nfrom collections import defaultdict\n\nevents = defaultdict(set)\nnow = datetime.datetime.now()\nfor line in sys.stdin:\n    data = json.loads(line)\n    if (now - datetime.datetime.fromisoformat(data['timestamp'].replace('Z', '+00:00'))).days < 7:\n        events[data['user_id']].add(data['event'])\n\nfor user, count in sorted(((u, len(e)) for u, e in events.items()), key=lambda x: -x[1])[:5]:\n    print(f\"{user}: {count}\")\n```\n\nThe one-liner is quite complex, so the short block version is more practical and maintainable while still being concise."
+}

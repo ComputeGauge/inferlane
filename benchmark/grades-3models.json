@@ -1,0 +1,782 @@
+{
+  "prompt_01": {
+    "prompt_id": 1,
+    "category": "implement",
+    "order": [
+      "sonnet-4",
+      "haiku-4.5",
+      "gemma-2b"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "haiku-4.5",
+      "C": "gemma-2b"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 8,
+        "total": 27,
+        "notes": "Correct implementation with proper timer cleanup, context preservation, and good examples."
+      },
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 10,
+        "total": 27,
+        "notes": "Correct core implementation with extensive additional features like cancel/flush methods and React integration."
+      },
+      "gemma-2b": {
+        "correctness": 6,
+        "quality": 5,
+        "completeness": 6,
+        "total": 17,
+        "notes": "Basic implementation works but has type issues with NodeJS.Timeout and lacks proper timer cleanup handling."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Best balance of correctness, clean implementation, and addressing core requirements without unnecessary complexity."
+  },
+  "prompt_02": {
+    "prompt_id": 2,
+    "category": "implement",
+    "order": [
+      "haiku-4.5",
+      "gemma-2b",
+      "sonnet-4"
+    ],
+    "letter_to_model": {
+      "A": "haiku-4.5",
+      "B": "gemma-2b",
+      "C": "sonnet-4"
+    },
+    "scores": {
+      "haiku-4.5": {
+        "correctness": 8,
+        "quality": 9,
+        "completeness": 10,
+        "total": 27,
+        "notes": "Comprehensive implementation with proper type hints, error handling, and extensive examples, though dict access could be more robust."
+      },
+      "gemma-2b": {
+        "correctness": 6,
+        "quality": 5,
+        "completeness": 4,
+        "total": 15,
+        "notes": "Basic implementation that only supports attribute access for strings, missing dict key support and proper error handling."
+      },
+      "sonnet-4": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Solid implementation with proper attribute/dict fallback logic and good error handling, though less comprehensive documentation."
+      }
+    },
+    "winner": "haiku-4.5",
+    "winner_reason": "Most complete solution with extensive examples, proper type hints, and thorough documentation despite minor implementation shortcoming."
+  },
+  "prompt_03": {
+    "prompt_id": 3,
+    "category": "implement",
+    "order": [
+      "gemma-2b",
+      "sonnet-4",
+      "haiku-4.5"
+    ],
+    "letter_to_model": {
+      "A": "gemma-2b",
+      "B": "sonnet-4",
+      "C": "haiku-4.5"
+    },
+    "scores": {
+      "gemma-2b": {
+        "correctness": 1,
+        "quality": 2,
+        "completeness": 2,
+        "total": 5,
+        "notes": "Code is fundamentally broken with incorrect regex splitting and misunderstands CSV structure completely."
+      },
+      "sonnet-4": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 9,
+        "total": 27,
+        "notes": "Excellent streaming implementation with proper CSV parsing, delimiter detection, and quote handling."
+      },
+      "haiku-4.5": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 8,
+        "total": 24,
+        "notes": "Good implementation with proper CSV parsing but uses readline which may not handle multiline quoted fields correctly."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Response B provides the most robust solution with proper streaming, comprehensive error handling, and correct CSV parsing logic."
+  },
+  "prompt_04": {
+    "prompt_id": 4,
+    "category": "implement",
+    "order": [
+      "sonnet-4",
+      "gemma-2b",
+      "haiku-4.5"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "gemma-2b",
+      "C": "haiku-4.5"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Clean, correct solution that meets all requirements with clear explanations and proper PostgreSQL syntax."
+      },
+      "gemma-2b": {
+        "correctness": 3,
+        "quality": 5,
+        "completeness": 7,
+        "total": 15,
+        "notes": "Contains critical bugs: missing HAVING clause for 2+ orders filter and incorrect days calculation using EPOCH subtraction."
+      },
+      "haiku-4.5": {
+        "correctness": 10,
+        "quality": 10,
+        "completeness": 10,
+        "total": 30,
+        "notes": "Excellent solution with proper currency conversion, comprehensive explanations, and bonus alternative with additional features."
+      }
+    },
+    "winner": "haiku-4.5",
+    "winner_reason": "Most comprehensive response with correct implementation, currency conversion to dollars, detailed explanations, and valuable alternative query."
+  },
+  "prompt_05": {
+    "prompt_id": 5,
+    "category": "debug",
+    "order": [
+      "sonnet-4",
+      "haiku-4.5",
+      "gemma-2b"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "haiku-4.5",
+      "C": "gemma-2b"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 7,
+        "total": 23,
+        "notes": "Correctly identifies that the original function works properly for empty input and provides accurate analysis, though doesn't find the actual bug mentioned in prompt."
+      },
+      "haiku-4.5": {
+        "correctness": 6,
+        "quality": 7,
+        "completeness": 8,
+        "total": 21,
+        "notes": "Correctly notes the function works for empty input but then goes on tangents about unrelated mutation issues that aren't the actual bug."
+      },
+      "gemma-2b": {
+        "correctness": 2,
+        "quality": 3,
+        "completeness": 4,
+        "total": 9,
+        "notes": "Completely misunderstands how the function works and provides a fundamentally incorrect 'fix' that breaks the subset generation entirely."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Response A provides the most accurate analysis by correctly identifying that the original function actually works properly for empty input."
+  },
+  "prompt_06": {
+    "prompt_id": 6,
+    "category": "debug",
+    "order": [
+      "haiku-4.5",
+      "gemma-2b",
+      "sonnet-4"
+    ],
+    "letter_to_model": {
+      "A": "haiku-4.5",
+      "B": "gemma-2b",
+      "C": "sonnet-4"
+    },
+    "scores": {
+      "haiku-4.5": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 8,
+        "total": 24,
+        "notes": "Correctly identifies the core issue and provides the right solution with useMemo, though the problem description could be more precise."
+      },
+      "gemma-2b": {
+        "correctness": 2,
+        "quality": 3,
+        "completeness": 3,
+        "total": 8,
+        "notes": "Completely misunderstands the problem and provides no actual fix, just restating the original broken code."
+      },
+      "sonnet-4": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 9,
+        "total": 27,
+        "notes": "Accurately identifies the root cause, provides the correct solution, and offers comprehensive alternative approaches with clear explanations."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Response C provides the most accurate problem analysis, correct solution, and comprehensive coverage of alternative fixes."
+  },
+  "prompt_07": {
+    "prompt_id": 7,
+    "category": "debug",
+    "order": [
+      "gemma-2b",
+      "haiku-4.5",
+      "sonnet-4"
+    ],
+    "letter_to_model": {
+      "A": "gemma-2b",
+      "B": "haiku-4.5",
+      "C": "sonnet-4"
+    },
+    "scores": {
+      "gemma-2b": {
+        "correctness": 2,
+        "quality": 3,
+        "completeness": 4,
+        "total": 9,
+        "notes": "Misidentifies the bug as not closing channels and provides incorrect solution that doesn't fix the goroutine leak."
+      },
+      "haiku-4.5": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 9,
+        "total": 28,
+        "notes": "Correctly identifies the goroutine leak mechanism and provides both minimal fix and better alternative with clear explanations."
+      },
+      "sonnet-4": {
+        "correctness": 10,
+        "quality": 8,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Accurately diagnoses the bug, explains dev vs production difference well, and offers both buffered channel and context solutions."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Most complete response that explains why it works in dev but fails in production while providing correct solutions."
+  },
+  "prompt_08": {
+    "prompt_id": 8,
+    "category": "refactor",
+    "order": [
+      "sonnet-4",
+      "haiku-4.5",
+      "gemma-2b"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "haiku-4.5",
+      "C": "gemma-2b"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Provides a complete working solution with proper promisification and multiple implementation approaches."
+      },
+      "haiku-4.5": {
+        "correctness": 3,
+        "quality": 7,
+        "completeness": 6,
+        "total": 16,
+        "notes": "Assumes async versions of callback functions exist without providing the necessary promisification."
+      },
+      "gemma-2b": {
+        "correctness": 2,
+        "quality": 4,
+        "completeness": 4,
+        "total": 10,
+        "notes": "Keeps the callback parameter which defeats the purpose and assumes async functions exist without promisification."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Only Response A correctly handles the promisification needed to convert callback-based functions to async/await."
+  },
+  "prompt_09": {
+    "prompt_id": 9,
+    "category": "refactor",
+    "order": [
+      "sonnet-4",
+      "gemma-2b",
+      "haiku-4.5"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "gemma-2b",
+      "C": "haiku-4.5"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Correctly simplifies the type, provides accurate explanation, and maintains exact behavior."
+      },
+      "gemma-2b": {
+        "correctness": 2,
+        "quality": 3,
+        "completeness": 4,
+        "total": 9,
+        "notes": "Completely misunderstands what DeepPartial does, removes the optional modifier, and provides incorrect explanation."
+      },
+      "haiku-4.5": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Correctly simplifies the type with proper explanation and maintains the intended behavior."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Both A and C are correct, but A provides slightly more detailed explanation of the simplification rationale."
+  },
+  "prompt_10": {
+    "prompt_id": 10,
+    "category": "explain",
+    "order": [
+      "sonnet-4",
+      "haiku-4.5",
+      "gemma-2b"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "haiku-4.5",
+      "C": "gemma-2b"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Technically accurate explanation with correct code example and output, clearly addressing all prompt requirements."
+      },
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Accurate content with good example, but doesn't explicitly show await vs setTimeout comparison as requested."
+      },
+      "gemma-2b": {
+        "correctness": 3,
+        "quality": 4,
+        "completeness": 5,
+        "total": 12,
+        "notes": "Contains fundamental misconceptions about microtasks/macrotasks and provides vague analogies instead of concrete technical explanation."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Provides the most technically accurate and complete explanation with a concrete example that directly demonstrates the await vs setTimeout behavior."
+  },
+  "prompt_11": {
+    "prompt_id": 11,
+    "category": "explain",
+    "order": [
+      "gemma-2b",
+      "sonnet-4",
+      "haiku-4.5"
+    ],
+    "letter_to_model": {
+      "A": "gemma-2b",
+      "B": "sonnet-4",
+      "C": "haiku-4.5"
+    },
+    "scores": {
+      "gemma-2b": {
+        "correctness": 3,
+        "quality": 4,
+        "completeness": 4,
+        "total": 11,
+        "notes": "Contains fundamental errors about CAP classifications and gets cut off mid-response."
+      },
+      "sonnet-4": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Correctly identifies Postgres as CP, clearly explains operational implications, and provides excellent payment-specific context."
+      },
+      "haiku-4.5": {
+        "correctness": 8,
+        "quality": 9,
+        "completeness": 10,
+        "total": 27,
+        "notes": "Accurate CAP analysis with exceptional operational detail, concrete examples, and comprehensive comparison table."
+      }
+    },
+    "winner": "haiku-4.5",
+    "winner_reason": "Most complete response with superior operational detail and practical recommendations while maintaining technical accuracy."
+  },
+  "prompt_12": {
+    "prompt_id": 12,
+    "category": "explain",
+    "order": [
+      "gemma-2b",
+      "haiku-4.5",
+      "sonnet-4"
+    ],
+    "letter_to_model": {
+      "A": "gemma-2b",
+      "B": "haiku-4.5",
+      "C": "sonnet-4"
+    },
+    "scores": {
+      "gemma-2b": {
+        "correctness": 2,
+        "quality": 3,
+        "completeness": 3,
+        "total": 8,
+        "notes": "Contains fundamental misconceptions about the cause, incorrectly focusing on call stack frames rather than argument limits."
+      },
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Accurately explains the spread operator argument evaluation issue with comprehensive examples and V8 implementation details."
+      },
+      "sonnet-4": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Correctly identifies the core problem and provides good explanations with practical alternatives, though slightly less detailed than B."
+      }
+    },
+    "winner": "haiku-4.5",
+    "winner_reason": "Provides the most comprehensive and technically accurate explanation with detailed V8 implementation context and extensive practical solutions."
+  },
+  "prompt_13": {
+    "prompt_id": 13,
+    "category": "review",
+    "order": [
+      "sonnet-4",
+      "haiku-4.5",
+      "gemma-2b"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "haiku-4.5",
+      "C": "gemma-2b"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Identifies all critical vulnerabilities correctly with proper severity ranking and comprehensive coverage."
+      },
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 8,
+        "completeness": 9,
+        "total": 26,
+        "notes": "Strong technical analysis with good fixes, but slightly less comprehensive than A."
+      },
+      "gemma-2b": {
+        "correctness": 6,
+        "quality": 5,
+        "completeness": 6,
+        "total": 17,
+        "notes": "Identifies some issues but has incorrect severity rankings and misses critical vulnerabilities like user enumeration."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Most comprehensive analysis with correct severity rankings and detailed fixes for all vulnerabilities."
+  },
+  "prompt_14": {
+    "prompt_id": 14,
+    "category": "review",
+    "order": [
+      "gemma-2b",
+      "sonnet-4",
+      "haiku-4.5"
+    ],
+    "letter_to_model": {
+      "A": "gemma-2b",
+      "B": "sonnet-4",
+      "C": "haiku-4.5"
+    },
+    "scores": {
+      "gemma-2b": {
+        "correctness": 4,
+        "quality": 5,
+        "completeness": 6,
+        "total": 15,
+        "notes": "Contains several incorrect recommendations like using wrong Node version and misunderstanding --no-cache-dir flag."
+      },
+      "sonnet-4": {
+        "correctness": 9,
+        "quality": 9,
+        "completeness": 9,
+        "total": 27,
+        "notes": "Comprehensive analysis with correct multi-stage build implementation and proper security practices."
+      },
+      "haiku-4.5": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 8,
+        "total": 24,
+        "notes": "Good identification of issues with clear table format, though less comprehensive than Response B."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Most technically accurate with comprehensive multi-stage build solution and thorough coverage of all three problem areas."
+  },
+  "prompt_15": {
+    "prompt_id": 15,
+    "category": "data",
+    "order": [
+      "haiku-4.5",
+      "gemma-2b",
+      "sonnet-4"
+    ],
+    "letter_to_model": {
+      "A": "haiku-4.5",
+      "B": "gemma-2b",
+      "C": "sonnet-4"
+    },
+    "scores": {
+      "haiku-4.5": {
+        "correctness": 8,
+        "quality": 9,
+        "completeness": 10,
+        "total": 27,
+        "notes": "Provides a working regex with accurate limitations analysis and proper alternative solutions."
+      },
+      "gemma-2b": {
+        "correctness": 3,
+        "quality": 4,
+        "completeness": 6,
+        "total": 13,
+        "notes": "Misunderstands the problem by suggesting HTML parsing of raw Markdown text, which won't work."
+      },
+      "sonnet-4": {
+        "correctness": 7,
+        "quality": 7,
+        "completeness": 8,
+        "total": 22,
+        "notes": "Offers a reasonable regex solution with good limitations discussion but less comprehensive than A."
+      }
+    },
+    "winner": "haiku-4.5",
+    "winner_reason": "Most comprehensive response with working regex, extensive testing, accurate limitations analysis, and practical alternatives."
+  },
+  "prompt_16": {
+    "prompt_id": 16,
+    "category": "data",
+    "order": [
+      "sonnet-4",
+      "gemma-2b",
+      "haiku-4.5"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "gemma-2b",
+      "C": "haiku-4.5"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 8,
+        "quality": 7,
+        "completeness": 9,
+        "total": 24,
+        "notes": "Working solution with proper timezone handling, though parses JSON multiple times inefficiently."
+      },
+      "gemma-2b": {
+        "correctness": 1,
+        "quality": 3,
+        "completeness": 2,
+        "total": 6,
+        "notes": "Incomplete pseudocode with no actual implementation, just comments and placeholders."
+      },
+      "haiku-4.5": {
+        "correctness": 6,
+        "quality": 6,
+        "completeness": 8,
+        "total": 20,
+        "notes": "Has timezone handling issues that could cause runtime errors depending on system configuration."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Response A provides a complete, working solution that handles the requirements correctly, while B is just pseudocode and C has potential timezone bugs."
+  },
+  "prompt_17": {
+    "prompt_id": 17,
+    "category": "test",
+    "order": [
+      "haiku-4.5",
+      "sonnet-4",
+      "gemma-2b"
+    ],
+    "letter_to_model": {
+      "A": "haiku-4.5",
+      "B": "sonnet-4",
+      "C": "gemma-2b"
+    },
+    "scores": {
+      "haiku-4.5": {
+        "correctness": 9,
+        "quality": 10,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Comprehensive test suite with working implementation, excellent organization, and thorough coverage of all requirements including edge cases."
+      },
+      "sonnet-4": {
+        "correctness": 7,
+        "quality": 8,
+        "completeness": 9,
+        "total": 24,
+        "notes": "Good test coverage with functional implementation, but negative value formatting has incorrect placement of minus sign."
+      },
+      "gemma-2b": {
+        "correctness": 4,
+        "quality": 5,
+        "completeness": 6,
+        "total": 15,
+        "notes": "Basic test structure but several test expectations are incorrect (billion cents calculation, negative formatting) and lacks implementation details."
+      }
+    },
+    "winner": "haiku-4.5",
+    "winner_reason": "Response A provides the most comprehensive, correctly implemented solution with excellent test organization and accurate expectations for all edge cases."
+  },
+  "prompt_18": {
+    "prompt_id": 18,
+    "category": "config",
+    "order": [
+      "sonnet-4",
+      "haiku-4.5",
+      "gemma-2b"
+    ],
+    "letter_to_model": {
+      "A": "sonnet-4",
+      "B": "haiku-4.5",
+      "C": "gemma-2b"
+    },
+    "scores": {
+      "sonnet-4": {
+        "correctness": 7,
+        "quality": 8,
+        "completeness": 9,
+        "total": 24,
+        "notes": "Solid workflow with proper structure but coverage parsing logic is fragile and may not work reliably across different test runners."
+      },
+      "haiku-4.5": {
+        "correctness": 6,
+        "quality": 7,
+        "completeness": 8,
+        "total": 21,
+        "notes": "Well-structured with good features but has issues with coverage extraction logic and uses `bc` command which may not be available by default."
+      },
+      "gemma-2b": {
+        "correctness": 2,
+        "quality": 3,
+        "completeness": 3,
+        "total": 8,
+        "notes": "Multiple fundamental errors including wrong action usage, invalid syntax, incomplete workflow, and broken coverage logic."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Response A provides the most complete and structurally correct workflow despite some coverage parsing concerns."
+  },
+  "prompt_19": {
+    "prompt_id": 19,
+    "category": "ui",
+    "order": [
+      "gemma-2b",
+      "sonnet-4",
+      "haiku-4.5"
+    ],
+    "letter_to_model": {
+      "A": "gemma-2b",
+      "B": "sonnet-4",
+      "C": "haiku-4.5"
+    },
+    "scores": {
+      "gemma-2b": {
+        "correctness": 4,
+        "quality": 3,
+        "completeness": 3,
+        "total": 10,
+        "notes": "Missing the 1.5-second timeout revert functionality and ARIA live region implementation despite mentioning it in explanation."
+      },
+      "sonnet-4": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Complete implementation with all requirements, fallback support, proper cleanup, and excellent accessibility features."
+      },
+      "haiku-4.5": {
+        "correctness": 8,
+        "quality": 8,
+        "completeness": 9,
+        "total": 25,
+        "notes": "Good implementation with all core requirements met, though missing timeout cleanup on unmount."
+      }
+    },
+    "winner": "sonnet-4",
+    "winner_reason": "Most complete solution with fallback support, proper cleanup, and comprehensive accessibility implementation."
+  },
+  "prompt_20": {
+    "prompt_id": 20,
+    "category": "docs",
+    "order": [
+      "gemma-2b",
+      "haiku-4.5",
+      "sonnet-4"
+    ],
+    "letter_to_model": {
+      "A": "gemma-2b",
+      "B": "haiku-4.5",
+      "C": "sonnet-4"
+    },
+    "scores": {
+      "gemma-2b": {
+        "correctness": 8,
+        "quality": 6,
+        "completeness": 7,
+        "total": 21,
+        "notes": "Correct JSDoc but places example outside the comment block and includes unnecessary explanatory text."
+      },
+      "haiku-4.5": {
+        "correctness": 10,
+        "quality": 9,
+        "completeness": 10,
+        "total": 29,
+        "notes": "Perfect JSDoc with proper @example tag, multiple examples, and clean formatting."
+      },
+      "sonnet-4": {
+        "correctness": 10,
+        "quality": 8,
+        "completeness": 10,
+        "total": 28,
+        "notes": "Correct JSDoc with good examples and helpful unit explanations, though slightly more verbose."
+      }
+    },
+    "winner": "haiku-4.5",
+    "winner_reason": "Most polished JSDoc format with proper @example usage and comprehensive examples without extraneous content."
+  }
+}

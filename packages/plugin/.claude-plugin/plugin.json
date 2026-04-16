@@ -1,0 +1,28 @@
+{
+  "name": "inferlane",
+  "version": "1.0.0",
+  "description": "Smart model routing and cost optimization for Claude. Picks the cheapest model for each task, routes between local (Ollama) and cloud inference, and tracks AI spend across providers.",
+  "author": {
+    "name": "InferLane",
+    "url": "https://inferlane.dev"
+  },
+  "homepage": "https://inferlane.dev",
+  "repository": "https://github.com/ComputeGauge/inferlane",
+  "license": "MIT",
+  "keywords": [
+    "cost-optimization",
+    "model-routing",
+    "llm-router",
+    "ai-cost",
+    "multi-provider",
+    "observability",
+    "ollama",
+    "local-inference"
+  ],
+  "userConfig": {
+    "api_key": {
+      "description": "InferLane API key (optional — offline tools work without one). Get one at https://inferlane.dev/dashboard/settings",
+      "sensitive": true
+    }
+  }
+}

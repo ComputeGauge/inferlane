@@ -43,11 +43,18 @@ export interface Session {
 // ── Pricing lookup for handoff cost estimation ───────────────────────────
 
 // Per-token input costs in USD (rough averages, updated periodically)
+// Legacy Anthropic identifiers are retained so historical session
+// handoff cost estimates still resolve. New code should import
+// pricing from @/lib/providers/anthropic-models.
 const MODEL_INPUT_COST_PER_TOKEN: Record<string, number> = {
-  // Anthropic
-  'claude-opus-4':    0.000015,
-  'claude-sonnet-4':  0.000003,
-  'claude-haiku-3.5': 0.0000008,
+  // Anthropic — current
+  'claude-sonnet-4-5':    0.000003,
+  'claude-haiku-4-5':     0.000001,
+  'claude-opus-4-5':      0.000015,
+  // Anthropic — legacy (still honored)
+  'claude-opus-4':        0.000015,
+  'claude-sonnet-4':      0.000003,
+  'claude-haiku-3.5':     0.0000008,
   // OpenAI
   'gpt-4o':           0.0000025,
   'gpt-4o-mini':      0.00000015,

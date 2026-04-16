@@ -1,0 +1,13 @@
+{
+  "prompt_id": 7,
+  "category": "debug",
+  "model_id": "opus-4",
+  "model_label": "Claude Opus 4",
+  "api_model": "claude-opus-4-20250514",
+  "input_tokens": 144,
+  "output_tokens": 507,
+  "latency_ms": 11569,
+  "cost_usd": 0.040185,
+  "stop_reason": "end_turn",
+  "output": "The bug is that when the timeout occurs, the goroutine running `processFile(r.Body)` continues running and eventually tries to send to channel `ch`, but nothing is reading from it anymore. This causes the goroutine to block forever on the send operation, leaking memory.\n\nHere's what happens in the timeout case:\n1. After 5 seconds, the `select` chooses the timeout branch\n2. The handler returns an error and exits\n3. The goroutine eventually finishes `processFile` and tries to send to `ch`\n4. Since nothing is reading from `ch` anymore, the goroutine blocks forever\n\n## Why it works in dev but fails in production:\n- **Dev**: Requests are fast, `processFile` completes within 5 seconds\n- **Production**: Under load or with larger files, `processFile` takes longer than 5 seconds, triggering timeouts and leaks\n\n## Fix:\nUse a buffered channel so the goroutine can always send without blocking:\n\n```go\nfunc handleUpload(w http.ResponseWriter, r *http.Request) {\n    ch := make(chan string, 1) // Buffered channel\n    go func() { ch <- processFile(r.Body) }()\n    select {\n    case result := <-ch:\n        fmt.Fprint(w, result)\n    case <-time.After(5 * time.Second):\n        http.Error(w, \"timeout\", 504)\n    }\n}\n```\n\nOr better yet, use context for proper cancellation:\n\n```go\nfunc handleUpload(w http.ResponseWriter, r *http.Request) {\n    ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)\n    defer cancel()\n    \n    ch := make(chan string, 1)\n    go func() {\n        ch <- processFile(ctx, r.Body) // Pass context to processFile\n    }()\n    \n    select {\n    case result := <-ch:\n        fmt.Fprint(w, result)\n    case <-ctx.Done():\n        http.Error(w, \"timeout\", 504)\n    }\n}\n```"
+}

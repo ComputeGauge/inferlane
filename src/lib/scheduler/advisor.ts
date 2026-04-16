@@ -3,6 +3,7 @@
 // active promotions and off-peak windows.
 
 import { prisma } from '@/lib/db';
+import { DEFAULT_ANTHROPIC } from '@/lib/providers/anthropic-models';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -140,7 +141,7 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
     category: 'CODEBASE_ANALYSIS',
     description:
       'Run a comprehensive security review on your most frequently modified source files, identifying vulnerabilities, dependency risks, and hardening recommendations.',
-    defaultModel: 'claude-sonnet-4-20250514',
+    defaultModel: DEFAULT_ANTHROPIC,
     systemPrompt:
       'You are a senior application security engineer. Analyse the provided source code for OWASP Top 10 vulnerabilities, insecure patterns, and dependency risks. Output a structured report with severity ratings.',
     userPromptTemplate:
@@ -156,7 +157,7 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
     category: 'CODEBASE_ANALYSIS',
     description:
       'Automatically generate OpenAPI-style documentation from your route handlers and type definitions.',
-    defaultModel: 'claude-sonnet-4-20250514',
+    defaultModel: DEFAULT_ANTHROPIC,
     systemPrompt:
       'You are a technical writer specialising in API documentation. Given source code for API route handlers, generate clear, accurate OpenAPI 3.1-compatible documentation in YAML format.',
     userPromptTemplate:
@@ -174,7 +175,7 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
     category: 'DOCUMENT_PROCESSING',
     description:
       'Convert raw meeting transcripts or notes into structured action items with owners, deadlines, and priority levels.',
-    defaultModel: 'claude-sonnet-4-20250514',
+    defaultModel: DEFAULT_ANTHROPIC,
     systemPrompt:
       'You are a project management assistant. Extract action items from meeting notes. For each item include: description, owner, deadline (if mentioned), and priority (P0-P3).',
     userPromptTemplate:
@@ -190,7 +191,7 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
     category: 'DOCUMENT_PROCESSING',
     description:
       'Pull structured data points, KPIs, and insights from lengthy reports, whitepapers, or PDFs.',
-    defaultModel: 'claude-sonnet-4-20250514',
+    defaultModel: DEFAULT_ANTHROPIC,
     systemPrompt:
       'You are a data analyst. Extract the key metrics, findings, and recommendations from the provided document. Output as a structured JSON object with sections for metrics, findings, and recommendations.',
     userPromptTemplate:
@@ -208,7 +209,7 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
     category: 'MODEL_COMPARISON',
     description:
       'Run your most frequent prompts through both Claude Opus and Sonnet, comparing quality, latency, and cost to find the optimal model for each use case.',
-    defaultModel: 'claude-sonnet-4-20250514',
+    defaultModel: DEFAULT_ANTHROPIC,
     systemPrompt:
       'You are an AI model evaluation specialist. Given a prompt and responses from different models, evaluate them on: accuracy, completeness, reasoning quality, and cost-effectiveness. Provide a recommendation.',
     userPromptTemplate:
@@ -227,14 +228,14 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
       },
       {
         title: 'Run prompt on Model B',
-        model: 'claude-sonnet-4-20250514',
+        model: DEFAULT_ANTHROPIC,
         systemPrompt: '{{original_system}}',
         userPromptTemplate: '{{original_prompt}}',
         estimatedTokens: 3000,
       },
       {
         title: 'Compare and evaluate',
-        model: 'claude-sonnet-4-20250514',
+        model: DEFAULT_ANTHROPIC,
         systemPrompt:
           'You are an AI evaluation expert. Compare these two model outputs objectively.',
         userPromptTemplate:
@@ -249,7 +250,7 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
     category: 'MODEL_COMPARISON',
     description:
       'Create a test suite from your real-world prompts and systematically measure model performance across providers.',
-    defaultModel: 'claude-sonnet-4-20250514',
+    defaultModel: DEFAULT_ANTHROPIC,
     systemPrompt:
       'You are a benchmarking specialist. Design evaluation criteria and score model outputs on accuracy, relevance, formatting, and adherence to instructions.',
     userPromptTemplate:
@@ -267,7 +268,7 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
     category: 'KNOWLEDGE_EXTRACTION',
     description:
       'Generate question-answer pairs from your documentation to build a knowledge base, FAQ, or fine-tuning dataset.',
-    defaultModel: 'claude-sonnet-4-20250514',
+    defaultModel: DEFAULT_ANTHROPIC,
     systemPrompt:
       'You are a knowledge engineer. Given documentation text, generate diverse, high-quality question-answer pairs that cover all key concepts. Output as JSON array of {question, answer, category} objects.',
     userPromptTemplate:
@@ -283,7 +284,7 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
     category: 'KNOWLEDGE_EXTRACTION',
     description:
       'Generate synthetic training examples based on a few seed examples, maintaining consistent format and quality.',
-    defaultModel: 'claude-sonnet-4-20250514',
+    defaultModel: DEFAULT_ANTHROPIC,
     systemPrompt:
       'You are a data augmentation specialist. Given seed examples, generate additional high-quality training examples that maintain the same format, style, and difficulty distribution. Ensure diversity and avoid exact copies.',
     userPromptTemplate:
@@ -301,7 +302,7 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
     category: 'CREATIVE_GENERATION',
     description:
       'Create multiple variations of marketing copy for A/B testing — headlines, descriptions, CTAs, and social media posts.',
-    defaultModel: 'claude-sonnet-4-20250514',
+    defaultModel: DEFAULT_ANTHROPIC,
     systemPrompt:
       'You are a senior copywriter. Generate multiple variations of marketing copy optimised for different channels and audiences. Each variation should have a unique angle while maintaining brand voice.',
     userPromptTemplate:
@@ -317,7 +318,7 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
     category: 'CREATIVE_GENERATION',
     description:
       'Generate a full email sequence — welcome, onboarding, engagement, re-engagement — tailored to your product.',
-    defaultModel: 'claude-sonnet-4-20250514',
+    defaultModel: DEFAULT_ANTHROPIC,
     systemPrompt:
       'You are an email marketing specialist. Create professional email templates with subject lines, preview text, and body copy. Optimise for open rates and click-through rates.',
     userPromptTemplate:
@@ -335,7 +336,7 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
     category: 'DATA_PIPELINE',
     description:
       'Parse messy CSV data, fix formatting issues, fill missing values, and add category labels based on content analysis.',
-    defaultModel: 'claude-sonnet-4-20250514',
+    defaultModel: DEFAULT_ANTHROPIC,
     systemPrompt:
       'You are a data cleaning specialist. Process the provided CSV data: fix formatting inconsistencies, standardise values, handle missing data, and add category labels. Output clean CSV.',
     userPromptTemplate:
@@ -351,7 +352,7 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
     category: 'DATA_PIPELINE',
     description:
       'Convert unstructured text (emails, support tickets, reviews) into structured JSON with entities, sentiment, and categories.',
-    defaultModel: 'claude-sonnet-4-20250514',
+    defaultModel: DEFAULT_ANTHROPIC,
     systemPrompt:
       'You are a data extraction specialist. Parse unstructured text and extract structured data including: entities (people, orgs, dates, amounts), sentiment, category, and key facts. Output as JSON.',
     userPromptTemplate:
@@ -372,7 +373,7 @@ const SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
  *  which uses per-million-token units. This is a fast estimation for suggestions. */
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   'claude-opus-4-20250514': { input: 1.5, output: 7.5 },
-  'claude-sonnet-4-20250514': { input: 0.3, output: 1.5 },
+  DEFAULT_ANTHROPIC: { input: 0.3, output: 1.5 },
   'claude-haiku-3-20240307': { input: 0.025, output: 0.125 },
   'gpt-4o': { input: 0.25, output: 1.0 },
   'gpt-4o-mini': { input: 0.015, output: 0.06 },
@@ -408,7 +409,7 @@ export async function generateSuggestions(
   // Determine which models the user actually uses
   const usedModels = new Set(usageStats.map((s) => s.model));
   const primaryModel =
-    usageStats.length > 0 ? usageStats[0].model : 'claude-sonnet-4-20250514';
+    usageStats.length > 0 ? usageStats[0].model : DEFAULT_ANTHROPIC;
 
   let templates = SUGGESTION_TEMPLATES;
   if (categoryFilter) {

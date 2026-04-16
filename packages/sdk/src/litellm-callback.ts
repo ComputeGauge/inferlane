@@ -19,7 +19,7 @@
  * Partners save this as `inferlane_callback.py` alongside their LiteLLM config.
  *
  * Required env var: INFERLANE_API_KEY=ilp_...
- * Optional env var: INFERLANE_BASE_URL (defaults to https://inferlane.ai)
+ * Optional env var: INFERLANE_BASE_URL (defaults to https://inferlane.dev)
  */
 export const LITELLM_CALLBACK_PYTHON = `
 """
@@ -77,7 +77,7 @@ class InferLaneCallback(CustomLogger):
 
         self.base_url = (
             base_url
-            or os.environ.get("INFERLANE_BASE_URL", "https://inferlane.ai")
+            or os.environ.get("INFERLANE_BASE_URL", "https://inferlane.dev")
         ).rstrip("/")
 
         self.batch_size = batch_size
@@ -233,7 +233,7 @@ response = litellm.completion(
 | Env Var | Default | Description |
 |---------|---------|-------------|
 | INFERLANE_API_KEY | (required) | Partner callback key |
-| INFERLANE_BASE_URL | https://inferlane.ai | API base URL |
+| INFERLANE_BASE_URL | https://inferlane.dev | API base URL |
 
 ## Batch Behavior
 

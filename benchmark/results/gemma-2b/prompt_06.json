@@ -1,0 +1,13 @@
+{
+  "prompt_id": 6,
+  "category": "debug",
+  "model_id": "gemma-2b",
+  "model_label": "Gemma 2 2B (local)",
+  "api_model": "ollama/gemma2:2b",
+  "input_tokens": 111,
+  "output_tokens": 386,
+  "latency_ms": 8394,
+  "cost_usd": 0.0,
+  "stop_reason": "stop",
+  "output": "You're right, this component is rendering twice for every state update! Here's why and how to fix it:\n\n**The Problem:**\n\n* **`setCount` calls within the `onClick` handler:**  Whenever you click the button, `setCount(c => c + 1)` executes. This line triggers a re-render of the component.\n* **State updates are immediate:** React's state management system is designed to update components based on changes. Even if the state value doesn't change directly, the function `setCount` will be called, leading to a re-render.\n\n**The Fix:**\n\nTo fix this, we need to ensure that only the necessary re-renders occur.  Here's how:\n\n```jsx\nfunction Counter({ items }) {\n  const [count, setCount] = useState(0);\n  const doubled = items.map(x => x * 2);\n  return <div onClick={() => setCount(c => c + 1)}>{count} ({doubled.join(',')})</div>;\n}\n```\n\n**Explanation:**\n\n* **`setCount` only updates when necessary:** We're calling `setCount` within the `onClick` handler to increment the count, but we don't need to re-render the component every time. \n\n\n**Additional Considerations:**\n\n* **Performance Optimization:**  If you have a lot of state changes or complex logic in your component, consider using techniques like memoization (e.g., React's `useMemo` hook) to optimize performance and reduce unnecessary re-renders.\n* **Debugging Tools:** Use React Developer tools to inspect the component tree and see exactly when it's being re-rendered. This can help you pinpoint the exact cause of the issue. \n\n\n\nLet me know if you have any other questions!"
+}

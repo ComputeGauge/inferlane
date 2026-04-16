@@ -1,0 +1,13 @@
+{
+  "prompt_id": 4,
+  "category": "implement",
+  "model_id": "grok-4",
+  "model_label": "Grok 4",
+  "api_model": "grok-4-0709",
+  "input_tokens": 761,
+  "output_tokens": 1505,
+  "latency_ms": 22541,
+  "cost_usd": 0.024858,
+  "stop_reason": "stop",
+  "output": "```sql\nSELECT \n    c.email,\n    SUM(o.total_cents) AS total_spent,\n    COUNT(o.id) AS order_count,\n    (CURRENT_DATE - c.created_at::date) AS days_since_signup\nFROM \n    orders o\nJOIN \n    customers c ON o.customer_id = c.id\nGROUP BY \n    c.id, c.email, c.created_at\nHAVING \n    COUNT(o.id) >= 2\nORDER BY \n    total_spent DESC\nLIMIT 10;\n```"
+}

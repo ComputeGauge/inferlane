@@ -1,0 +1,13 @@
+{
+  "prompt_id": 14,
+  "category": "review",
+  "model_id": "opus-4",
+  "model_label": "Claude Opus 4",
+  "api_model": "claude-opus-4-20250514",
+  "input_tokens": 77,
+  "output_tokens": 670,
+  "latency_ms": 15284,
+  "cost_usd": 0.051405000000000006,
+  "stop_reason": "end_turn",
+  "output": "Here are the key issues with this Dockerfile that affect image size, build time, and security:\n\n## \ud83d\udd34 Critical Issues\n\n### 1. **Using `node:latest` tag**\n- **Security Risk**: Unpredictable base image that changes over time\n- **Build Time**: Can't leverage Docker layer caching effectively\n- **Fix**: Use specific version like `node:22-alpine` or `node:22.11-alpine`\n\n### 2. **No multi-stage build**\n- **Image Size**: Includes all build dependencies in final image\n- **Security**: Exposes source code and build tools in production\n\n### 3. **Running as root**\n- **Security Risk**: Container runs with root privileges\n- **Fix**: Add `USER node` after installing dependencies\n\n### 4. **Copying everything at once**\n- **Build Time**: Any file change invalidates cache for all subsequent layers\n- **Fix**: Copy `package*.json` first, then run `npm install`, then copy source\n\n## \ud83d\udce6 Image Size Issues\n\n### 5. **Using full node image instead of alpine**\n- **Impact**: ~1GB vs ~150MB base image size\n- **Fix**: Use `node:22-alpine`\n\n### 6. **No `.dockerignore` mentioned**\n- **Impact**: Copies unnecessary files (node_modules, .git, etc.)\n- **Fix**: Create `.dockerignore` file\n\n## \ud83d\ude80 Optimized Dockerfile\n\n```dockerfile\n# Build stage\nFROM node:22-alpine AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --only=production && \\\n    npm cache clean --force\nCOPY . .\nRUN npm run build\n\n# Production stage\nFROM node:22-alpine\nRUN apk add --no-cache dumb-init\nWORKDIR /app\nUSER node\nCOPY --chown=node:node --from=builder /app/node_modules ./node_modules\nCOPY --chown=node:node --from=builder /app/dist ./dist\nCOPY --chown=node:node package*.json ./\nEXPOSE 3000\nENTRYPOINT [\"dumb-init\", \"--\"]\nCMD [\"node\", \"dist/index.js\"]\n```\n\n## Additional Recommendations\n\n1. **Create `.dockerignore`**:\n```\nnode_modules\nnpm-debug.log\n.git\n.env\n.DS_Store\n*.log\ncoverage\n.nyc_output\n```\n\n2. **Use `npm ci` instead of `npm install`** for faster, reproducible builds\n3. **Add health check**: `HEALTHCHECK CMD node healthcheck.js`\n4. **Consider using `dumb-init`** for proper signal handling\n5. **Set NODE_ENV**: `ENV NODE_ENV=production`\n\nThis optimized approach can reduce image size by 80%+ and improve build times through better caching."
+}

@@ -1,0 +1,13 @@
+{
+  "prompt_id": 4,
+  "category": "implement",
+  "model_id": "opus-4",
+  "model_label": "Claude Opus 4",
+  "api_model": "claude-opus-4-20250514",
+  "input_tokens": 96,
+  "output_tokens": 300,
+  "latency_ms": 7718,
+  "cost_usd": 0.02394,
+  "stop_reason": "end_turn",
+  "output": "```sql\nSELECT \n    c.email,\n    SUM(o.total_cents) / 100.0 AS total_spent,\n    COUNT(o.id) AS order_count,\n    EXTRACT(DAY FROM CURRENT_DATE - c.created_at::date) AS days_since_signup\nFROM customers c\nINNER JOIN orders o ON c.id = o.customer_id\nGROUP BY c.id, c.email, c.created_at\nHAVING COUNT(o.id) >= 2\nORDER BY SUM(o.total_cents) DESC\nLIMIT 10;\n```\n\nThis query:\n- Joins customers with their orders\n- Calculates total spent by summing `total_cents` and converting to dollars\n- Counts the number of orders per customer\n- Calculates days since signup using `EXTRACT(DAY FROM ...)` \n- Groups by customer to aggregate order data\n- Filters to only include customers with 2+ orders using `HAVING`\n- Sorts by total revenue in descending order\n- Limits to top 10 results\n\nNote: The query assumes `total_cents` stores amounts in cents (integer), hence the division by 100.0 to convert to dollars. If you want to keep the result in cents, remove the division."
+}

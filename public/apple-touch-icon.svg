@@ -1,0 +1,11 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Apple touch icon: full-bleed rounded gradient with centered mark -->
+  <rect width="180" height="180" rx="40" fill="url(#gradient)"/>
+  <path d="M98 48V76L130 92L98 108V132L58 90L98 48Z" fill="#0a0a0f" stroke="#0a0a0f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs>
+    <linearGradient id="gradient" x1="0" y1="0" x2="180" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+  </defs>
+</svg>

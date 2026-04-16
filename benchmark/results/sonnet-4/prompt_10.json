@@ -1,0 +1,13 @@
+{
+  "prompt_id": 10,
+  "category": "explain",
+  "model_id": "sonnet-4",
+  "model_label": "Claude Sonnet 4",
+  "api_model": "claude-sonnet-4-20250514",
+  "input_tokens": 67,
+  "output_tokens": 547,
+  "latency_ms": 10935,
+  "cost_usd": 0.008405999999999999,
+  "stop_reason": "end_turn",
+  "output": "## The JavaScript Event Loop\n\nThe JavaScript event loop is the mechanism that allows JavaScript to handle asynchronous operations despite being single-threaded. It continuously monitors the call stack and task queues, executing code in a specific order. When the call stack is empty, the event loop picks tasks from queues and pushes them onto the stack for execution. This system enables JavaScript to perform non-blocking operations like API calls, timers, and DOM events while maintaining the illusion of concurrent execution.\n\n## Microtasks vs Macrotasks\n\nJavaScript uses two main types of task queues: **microtasks** and **macrotasks** (also called tasks). Microtasks include Promise callbacks (`.then()`, `.catch()`, `.finally()`), `queueMicrotask()`, and `await` resumptions. Macrotasks include `setTimeout`, `setInterval`, `setImmediate`, I/O operations, and UI rendering events. The crucial difference is in their execution priority: **microtasks always execute before macrotasks**. After each macrotask completes, the event loop processes ALL available microtasks before moving to the next macrotask. This means the microtask queue must be completely empty before any macrotask can run.\n\n## Why `await` Resumes Before `setTimeout(fn, 0)`\n\nWhen you use `await`, the resumption of the async function is scheduled as a microtask. Even `setTimeout(fn, 0)` creates a macrotask that goes to the back of the macrotask queue. Since microtasks have higher priority and execute before macrotasks, `await` will always resume first. Here's a concrete example:\n\n```javascript\nconsole.log('1: Start');\n\nsetTimeout(() => console.log('2: setTimeout'), 0);\n\nasync function example() {\n    console.log('3: Before await');\n    await Promise.resolve();\n    console.log('4: After await');\n}\n\nexample();\nconsole.log('5: End');\n\n// Output:\n// 1: Start\n// 3: Before await  \n// 5: End\n// 4: After await    (microtask - runs first)\n// 2: setTimeout     (macrotask - runs after all microtasks)\n```\n\nThe `await` resumption (line 4) runs before the `setTimeout` callback (line 2) because microtasks are processed before macrotasks, regardless of when they were scheduled."
+}

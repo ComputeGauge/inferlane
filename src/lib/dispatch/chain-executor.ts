@@ -12,6 +12,7 @@ import { routeRequest, type RoutingStrategy } from '@/lib/proxy/router';
 import { calculateCost } from '@/lib/pricing/model-prices';
 import { sessionManager } from '@/lib/dispatch/session-manager';
 import { type AIProvider } from '@/generated/prisma/enums';
+import { DEFAULT_ANTHROPIC, normalizeAnthropicModel } from '@/lib/providers/anthropic-models';
 import crypto from 'crypto';
 
 // ---------------------------------------------------------------------------
@@ -310,7 +311,7 @@ class ChainExecutor {
       return { provider: step.provider.toUpperCase(), model: step.model };
     }
 
-    const model = step.model ?? 'claude-sonnet-4';
+    const model = normalizeAnthropicModel(step.model ?? DEFAULT_ANTHROPIC);
     const routing = (step.routing as RoutingStrategy) ?? 'auto';
 
     const decision = await routeRequest({

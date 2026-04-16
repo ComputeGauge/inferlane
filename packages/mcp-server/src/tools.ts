@@ -127,6 +127,98 @@ export const TOOLS = [
       required: ['model', 'messages'],
     },
   },
+  // ── Compute Exchange tools (agents as buyers AND sellers) ──
+  {
+    name: 'il_exchange_spot',
+    description: 'Query the InferLane Compute Exchange for the cheapest available inference capacity right now. Returns ranked offers from centralized providers (Anthropic, OpenAI off-peak H100s) and decentralized operators (Darkbloom Apple Silicon, OpenClaw GPUs). Use when comparing live spot prices across the full market, or when the user wants to find the absolute cheapest way to run a workload. This queries real capacity listings, not static pricing tables.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        model: {
+          type: 'string',
+          description: 'Model to query spot pricing for (e.g., "claude-sonnet-4-5", "llama-3.3-70b", "gemma-4-27b")',
+        },
+        input_tokens: {
+          type: 'number',
+          description: 'Estimated input tokens for the workload. Default: 2000',
+        },
+        output_tokens: {
+          type: 'number',
+          description: 'Estimated output tokens for the workload. Default: 500',
+        },
+        require_attestation: {
+          type: 'boolean',
+          description: 'Only return TEE-attested providers (hardware-verified execution). Default: false',
+        },
+        provider_type: {
+          type: 'string',
+          enum: ['CENTRALIZED', 'DECENTRALIZED', 'any'],
+          description: 'Filter by provider type. Default: "any"',
+        },
+      },
+      required: ['model'],
+    },
+  },
+  {
+    name: 'il_exchange_offers',
+    description: 'List all active capacity offers on the InferLane Compute Exchange order book. Shows who is selling compute, at what price, on what hardware, and whether the execution is TEE-attested. Use when the user wants to see the full market, browse available capacity, or compare provider types (centralized vs decentralized). Returns offers sorted by input price ascending (cheapest first).',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        model: {
+          type: 'string',
+          description: 'Filter by model name (optional)',
+        },
+        provider_type: {
+          type: 'string',
+          enum: ['CENTRALIZED', 'DECENTRALIZED', 'HYBRID'],
+          description: 'Filter by provider type (optional)',
+        },
+        attested_only: {
+          type: 'boolean',
+          description: 'Only show TEE-attested offers (optional)',
+        },
+      },
+    },
+  },
+  {
+    name: 'il_exchange_list_capacity',
+    description: 'List your own compute capacity on the InferLane Compute Exchange as a seller. Other agents and users can then route inference workloads to your hardware at the price you set. Use when the user wants to monetize idle GPU/Apple Silicon compute, or when an agent is managing a fleet and wants to sell excess capacity during off-peak hours. Requires an InferLane API key with operator permissions.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        model: {
+          type: 'string',
+          description: 'Model you can serve (e.g., "llama-3.3-70b", "gemma-4-27b")',
+        },
+        input_price_per_mtok: {
+          type: 'number',
+          description: 'Price per million input tokens in USD (e.g., 0.35)',
+        },
+        output_price_per_mtok: {
+          type: 'number',
+          description: 'Price per million output tokens in USD (e.g., 1.05)',
+        },
+        max_tokens_per_sec: {
+          type: 'number',
+          description: 'Maximum throughput in tokens per second',
+        },
+        gpu_type: {
+          type: 'string',
+          description: 'Hardware type (e.g., "Apple M4 Max", "H100", "RTX 4090")',
+        },
+        hours_available: {
+          type: 'number',
+          description: 'How many hours from now this capacity is available. Default: 24',
+        },
+        require_attestation: {
+          type: 'boolean',
+          description: 'Require buyers to use TEE-attested execution path. Default: false',
+        },
+      },
+      required: ['model', 'input_price_per_mtok', 'output_price_per_mtok', 'max_tokens_per_sec'],
+    },
+  },
 ] as const;
 
 export type ToolName = typeof TOOLS[number]['name'];

@@ -1,0 +1,13 @@
+{
+  "prompt_id": 6,
+  "category": "debug",
+  "model_id": "grok-4",
+  "model_label": "Grok 4",
+  "api_model": "grok-4-0709",
+  "input_tokens": 777,
+  "output_tokens": 14109,
+  "latency_ms": 194160,
+  "cost_usd": 0.213966,
+  "stop_reason": "stop",
+  "output": "### Cause\nThe component re-renders every time the `count` state is updated (which is expected, since state changes trigger re-renders in React). However, the calculation for `doubled` (the `map` operation) is performed directly in the component body, so it runs on *every* render, including those triggered by `count` changes. This is unnecessary because `doubled` only depends on the `items` prop, not on `count`.\n\nThis can lead to performance issues if `items` is large or the calculation is expensive, as the array is recreated from scratch on every re-render, even when `items` hasn't changed.\n\nThe \"renders twice\" likely refers to observing the component rendering multiple times (e.g., initial render + re-render on state update, or double renders in development mode under `<StrictMode>`), with the calculation running each time. The mention of \"even when the state value doesn't change\" may indicate testing scenarios where state is set to the same value (which normally skips re-renders), but if there are other reasons for re-renders (e.g., parent re-renders), the calculation would still run unnecessarily.\n\n### Fix\nUse `useMemo` to memoize the `doubled` calculation, so it's only recomputed when `items` changes. This optimizes the component by avoiding unnecessary work during re-renders caused by `count` updates.\n\nHere's the fixed code:\n\n```jsx\nimport { useState, useMemo } from 'react';\n\nfunction Counter({ items }) {\n  const [count, setCount] = useState(0);\n  const doubled = useMemo(() => items.map(x => x * 2), [items]);\n  return <div onClick={() => setCount(c => c + 1)}>{count} ({doubled.join(',')})</div>;\n}\n```\n\n- The dependency array `[items]` ensures the memoized value is recalculated only if `items` changes.\n- If `items` is stable (e.g., memoized in the parent component), this will skip the `map` entirely during `count`-only re-renders.\n- Note: If you're seeing exact double renders in development (e.g., console logs appearing twice), this is often due to React's `<StrictMode>` (common in `index.js` or `main.jsx`). It's intentional for bug detection and doesn't happen in production. If unwanted, remove `<StrictMode>` from your app root, but it's recommended to keep it for development."
+}

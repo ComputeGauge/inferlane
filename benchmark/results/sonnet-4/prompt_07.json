@@ -1,0 +1,13 @@
+{
+  "prompt_id": 7,
+  "category": "debug",
+  "model_id": "sonnet-4",
+  "model_label": "Claude Sonnet 4",
+  "api_model": "claude-sonnet-4-20250514",
+  "input_tokens": 144,
+  "output_tokens": 539,
+  "latency_ms": 9971,
+  "cost_usd": 0.008517,
+  "stop_reason": "end_turn",
+  "output": "The bug is a **goroutine leak** that occurs when the timeout case is hit. Here's what happens:\n\n## The Problem\n\nWhen `time.After(5 * time.Second)` triggers first:\n1. The `select` returns via the timeout case\n2. The handler exits and sends the 504 response\n3. **The goroutine running `processFile()` continues executing**\n4. When it finishes, it tries to send to `ch`, but no one is listening anymore\n5. The goroutine blocks forever on the channel send, causing a leak\n\n## Why It Works in Dev vs Production\n\n- **Dev**: Files are small, `processFile()` completes quickly (< 5 seconds)\n- **Production**: Larger files, network issues, or higher load cause `processFile()` to exceed the timeout\n\n## The Fix\n\nUse a **buffered channel** to prevent the goroutine from blocking:\n\n```go\nfunc handleUpload(w http.ResponseWriter, r *http.Request) {\n    ch := make(chan string, 1) // Buffer size 1\n    go func() { \n        ch <- processFile(r.Body) \n    }()\n    \n    select {\n    case result := <-ch:\n        fmt.Fprint(w, result)\n    case <-time.After(5 * time.Second):\n        http.Error(w, \"timeout\", 504)\n        // Goroutine can send to buffered channel and exit\n    }\n}\n```\n\n## Alternative: Context-Based Cancellation\n\nFor better resource management:\n\n```go\nfunc handleUpload(w http.ResponseWriter, r *http.Request) {\n    ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)\n    defer cancel()\n    \n    ch := make(chan string, 1)\n    go func() {\n        result := processFileWithContext(ctx, r.Body) // Pass context to processFile\n        ch <- result\n    }()\n    \n    select {\n    case result := <-ch:\n        fmt.Fprint(w, result)\n    case <-ctx.Done():\n        http.Error(w, \"timeout\", 504)\n    }\n}\n```\n\nThe buffered channel is the minimal fix that prevents the goroutine leak."
+}

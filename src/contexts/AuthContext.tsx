@@ -57,13 +57,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isDemo = !!demoUser && !realUser;
 
   const login = useCallback(async (provider: string, email?: string) => {
-    // If NextAuth providers are configured, use real OAuth
-    const hasRealAuth = !!(
-      process.env.NEXT_PUBLIC_HAS_GOOGLE_AUTH ||
-      process.env.NEXT_PUBLIC_HAS_GITHUB_AUTH
-    );
-
-    if (hasRealAuth && provider !== 'demo') {
+    // If caller is requesting a real OAuth provider (not demo), use
+    // NextAuth signIn directly. The server already knows which
+    // providers are configured — the client doesn't need a separate
+    // env flag. If the provider isn't configured server-side, NextAuth
+    // returns an OAuthSignin error which the signin page handles.
+    if (provider !== 'demo') {
       // Real NextAuth sign in
       await signIn(provider, {
         callbackUrl: '/',
@@ -75,8 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Demo mode fallback — works without database
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    const demoName = provider === 'email' ? (email?.split('@')[0] || 'Demo User') : 'Demo User';
-    const demoEmail = email || 'demo@inferlane.ai';
+    const demoName = email ? (email.split('@')[0] || 'Demo User') : 'Demo User';
+    const demoEmail = email || 'demo@inferlane.dev';
     const initials = demoName.split(' ').map(n => n[0] || '').join('') || 'DU';
     const mockUser: User = {
       id: 'demo_' + Math.random().toString(36).slice(2, 10),

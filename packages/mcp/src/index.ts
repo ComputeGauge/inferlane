@@ -225,7 +225,7 @@ server.tool(
 
     // Upgrade nudge — suggest platform dispatch when no API key
     if (!hasApiKey) {
-      text += `\n\n> 💡 **Auto-route to this model instantly** — set \`INFERLANE_API_KEY\` to enable smart dispatch. Get your key at [inferlane.ai](https://inferlane.ai)`;
+      text += `\n\n> 💡 **Auto-route to this model instantly** — set \`INFERLANE_API_KEY\` to enable smart dispatch. Get your key at [inferlane.dev](https://inferlane.dev)`;
     }
 
     return { content: [{ type: 'text' as const, text }] };
@@ -293,7 +293,7 @@ server.tool(
 
     let logText = result;
     if (!hasApiKey && logRequestCallCount > 0 && logRequestCallCount % 10 === 0) {
-      logText += `\n\n> 💰 **You've logged ${logRequestCallCount} requests totaling $${logRequestTotalCost.toFixed(4)}.** Smart routing could save up to 78%. Get your API key at [inferlane.ai](https://inferlane.ai)`;
+      logText += `\n\n> 💰 **You've logged ${logRequestCallCount} requests totaling $${logRequestTotalCost.toFixed(4)}.** Smart routing could save up to 78%. Get your API key at [inferlane.dev](https://inferlane.dev)`;
     }
 
     return { content: [{ type: 'text' as const, text: logText }] };
@@ -320,7 +320,7 @@ server.tool(
     // Upgrade nudge
     let sessionNudge = '';
     if (!hasApiKey) {
-      sessionNudge = '\n\n> 📊 **Track savings & trends over time** — set `INFERLANE_API_KEY` to unlock savings intelligence. [inferlane.ai](https://inferlane.ai)';
+      sessionNudge = '\n\n> 📊 **Track savings & trends over time** — set `INFERLANE_API_KEY` to unlock savings intelligence. [inferlane.dev](https://inferlane.dev)';
     }
 
     return { content: [{ type: 'text' as const, text: costResult + credSummary + sessionNudge }] };
@@ -510,7 +510,7 @@ server.tool(
     // Upgrade nudge
     let credText = result;
     if (!hasApiKey) {
-      credText += `\n\n> 🏆 **Unlock cloud routing bonuses & leaderboard competition** — connect to the InferLane platform with \`INFERLANE_API_KEY\`. [inferlane.ai](https://inferlane.ai)`;
+      credText += `\n\n> 🏆 **Unlock cloud routing bonuses & leaderboard competition** — connect to the InferLane platform with \`INFERLANE_API_KEY\`. [inferlane.dev](https://inferlane.dev)`;
     }
 
     return { content: [{ type: 'text' as const, text: credText }] };
@@ -622,7 +622,7 @@ server.tool(
     // Upgrade nudge
     if (!hasApiKey) {
       lines.push('');
-      lines.push('> ☁️ **Execute this routing decision automatically** — dispatch with `INFERLANE_API_KEY`. [inferlane.ai](https://inferlane.ai)');
+      lines.push('> ☁️ **Execute this routing decision automatically** — dispatch with `INFERLANE_API_KEY`. [inferlane.dev](https://inferlane.dev)');
     }
 
     return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
@@ -695,7 +695,7 @@ server.tool(
     // Upgrade nudge
     let compText = comparison;
     if (!hasApiKey) {
-      compText += `\n\n> 🔄 **Route to the cheapest option automatically** — InferLane dispatch picks the best provider per-request. Set \`INFERLANE_API_KEY\` → [inferlane.ai](https://inferlane.ai)`;
+      compText += `\n\n> 🔄 **Route to the cheapest option automatically** — InferLane dispatch picks the best provider per-request. Set \`INFERLANE_API_KEY\` → [inferlane.dev](https://inferlane.dev)`;
     }
 
     return { content: [{ type: 'text' as const, text: compText }] };
@@ -712,7 +712,7 @@ server.tool(
     // Upgrade nudge
     let savingsText = suggestions;
     if (!hasApiKey) {
-      savingsText += `\n\n> ⚡ **Enable auto-routing to save automatically** — smart dispatch routes every request to the cheapest viable provider. Set \`INFERLANE_API_KEY\` → [inferlane.ai](https://inferlane.ai)`;
+      savingsText += `\n\n> ⚡ **Enable auto-routing to save automatically** — smart dispatch routes every request to the cheapest viable provider. Set \`INFERLANE_API_KEY\` → [inferlane.dev](https://inferlane.dev)`;
     }
 
     return { content: [{ type: 'text' as const, text: savingsText }] };

@@ -61,7 +61,10 @@ export const EQUIVALENCE_TIERS: EquivalenceTier[] = [
     models: [
       {
         provider: 'ANTHROPIC',
-        model: 'claude-sonnet-4-20250514',
+        // Current: claude-sonnet-4-5 (claude-sonnet-4-20250514 is
+        // deprecated; normalized at request time via
+        // @/lib/providers/anthropic-models).
+        model: 'claude-sonnet-4-5',
         inputPerMToken: 3,
         outputPerMToken: 15,
         contextWindow: 200_000,
@@ -93,6 +96,24 @@ export const EQUIVALENCE_TIERS: EquivalenceTier[] = [
         outputPerMToken: 1.1,
         contextWindow: 64_000,
         qualityScore: 82,
+        latencyClass: 'medium',
+      },
+      {
+        provider: 'GOOGLE',
+        model: 'gemma-4-31b',
+        inputPerMToken: 0.15,
+        outputPerMToken: 0.6,
+        contextWindow: 256_000,
+        qualityScore: 84,
+        latencyClass: 'medium',
+      },
+      {
+        provider: 'OLLAMA',
+        model: 'ollama/gemma4',
+        inputPerMToken: 0,
+        outputPerMToken: 0,
+        contextWindow: 256_000,
+        qualityScore: 84,
         latencyClass: 'medium',
       },
     ],
@@ -135,6 +156,24 @@ export const EQUIVALENCE_TIERS: EquivalenceTier[] = [
         outputPerMToken: 0.79,
         contextWindow: 128_000,
         qualityScore: 75,
+        latencyClass: 'fast',
+      },
+      {
+        provider: 'GOOGLE',
+        model: 'gemma-4-4b',
+        inputPerMToken: 0.04,
+        outputPerMToken: 0.15,
+        contextWindow: 256_000,
+        qualityScore: 72,
+        latencyClass: 'fast',
+      },
+      {
+        provider: 'OLLAMA',
+        model: 'ollama/gemma4:2b',
+        inputPerMToken: 0,
+        outputPerMToken: 0,
+        contextWindow: 256_000,
+        qualityScore: 65,
         latencyClass: 'fast',
       },
     ],
@@ -377,8 +416,11 @@ const PROVIDER_PREFIXES: [RegExp, string][] = [
   [/^cerebras\//i, 'CEREBRAS'],
   [/^sambanova\//i, 'SAMBANOVA'],
   [/^voyage-/i, 'VOYAGEAI'],
+  [/^gemma-/i, 'GOOGLE'],
   [/^llama-/i, 'META'],
   [/^mistral-/i, 'MISTRAL'],
+  // Local inference
+  [/^ollama\//i, 'OLLAMA'],
   // Decentralized AI compute providers
   [/^bittensor\//i, 'BITTENSOR'],
   [/^akash\//i, 'AKASH'],

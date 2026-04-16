@@ -128,18 +128,43 @@ function SignInContent() {
             </form>
           )}
 
-          {/* No providers configured — show demo message */}
+          {/* No providers configured — show private-beta + demo message */}
           {providers && Object.keys(providers).length === 0 && (
             <div className="text-center py-4">
-              <p className="text-gray-400 text-sm mb-4">
-                No auth providers configured yet. Use the demo mode on the main page, or configure OAuth in <code className="text-amber-400">.env.local</code>
+              <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-400 text-xs font-medium px-3 py-1 rounded-full mb-4 border border-amber-500/20">
+                <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></span>
+                Private beta — account signups coming soon
+              </div>
+              <p className="text-gray-300 text-sm mb-2">
+                InferLane is in private beta while we harden the production auth path. In the meantime:
               </p>
-              <a
-                href="/"
-                className="inline-block px-6 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-medium text-sm hover:brightness-110 transition-all"
-              >
-                Go to Demo
-              </a>
+              <ul className="text-gray-400 text-sm space-y-1 mb-5 text-left inline-block">
+                <li>
+                  <span className="text-green-400">✓</span> The <strong className="text-white">MCP plugin</strong> works today — three tools run fully offline, no account needed
+                </li>
+                <li>
+                  <span className="text-green-400">✓</span> The <strong className="text-white">demo dashboard</strong> is live with mock data so you can see what you&apos;d be signing up for
+                </li>
+                <li>
+                  <span className="text-amber-400">○</span> Real accounts + API keys coming as soon as OAuth is wired
+                </li>
+              </ul>
+              <div className="flex flex-col sm:flex-row gap-2 justify-center mt-4">
+                <a
+                  href="/"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-semibold text-sm hover:brightness-110 transition-all"
+                >
+                  Try the demo dashboard
+                </a>
+                <a
+                  href="https://www.npmjs.com/package/@inferlane/mcp-server"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-2.5 rounded-xl bg-[#1e1e2e] border border-[#2a2a3a] text-white font-medium text-sm hover:bg-[#2a2a3a] transition-all"
+                >
+                  Install the MCP plugin
+                </a>
+              </div>
             </div>
           )}
         </div>

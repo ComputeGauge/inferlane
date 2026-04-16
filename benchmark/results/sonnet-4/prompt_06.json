@@ -1,0 +1,13 @@
+{
+  "prompt_id": 6,
+  "category": "debug",
+  "model_id": "sonnet-4",
+  "model_label": "Claude Sonnet 4",
+  "api_model": "claude-sonnet-4-20250514",
+  "input_tokens": 109,
+  "output_tokens": 547,
+  "latency_ms": 9389,
+  "cost_usd": 0.008531999999999998,
+  "stop_reason": "end_turn",
+  "output": "The issue is that **the `doubled` array is being recreated on every render**, even when `items` hasn't changed. This causes React to think the component has changed and triggers unnecessary re-renders.\n\n## Problem Analysis\n\nEven when `setCount` updates the state with the same value (like clicking when count is already at a certain number), the component re-renders because:\n\n1. The `items.map(x => x * 2)` creates a new array reference every render\n2. React sees this as a change in the component's output\n3. This triggers a re-render even when the actual content hasn't changed\n\n## Solution\n\nUse `useMemo` to memoize the `doubled` array so it's only recalculated when `items` actually changes:\n\n```jsx\nimport { useState, useMemo } from 'react';\n\nfunction Counter({ items }) {\n  const [count, setCount] = useState(0);\n  const doubled = useMemo(() => items.map(x => x * 2), [items]);\n  \n  return (\n    <div onClick={() => setCount(c => c + 1)}>\n      {count} ({doubled.join(',')})\n    </div>\n  );\n}\n```\n\n## Alternative Solutions\n\nIf you want to prevent re-renders entirely when the count value doesn't actually change, you can also:\n\n1. **Use React.memo** to prevent re-renders when props haven't changed:\n```jsx\nimport { useState, useMemo, memo } from 'react';\n\nconst Counter = memo(function Counter({ items }) {\n  const [count, setCount] = useState(0);\n  const doubled = useMemo(() => items.map(x => x * 2), [items]);\n  \n  return (\n    <div onClick={() => setCount(c => c + 1)}>\n      {count} ({doubled.join(',')})\n    </div>\n  );\n});\n```\n\n2. **Add a guard in the state setter** to prevent updates when value hasn't changed:\n```jsx\nconst handleClick = () => {\n  setCount(prevCount => {\n    const newCount = prevCount + 1;\n    return newCount !== prevCount ? newCount : prevCount;\n  });\n};\n```\n\nThe `useMemo` solution is the most important fix as it addresses the root cause of unnecessary recalculations."
+}

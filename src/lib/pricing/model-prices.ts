@@ -11,7 +11,12 @@ export interface ModelPrice {
 }
 
 export const MODEL_PRICES: ModelPrice[] = [
-  // Anthropic
+  // Anthropic — current
+  { provider: 'ANTHROPIC', model: 'claude-opus-4-5', inputPerMToken: 15.0, outputPerMToken: 75.0, context: 200000, category: 'chat' },
+  { provider: 'ANTHROPIC', model: 'claude-sonnet-4-5', inputPerMToken: 3.0, outputPerMToken: 15.0, context: 200000, category: 'chat' },
+  { provider: 'ANTHROPIC', model: 'claude-haiku-4-5', inputPerMToken: 1.0, outputPerMToken: 5.0, context: 200000, category: 'chat' },
+  // Anthropic — legacy (deprecated; entries retained so existing
+  // ProxyRequest records price correctly on historical lookups)
   { provider: 'ANTHROPIC', model: 'claude-opus-4', inputPerMToken: 15.0, outputPerMToken: 75.0, context: 200000, category: 'chat' },
   { provider: 'ANTHROPIC', model: 'claude-sonnet-4', inputPerMToken: 3.0, outputPerMToken: 15.0, context: 200000, category: 'chat' },
   { provider: 'ANTHROPIC', model: 'claude-haiku-3.5', inputPerMToken: 0.25, outputPerMToken: 1.25, context: 200000, category: 'chat' },
@@ -51,6 +56,17 @@ export const MODEL_PRICES: ModelPrice[] = [
   // SambaNova — NEW
   { provider: 'SAMBANOVA', model: 'llama-3.1-70b', inputPerMToken: 0.60, outputPerMToken: 0.60, context: 128000, category: 'chat' },
   { provider: 'SAMBANOVA', model: 'llama-3.1-405b', inputPerMToken: 5.0, outputPerMToken: 15.0, context: 128000, category: 'chat' },
+  // Google — Gemma 4 (open-weight, local via Ollama or hosted via Google AI Studio)
+  { provider: 'GOOGLE', model: 'gemma-4-31b', inputPerMToken: 0.15, outputPerMToken: 0.60, context: 256000, category: 'chat' },
+  { provider: 'GOOGLE', model: 'gemma-4-26b', inputPerMToken: 0.10, outputPerMToken: 0.40, context: 256000, category: 'chat' },
+  { provider: 'GOOGLE', model: 'gemma-4-4b', inputPerMToken: 0.04, outputPerMToken: 0.15, context: 256000, category: 'chat' },
+  { provider: 'GOOGLE', model: 'gemma-4-2b', inputPerMToken: 0.02, outputPerMToken: 0.07, context: 256000, category: 'chat' },
+  // Ollama — local inference (zero cost, user hardware)
+  { provider: 'OLLAMA', model: 'ollama/gemma4', inputPerMToken: 0, outputPerMToken: 0, context: 256000, category: 'chat' },
+  { provider: 'OLLAMA', model: 'ollama/gemma4:2b', inputPerMToken: 0, outputPerMToken: 0, context: 256000, category: 'chat' },
+  { provider: 'OLLAMA', model: 'ollama/llama3.3:70b', inputPerMToken: 0, outputPerMToken: 0, context: 128000, category: 'chat' },
+  { provider: 'OLLAMA', model: 'ollama/deepseek-v3', inputPerMToken: 0, outputPerMToken: 0, context: 128000, category: 'chat' },
+  { provider: 'OLLAMA', model: 'ollama/qwen2.5:72b', inputPerMToken: 0, outputPerMToken: 0, context: 128000, category: 'chat' },
   // Decentralized AI Compute — Bittensor (subsidized pricing via TAO emissions)
   { provider: 'BITTENSOR', model: 'bittensor/llama-3.3-70b', inputPerMToken: 0.18, outputPerMToken: 0.18, context: 128000, category: 'chat' },
   { provider: 'BITTENSOR', model: 'bittensor/llama-3.1-405b', inputPerMToken: 1.20, outputPerMToken: 1.20, context: 128000, category: 'chat' },

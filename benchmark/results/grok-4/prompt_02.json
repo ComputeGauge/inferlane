@@ -1,0 +1,13 @@
+{
+  "prompt_id": 2,
+  "category": "implement",
+  "model_id": "grok-4",
+  "model_label": "Grok 4",
+  "api_model": "grok-4-0709",
+  "input_tokens": 748,
+  "output_tokens": 1175,
+  "latency_ms": 16865,
+  "cost_usd": 0.019869,
+  "stop_reason": "stop",
+  "output": "```python\nfrom collections import defaultdict\nfrom typing import Callable, Union\n\ndef group_by(items: list, key: Union[str, Callable]) -> dict:\n    result = defaultdict(list)\n    for item in items:\n        if callable(key):\n            k = key(item)\n        else:\n            if isinstance(item, dict):\n                k = item[key]\n            else:\n                k = getattr(item, key)\n        result[k].append(item)\n    return dict(result)\n```"
+}

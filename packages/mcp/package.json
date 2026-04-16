@@ -44,9 +44,9 @@
   "author": {
     "name": "InferLane",
     "email": "travel_world_intl@proton.me",
-    "url": "https://inferlane.ai"
+    "url": "https://inferlane.dev"
   },
-  "homepage": "https://inferlane.ai",
+  "homepage": "https://inferlane.dev",
   "repository": {
     "type": "git",
     "url": "https://github.com/inferlane/mcp.git"

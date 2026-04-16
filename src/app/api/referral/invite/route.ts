@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   // Send the referral invite email
   const referrerName = userName || 'A InferLane user';
-  const signupUrl = `${process.env.NEXTAUTH_URL || 'https://inferlane.ai'}/signup?ref=${userId}`;
+  const signupUrl = `${process.env.NEXTAUTH_URL || 'https://inferlane.dev'}/signup?ref=${userId}`;
 
   const emailSent = await sendEmail({
     to: email,

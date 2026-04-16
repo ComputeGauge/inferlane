@@ -1,0 +1,13 @@
+{
+  "prompt_id": 9,
+  "category": "refactor",
+  "model_id": "grok-4",
+  "model_label": "Grok 4",
+  "api_model": "grok-4-0709",
+  "input_tokens": 746,
+  "output_tokens": 2526,
+  "latency_ms": 36297,
+  "cost_usd": 0.040128,
+  "stop_reason": "stop",
+  "output": "```ts\n/**\n * Recursively makes all properties of T optional, while leaving non-object types unchanged.\n */\ntype DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;\n```"
+}

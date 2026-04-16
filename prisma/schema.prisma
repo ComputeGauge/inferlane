@@ -54,6 +54,9 @@ model User {
   deletedAt          DateTime?
   scheduledPrompts   ScheduledPrompt[]
   promptTemplates    PromptTemplate[]
+  fleets             Fleet[]
+  fleetSessions      FleetSession[]
+  kycSessions        KycSession[]       @relation("UserKycSessions")
 
   @@map("users")
 }
@@ -70,6 +73,16 @@ model NotificationPreferences {
   tradeNotifs     Boolean  @default(true)
   payoutNotifs    Boolean  @default(true)
   marketingEmails Boolean  @default(false)
+
+  // Channel connection credentials — users configure these in
+  // /dashboard/settings → Notifications. All nullable; channels
+  // without credentials are silently skipped by deliverToUserChannels().
+  slackWebhookUrl    String?   // Slack incoming webhook URL
+  telegramBotToken   String?   // From @BotFather
+  telegramChatId     String?   // Chat/group/channel ID
+  discordWebhookUrl  String?   // Discord webhook URL
+  webhookUrl         String?   // Generic HTTP POST endpoint
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -360,9 +373,136 @@ model ProxyRequest {
   statusCode        Int
   timestamp         DateTime @default(now())
 
+  // Optional link to fleet session if this request came from a managed agent
+  fleetSessionId   String?
+  fleetSession     FleetSession? @relation(fields: [fleetSessionId], references: [id], onDelete: SetNull)
+
   @@index([apiKeyId, timestamp])
   @@index([routedProvider, timestamp])
+  @@index([fleetSessionId])
   @@map("proxy_requests")
+}
+
+// ============================================================================
+// FLEET SESSIONS — Multi-agent coordination tracking for managed agents
+// ============================================================================
+// Tracks sessions from Anthropic Managed Agents, Claude Agent SDK, and custom
+// agent runtimes. Aggregates token costs + session runtime + web search costs
+// into a unified total-cost-of-ownership view.
+
+model Fleet {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String                          // e.g., "Customer Support", "Research"
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Budget guardrails (optional)
+  monthlyBudgetUsd Decimal? @db.Decimal(10, 2)
+  alertThreshold   Float?   // 0.0–1.0, e.g. 0.8 = alert at 80%
+
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions FleetSession[]
+
+  @@index([userId])
+  @@map("fleets")
+}
+
+model FleetSession {
+  id             String   @id @default(cuid())
+  fleetId        String?  // nullable — sessions can be standalone
+  userId         String
+
+  // Identification
+  externalId     String?  // upstream session ID (e.g., Anthropic session_id)
+  runtime        FleetRuntime                       // which runtime hosts this session
+  agentName      String?                            // human-readable agent name
+  agentVersion   String?                            // agent definition version
+  model          String?                            // primary model for the session
+  title          String?                            // user-supplied task title
+
+  // Lifecycle
+  startedAt      DateTime @default(now())
+  endedAt        DateTime?
+  status         FleetSessionStatus @default(RUNNING)
+
+  // Active runtime tracking (for $0.08/hr managed agent billing)
+  activeRuntimeMs Int      @default(0)              // accumulated active compute in ms
+  idleRuntimeMs   Int      @default(0)              // accumulated idle time in ms
+
+  // Aggregated costs — updated as events arrive
+  tokenCostUsd    Decimal  @default(0) @db.Decimal(10, 6)
+  runtimeCostUsd  Decimal  @default(0) @db.Decimal(10, 6)  // active_hours * $0.08
+  webSearchCount  Int      @default(0)
+  webSearchCostUsd Decimal @default(0) @db.Decimal(10, 6)  // searches/1000 * $10
+  toolCallCount   Int      @default(0)
+  messageCount    Int      @default(0)
+  inputTokens     Int      @default(0)
+  outputTokens    Int      @default(0)
+  cachedTokens    Int      @default(0)
+
+  // Metadata
+  metadata        Json?                              // arbitrary per-runtime extras
+
+  fleet           Fleet?         @relation(fields: [fleetId], references: [id], onDelete: SetNull)
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events          FleetEvent[]
+  proxyRequests   ProxyRequest[]
+
+  @@index([userId, startedAt])
+  @@index([fleetId, startedAt])
+  @@index([status, startedAt])
+  @@index([externalId])
+  @@map("fleet_sessions")
+}
+
+model FleetEvent {
+  id             String   @id @default(cuid())
+  sessionId      String
+  timestamp      DateTime @default(now())
+  type           FleetEventType
+  payload        Json                               // event-specific data
+  tokenDelta     Int?                               // tokens consumed by this event
+  costDeltaUsd   Decimal? @db.Decimal(10, 6)        // cost delta from this event
+
+  session        FleetSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, timestamp])
+  @@index([type, timestamp])
+  @@map("fleet_events")
+}
+
+enum FleetRuntime {
+  ANTHROPIC_MANAGED           // Anthropic's managed agent runtime
+  CLAUDE_AGENT_SDK            // Claude Agent SDK (local/self-hosted)
+  CLAUDE_CODE                 // Claude Code CLI / VS Code extension
+  GOOSE                       // Block's Goose agent
+  SWARMCLAW                   // SwarmClaw agent orchestrator
+  CUSTOM                      // User-reported via API
+}
+
+enum FleetSessionStatus {
+  RUNNING
+  IDLE
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum FleetEventType {
+  SESSION_START
+  SESSION_END
+  STATUS_ACTIVE              // agent started actively computing (billing clock on)
+  STATUS_IDLE                // agent waiting for input (billing clock off)
+  AGENT_MESSAGE              // message from agent
+  USER_MESSAGE               // message from user
+  TOOL_USE                   // agent called a tool
+  TOOL_RESULT                // tool returned result
+  WEB_SEARCH                 // $10 per 1000
+  MODEL_CALL                 // any model API call, carries token_delta
+  ERROR
+  CUSTOM
 }
 
 // ============================================================================
@@ -534,6 +674,7 @@ enum AIProvider {
   LAMBDA
   COREWEAVE
   ON_PREM
+  OLLAMA
   // Decentralized AI compute providers
   BITTENSOR
   AKASH
@@ -566,6 +707,8 @@ enum AlertType {
 enum AlertChannel {
   EMAIL
   SLACK
+  TELEGRAM
+  DISCORD
   WEBHOOK
   IN_APP
 }
@@ -584,11 +727,18 @@ enum TeamRole {
 model CreditBalance {
   id              String   @id @default(cuid())
   userId          String   @unique
-  totalAllocated  Decimal  @db.Decimal(12, 2) @default(0)
-  available       Decimal  @db.Decimal(12, 2) @default(0)
-  delegatedToPool Decimal  @db.Decimal(12, 2) @default(0)
-  listedOnMarket  Decimal  @db.Decimal(12, 2) @default(0)
-  earned          Decimal  @db.Decimal(12, 2) @default(0)
+  // Decimal(16, 8) gives $0.00000001 resolution (sub-cent precision).
+  // The old Decimal(12, 2) silently rounded per-request debits below
+  // $0.01 to zero — a 7-output-token Haiku call costs ~$0.000035 and
+  // was being recorded as $0.00. Integer part is still 8 digits
+  // ($99,999,999 max), which covers every enterprise account we'll
+  // realistically have. CreditConsumption.amountConsumed already uses
+  // Decimal(12, 6) so this brings CreditBalance into alignment.
+  totalAllocated  Decimal  @db.Decimal(16, 8) @default(0)
+  available       Decimal  @db.Decimal(16, 8) @default(0)
+  delegatedToPool Decimal  @db.Decimal(16, 8) @default(0)
+  listedOnMarket  Decimal  @db.Decimal(16, 8) @default(0)
+  earned          Decimal  @db.Decimal(16, 8) @default(0)
   autoDelegate    Boolean  @default(false)
   autoDelegatePct Int      @default(50) // percentage to auto-delegate (10-100)
   periodStart     DateTime @default(now())
@@ -605,9 +755,12 @@ model CreditTransaction {
   id             String       @id @default(cuid())
   userId         String
   type           CreditTxType
-  amount         Decimal      @db.Decimal(12, 2)
-  balanceBefore  Decimal      @db.Decimal(12, 2)
-  balanceAfter   Decimal      @db.Decimal(12, 2)
+  // Matches CreditBalance precision. Sub-cent consume transactions
+  // (cheap-model inference) were being logged as $0.00 under the old
+  // Decimal(12, 2) and producing phantom no-op rows.
+  amount         Decimal      @db.Decimal(16, 8)
+  balanceBefore  Decimal      @db.Decimal(16, 8)
+  balanceAfter   Decimal      @db.Decimal(16, 8)
   counterpartyId String?
   offerId        String?
   poolCycleId    String?
@@ -1525,4 +1678,549 @@ model PromptTemplate {
 
   @@index([userId])
   @@map("prompt_templates")
+}
+
+// ============================================================================
+// COMMERCIAL BUILD — Phase 2/4/5: KYC, Attestation, Ledger, Disputes
+// ============================================================================
+//
+// These tables form the authoritative money + trust layer for the
+// marketplace. See commercial/BUILD_TRACKER.md for status and
+// commercial/DECISIONS.md for locked design choices.
+//
+// Invariants:
+//   - ledger_entries are append-only. Never UPDATE or DELETE a row.
+//   - Every settlement emits exactly one WORKLOAD_COMPLETE ledger entry.
+//   - Every dispute with refund > 0 emits exactly one DISPUTE_RESOLVE_*
+//     ledger entry that balances to zero.
+//   - AttestationRecord.measurement is the canonical identity for a
+//     given TEE execution and feeds into dispute evidence.
+
+model KycSession {
+  id                 String        @id @default(cuid())
+  subjectUserId      String                                   // FK to User (no cascade — we retain on account delete)
+  purpose            KycPurpose
+  provider           KycProvider   @default(STRIPE_IDENTITY)
+  providerSessionId  String        @unique                    // e.g. Stripe vs_xxx
+  status             KycStatus     @default(NOT_STARTED)
+  attestationHash    String?                                  // SHA-256 of (session id + status + report id)
+  verifiedAt         DateTime?
+  rejectedAt         DateTime?
+  rejectionReason    String?
+  expiresAt          DateTime
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  subject            User          @relation("UserKycSessions", fields: [subjectUserId], references: [id])
+
+  @@index([subjectUserId, status])
+  @@index([status, createdAt])
+  @@index([providerSessionId])
+  @@map("kyc_sessions")
+}
+
+enum KycPurpose {
+  BUYER_HIGH_VALUE
+  SELLER_ONBOARDING
+}
+
+enum KycProvider {
+  STRIPE_IDENTITY
+  MANUAL_REVIEW
+}
+
+enum KycStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  REQUIRES_ACTION
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+model AttestationRecord {
+  id                 String            @id @default(cuid())
+  nodeOperatorId     String?                                  // null if attestation is for a buyer node
+  settlementRecordId String?                                  // null if this is a pre-flight check
+  type               AttestationType
+  outcome            AttestationOutcome
+  measurement        String?                                  // canonical identity hash
+  nonce              String                                   // replay protection
+  evidenceHash       String                                   // SHA-256 of the raw evidence blob
+  verifier           String?                                  // e.g. "azure-attestation-service"
+  summary            String
+  validUntil         DateTime?
+  collectedAt        DateTime
+  verifiedAt         DateTime          @default(now())
+
+  @@index([nodeOperatorId, verifiedAt])
+  @@index([outcome, verifiedAt])
+  @@index([settlementRecordId])
+  @@index([measurement])
+  @@map("attestation_records")
+}
+
+enum AttestationType {
+  AZURE_CONFIDENTIAL_VM
+  GCP_CONFIDENTIAL_SPACE
+  INTEL_TDX
+  AMD_SEV_SNP
+  NVIDIA_CC
+  APPLE_SILICON_MDM
+  MOCK
+}
+
+enum AttestationOutcome {
+  VERIFIED
+  STALE
+  BAD_SIGNATURE
+  POLICY_VIOLATION
+  NONCE_MISMATCH
+  UNSUPPORTED
+  ERROR
+}
+
+// ----------------------------------------------------------------------------
+// Double-entry ledger
+// ----------------------------------------------------------------------------
+// Every money event produces one LedgerEntry with N LedgerLegs. The sum of
+// DEBIT legs must equal the sum of CREDIT legs for each entry (enforced in
+// application code and verified nightly by a reconciliation job).
+//
+// amounts are stored as Int USD cents. We use Int (not BigInt) because a
+// single workload will never exceed ~$20M and Postgres INT tops out at $21M.
+// If we ever cross that threshold, we migrate to BigInt with a one-way
+// script.
+
+model LedgerEntry {
+  id                  String            @id @default(cuid())
+  eventType           LedgerEventType
+  groupId             String                                  // correlates related entries (e.g. all legs of one workload)
+  settlementRecordId  String?                                 // FK to ComputeSettlementRecord
+  disputeCaseId       String?                                 // FK to DisputeCase
+  memo                String?
+  approvedByUserId    String?                                 // for ADJUSTMENT events
+  createdAt           DateTime          @default(now())
+
+  legs                LedgerLeg[]
+
+  @@index([eventType, createdAt])
+  @@index([groupId])
+  @@index([settlementRecordId])
+  @@index([disputeCaseId])
+  @@map("ledger_entries")
+}
+
+model LedgerLeg {
+  id                  String            @id @default(cuid())
+  entryId             String
+  account             LedgerAccount
+  direction           LedgerDirection
+  amountUsdCents      BigInt                                   // BigInt to match application code
+  subjectUserId       String?
+  subjectOperatorId   String?
+  createdAt           DateTime          @default(now())
+
+  entry               LedgerEntry       @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@index([entryId])
+  @@index([account, createdAt])
+  @@index([subjectUserId])
+  @@index([subjectOperatorId])
+  @@map("ledger_legs")
+}
+
+enum LedgerAccount {
+  BUYER_WALLET
+  ESCROW_HELD
+  PLATFORM_FEE
+  RESERVE_FUND
+  OPERATOR_PENDING
+  OPERATOR_PAID_OUT
+  DISPUTE_REFUND
+  OPERATIONAL_CASH
+}
+
+enum LedgerDirection {
+  DEBIT
+  CREDIT
+}
+
+enum LedgerEventType {
+  BUYER_DEPOSIT
+  WORKLOAD_COMMIT
+  WORKLOAD_COMPLETE
+  DISPUTE_OPEN
+  DISPUTE_RESOLVE_BUYER
+  DISPUTE_RESOLVE_OPERATOR
+  OPERATOR_PAYOUT
+  RESERVE_DRAWDOWN
+  ADJUSTMENT
+}
+
+// ----------------------------------------------------------------------------
+// Disputes
+// ----------------------------------------------------------------------------
+
+model DisputeCase {
+  id                  String            @id @default(cuid())
+  settlementRecordId  String                                  // FK to ComputeSettlementRecord
+  buyerUserId         String
+  operatorId          String                                  // FK to NodeOperator
+  reason              DisputeReason
+  description         String                                  // buyer statement
+  amountUsdCents      BigInt                                   // amount at stake
+  status              DisputeCaseStatus @default(OPEN)
+  openedAt            DateTime          @default(now())
+  evidenceDeadlineAt  DateTime
+  resolvedAt          DateTime?
+  decidedByUserId     String?                                  // reviewer
+  outcome             DisputeOutcome?
+  refundCents         BigInt?
+  reasoning           String?
+  drawdownFromReserve Boolean           @default(false)
+
+  evidence            DisputeEvidence[]
+
+  @@index([status, openedAt])
+  @@index([settlementRecordId])
+  @@index([buyerUserId])
+  @@index([operatorId])
+  @@map("dispute_cases")
+}
+
+model DisputeEvidence {
+  id               String                @id @default(cuid())
+  disputeCaseId    String
+  kind             DisputeEvidenceKind
+  submittedByUserId String
+  submittedAt      DateTime              @default(now())
+  contentHash      String                                     // SHA-256 of the blob
+  contentUrl       String?                                    // signed URL in object storage
+
+  disputeCase      DisputeCase           @relation(fields: [disputeCaseId], references: [id], onDelete: Cascade)
+
+  @@index([disputeCaseId])
+  @@map("dispute_evidence")
+}
+
+enum DisputeReason {
+  WORK_INCOMPLETE
+  QUALITY_FAILURE
+  CAPABILITY_MISREP
+  ATTESTATION_FAILED
+  LATENCY_BREACH
+  DATA_HANDLING
+  OTHER
+}
+
+enum DisputeCaseStatus {
+  OPEN
+  EVIDENCE_REQUESTED
+  UNDER_REVIEW
+  RESOLVED_BUYER
+  RESOLVED_OPERATOR
+  RESOLVED_SPLIT
+  CANCELLED
+}
+
+enum DisputeOutcome {
+  BUYER
+  OPERATOR
+  SPLIT
+}
+
+enum DisputeEvidenceKind {
+  BUYER_STATEMENT
+  OPERATOR_STATEMENT
+  ATTESTATION_LOG
+  ROUTER_LOG
+  FILE_HASH
+}
+
+model DisputeAppeal {
+  id                  String             @id @default(cuid())
+  disputeCaseId       String
+  appellantUserId     String                                   // buyer or operator
+  appellantRole       AppealRole
+  statement           String
+  newEvidenceUrls     String[]                                 // signed URLs to newly submitted evidence
+  status              AppealStatus       @default(PENDING)
+  panelReviewers      String[]                                 // reviewer user ids assigned
+  overturned          Boolean?
+  overrideRefundCents BigInt?
+  decidedAt           DateTime?
+  decidedByUserId     String?
+  reasoning           String?
+  createdAt           DateTime           @default(now())
+
+  @@index([disputeCaseId])
+  @@index([status, createdAt])
+  @@index([appellantUserId])
+  @@map("dispute_appeals")
+}
+
+enum AppealRole {
+  BUYER
+  OPERATOR
+}
+
+enum AppealStatus {
+  PENDING
+  UNDER_PANEL_REVIEW
+  OVERTURNED
+  UPHELD
+  WITHDRAWN
+}
+
+// ============================================================================
+// COMMERCIAL BUILD — Phase F1/F2/F4/F6: Float model (Tether-style)
+// ============================================================================
+// Strategy doc: commercial/FLOAT_MODEL.md
+//
+// The float model is how InferLane makes money from near-free routing:
+//   1. Buyer wallet balances earn Treasury yield.
+//   2. Operator pending balances earn yield during the dispute window
+//      + payout cycle.
+//   3. Reserve fund earns yield + provides dispute liquidity.
+//   4. Provider rebates capture the difference between rack rate and
+//      privately-negotiated partnership rates.
+//
+// All money movements still flow through the double-entry ledger
+// (ledger_entries + ledger_legs). These tables are projections and
+// config — never sources of truth for balances.
+
+model BuyerWallet {
+  id                   String        @id @default(cuid())
+  userId               String        @unique
+  /// Cached balance from the ledger projection — updated on each
+  /// ledger write, re-derived nightly for drift detection.
+  availableUsdCents    BigInt        @default(0)
+  reservedUsdCents     BigInt        @default(0)
+  totalDepositedCents  BigInt        @default(0)
+  totalSpentCents      BigInt        @default(0)
+  preferredCurrency    WalletCurrency @default(USD)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  transactions         WalletTransaction[]
+
+  @@index([userId])
+  @@map("buyer_wallets")
+}
+
+model WalletTransaction {
+  id             String            @id @default(cuid())
+  walletId       String
+  ledgerEntryId  String?                                 // FK to ledger_entries if applicable
+  source         WalletTxSource
+  externalId     String                                  // Stripe charge id, Tether tx hash, etc.
+  idempotencyKey String            @unique
+  amountUsdCents BigInt
+  status         WalletTxStatus    @default(PENDING)
+  memo           String?
+  createdAt      DateTime          @default(now())
+  confirmedAt    DateTime?
+
+  wallet         BuyerWallet       @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt])
+  @@index([source, externalId])
+  @@index([status])
+  @@map("wallet_transactions")
+}
+
+enum WalletCurrency {
+  USD
+  USDT
+}
+
+enum WalletTxSource {
+  STRIPE_CARD
+  STRIPE_ACH
+  TETHER_USDT
+  MANUAL_CREDIT
+  REFUND
+  ADJUSTMENT
+}
+
+enum WalletTxStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  REVERSED
+}
+
+model TreasuryHolding {
+  id                    String             @id @default(cuid())
+  vehicle               TreasuryVehicle
+  pool                  TreasuryPool
+  balanceUsdCents       BigInt             @default(0)
+  apyBps                Int                @default(0)
+  partnerReference      String?
+  lastReconciledAt      DateTime           @default(now())
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  @@unique([vehicle, pool])
+  @@index([pool])
+  @@map("treasury_holdings")
+}
+
+enum TreasuryVehicle {
+  STRIPE_TREASURY
+  MODERN_TREASURY
+  BROKER_DEALER_SWEEP
+  USDT_RESERVE
+  OPERATIONAL_CASH
+}
+
+enum TreasuryPool {
+  BUYER_WALLETS
+  OPERATOR_PENDING
+  RESERVE_FUND
+}
+
+model ProviderRebateConfig {
+  id                      String           @id @default(cuid())
+  provider                String
+  model                   String?
+  kind                    RebateKind
+  discountBps             Int
+  volumeTiers             Json?
+  creditPoolCentsPerMonth BigInt?
+  offPeakWindows          Json?
+  effectiveFrom           DateTime
+  effectiveUntil          DateTime?
+  disclosed               Boolean          @default(false)
+  notes                   String?
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+
+  @@unique([provider, model, effectiveFrom])
+  @@index([provider])
+  @@map("provider_rebate_configs")
+}
+
+model ProviderRebateEarning {
+  id                 String    @id @default(cuid())
+  provider           String
+  model              String
+  rackRateUsdCents   BigInt
+  invoicedUsdCents   BigInt
+  rebateUsdCents     BigInt
+  proxyRequestId     String?                       // FK to proxy_requests
+  appliedAt          DateTime  @default(now())
+
+  @@index([provider, appliedAt])
+  @@index([proxyRequestId])
+  @@map("provider_rebate_earnings")
+}
+
+enum RebateKind {
+  FLAT_PERCENT
+  VOLUME_TIERED
+  CREDIT_POOL
+  OFF_PEAK
+}
+
+// ===========================================================================
+// COMPUTE EXCHANGE — Phase 2
+//
+// The InferLane Compute Exchange: providers list excess capacity as offers,
+// buyers request inference at spot prices, the exchange matches and settles.
+// ===========================================================================
+
+enum ExchangeProviderType {
+  CENTRALIZED    // Anthropic, OpenAI, Google
+  DECENTRALIZED  // Darkbloom, OpenClaw, individual operators
+  HYBRID         // Enterprise on-prem with cloud burst
+}
+
+enum ExchangeOfferStatus {
+  ACTIVE
+  PAUSED
+  EXHAUSTED     // max concurrent reached
+  EXPIRED       // past availableUntil
+  WITHDRAWN
+}
+
+model CapacityOffer {
+  id                  String   @id @default(cuid())
+  providerId          String   // NodeOperator ID or provider user ID
+  providerType        ExchangeProviderType
+
+  // What's being offered
+  model               String   // e.g. "claude-sonnet-4-5", "llama-3.3-70b"
+  maxTokensPerSec     Int      // throughput ceiling
+  maxConcurrent       Int      @default(10)
+  gpuType             String?  // e.g. "H100", "Apple M4 Max", "RTX 4090"
+  memoryGb            Int?     // available VRAM / unified memory
+
+  // Pricing (per million tokens)
+  inputPricePerMtok   Decimal  @db.Decimal(12, 6)
+  outputPricePerMtok  Decimal  @db.Decimal(12, 6)
+  minimumSpendUsd     Decimal  @db.Decimal(12, 2) @default(0)
+
+  // Availability window
+  availableFrom       DateTime
+  availableUntil      DateTime
+  timezone            String   @default("UTC")
+  recurringCron       String?  // e.g. "0 22 * * *" for nightly 10pm-6am
+
+  // Trust
+  attestationType     AttestationType?
+  lastAttestationAt   DateTime?
+  attestationHash     String?  // SHA-256 of last verified attestation
+  attestationRequired Boolean  @default(false) // buyers must use TEE path
+
+  // Status
+  status              ExchangeOfferStatus @default(ACTIVE)
+  utilizationPct      Int      @default(0) // current load 0-100
+  totalFills          Int      @default(0) // lifetime fill count
+  totalRevenueUsd     Decimal  @db.Decimal(16, 8) @default(0)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  fills               CapacityFill[]
+
+  @@index([model, status, inputPricePerMtok])
+  @@index([availableFrom, availableUntil])
+  @@index([providerType, status])
+  @@map("capacity_offers")
+}
+
+model CapacityFill {
+  id                  String   @id @default(cuid())
+  offerId             String
+  buyerUserId         String
+  sellerProviderId    String
+
+  // What was filled
+  model               String
+  inputTokens         Int
+  outputTokens        Int
+  latencyMs           Int
+
+  // Economics
+  buyerPaidUsd        Decimal  @db.Decimal(16, 8)
+  sellerEarnedUsd     Decimal  @db.Decimal(16, 8)
+  exchangeFeeUsd      Decimal  @db.Decimal(16, 8)  // InferLane's spread
+  spreadBps           Int      // basis points of spread taken
+
+  // Provenance
+  attestationHash     String?  // proof the execution was TEE-attested
+  proxyRequestId      String?  // link to the original proxy request log
+
+  createdAt           DateTime @default(now())
+
+  // Relations
+  offer               CapacityOffer @relation(fields: [offerId], references: [id])
+
+  @@index([buyerUserId, createdAt])
+  @@index([sellerProviderId, createdAt])
+  @@index([offerId])
+  @@map("capacity_fills")
 }

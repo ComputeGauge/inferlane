@@ -1,0 +1,13 @@
+{
+  "prompt_id": 6,
+  "category": "debug",
+  "model_id": "haiku-4.5",
+  "model_label": "Claude Haiku 4.5",
+  "api_model": "claude-haiku-4-5-20251001",
+  "input_tokens": 109,
+  "output_tokens": 468,
+  "latency_ms": 4615,
+  "cost_usd": 0.0024490000000000002,
+  "stop_reason": "end_turn",
+  "output": "# Issue Analysis\n\nThe component renders twice because `doubled` is recalculated on every render as a **new array reference**, even when `items` hasn't changed. This breaks memoization and causes unnecessary re-renders if this component is wrapped in `React.memo()` or passed as a dependency elsewhere.\n\nAdditionally, if `items` is passed from a parent that recreates it on every render, the child will also re-render unnecessarily.\n\n# Solution\n\nUse `useMemo` to memoize the `doubled` calculation:\n\n```jsx\nfunction Counter({ items }) {\n  const [count, setCount] = useState(0);\n  \n  const doubled = useMemo(() => items.map(x => x * 2), [items]);\n  \n  return (\n    <div onClick={() => setCount(c => c + 1)}>\n      {count} ({doubled.join(',')})\n    </div>\n  );\n}\n```\n\n## Why this works:\n- `doubled` maintains the same reference as long as `items` doesn't change\n- The dependency array `[items]` ensures recalculation only when `items` actually changes\n- Prevents unnecessary renders if this component is memoized or if `doubled` is passed to child components\n\n## Additional fix (if needed):\n\nIf `items` itself is being recreated on every parent render, also memoize it:\n\n```jsx\nfunction Counter({ items }) {\n  const [count, setCount] = useState(0);\n  \n  // Only if items comes from parent that recreates it\n  const memoizedItems = useMemo(() => items, [items]);\n  const doubled = useMemo(() => memoizedItems.map(x => x * 2), [memoizedItems]);\n  \n  return (\n    <div onClick={() => setCount(c => c + 1)}>\n      {count} ({doubled.join(',')})\n    </div>\n  );\n}\n```\n\nOr wrap the parent component's item creation with `useMemo` as well."
+}

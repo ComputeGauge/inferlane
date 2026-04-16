@@ -1,0 +1,13 @@
+{
+  "prompt_id": 20,
+  "category": "docs",
+  "model_id": "opus-4",
+  "model_label": "Claude Opus 4",
+  "api_model": "claude-opus-4-20250514",
+  "input_tokens": 187,
+  "output_tokens": 215,
+  "latency_ms": 6174,
+  "cost_usd": 0.01893,
+  "stop_reason": "end_turn",
+  "output": "```js\n/**\n * Parses a duration string and converts it to milliseconds.\n * \n * @param {string} str - A duration string consisting of a number (integer or decimal) followed by a unit.\n *                       Supported units: 'ms' (milliseconds), 's' (seconds), 'm' (minutes), \n *                       'h' (hours), 'd' (days). Example: \"1.5h\", \"30s\", \"100ms\"\n * @returns {number} The duration converted to milliseconds, rounded to the nearest integer\n * @throws {Error} Throws an error if the input string is not in a valid format\n * \n * @example\n * // Convert 2.5 seconds to milliseconds\n * const duration = parseDuration(\"2.5s\");\n * console.log(duration); // 2500\n */\n```"
+}

@@ -1,0 +1,13 @@
+{
+  "prompt_id": 14,
+  "category": "review",
+  "model_id": "haiku-4.5",
+  "model_label": "Claude Haiku 4.5",
+  "api_model": "claude-haiku-4-5-20251001",
+  "input_tokens": 77,
+  "output_tokens": 745,
+  "latency_ms": 6294,
+  "cost_usd": 0.003802,
+  "stop_reason": "end_turn",
+  "output": "# Dockerfile Review - Issues Found\n\n## \ud83d\udd34 Critical Issues\n\n### 1. **Using `node:latest`**\n- **Problem**: No version pinning; unpredictable builds, potential breaking changes\n- **Fix**: \n```dockerfile\nFROM node:22-alpine  # Specific version + minimal base image\n```\n\n### 2. **Large base image**\n- `node:latest` is ~1GB+; `node:22-alpine` is ~170MB\n- **Fix**: Use Alpine Linux variant (shown above)\n\n### 3. **Copying entire context (`.`)**\n- **Problem**: Includes `.git`, `node_modules`, `.env`, build artifacts, etc.\n- **Fix**: Create `.dockerignore`:\n```\nnode_modules\nnpm-debug.log\n.git\n.env\n.env.local\ndist\nbuild\ncoverage\n```\n\n### 4. **No caching optimization**\n- **Problem**: Every code change rebuilds dependencies (expensive)\n- **Fix**: Copy package files first:\n```dockerfile\nCOPY package*.json ./\nRUN npm install\nCOPY . .\n```\n\n### 5. **Root user (security risk)**\n- **Problem**: Container runs as root by default\n- **Fix**:\n```dockerfile\nRUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001\nUSER nodejs\n```\n\n### 6. **No production optimization**\n- **Problem**: Dev dependencies included in final image\n- **Fix**:\n```dockerfile\nRUN npm ci --omit=dev\n```\n\n## \ud83d\udccb Improved Dockerfile\n\n```dockerfile\nFROM node:22-alpine\n\n# Create non-root user\nRUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001\n\nWORKDIR /app\n\n# Copy package files and install dependencies\nCOPY package*.json ./\nRUN npm ci --omit=dev\n\n# Copy application code\nCOPY --chown=nodejs:nodejs . .\n\nEXPOSE 3000\n\nUSER nodejs\n\nCMD [\"npm\", \"start\"]\n```\n\n## \ud83d\udce6 Expected Improvements\n\n| Metric | Before | After |\n|--------|--------|-------|\n| Image Size | ~1GB+ | ~350MB |\n| Build Time (cold) | ~60s | ~50s |\n| Build Time (cached) | ~20s | ~2s |\n| Security | Root user | Non-root |\n\n## \u26a1 Optional: Multi-stage build (if you have build artifacts)\n\n```dockerfile\n# Build stage\nFROM node:22-alpine AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\n# Runtime stage\nFROM node:22-alpine\nRUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --omit=dev\nCOPY --from=builder --chown=nodejs:nodejs /app/dist ./dist\nUSER nodejs\nEXPOSE 3000\nCMD [\"npm\", \"start\"]\n```\n\nThis further reduces final image size by excluding build tools and source files."
+}

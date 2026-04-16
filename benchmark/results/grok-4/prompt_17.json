@@ -1,0 +1,13 @@
+{
+  "prompt_id": 17,
+  "category": "test",
+  "model_id": "grok-4",
+  "model_label": "Grok 4",
+  "api_model": "grok-4-0709",
+  "input_tokens": 754,
+  "output_tokens": 2162,
+  "latency_ms": 27982,
+  "cost_usd": 0.034692,
+  "stop_reason": "stop",
+  "output": "```javascript\nconst { formatCurrency } = require('./currency'); // Assuming the function is exported from './currency'\n\ndescribe('formatCurrency', () => {\n  it('formats zero cents correctly', () => {\n    expect(formatCurrency(0, 'USD')).toBe('$0.00');\n  });\n\n  it('formats positive cents correctly', () => {\n    expect(formatCurrency(1999, 'USD')).toBe('$19.99');\n  });\n\n  it('formats negative cents correctly', () => {\n    expect(formatCurrency(-1999, 'USD')).toBe('-$19.99');\n  });\n\n  it('formats large values over 1 billion cents', () => {\n    // 100,000,000,000 cents = $1,000,000,000.00 (well over 1 billion cents)\n    expect(formatCurrency(100000000000, 'USD')).toBe('$1,000,000,000.00');\n  });\n\n  it('throws for unsupported currency codes', () => {\n    expect(() => formatCurrency(100, 'XYZ')).toThrow();\n  });\n\n  it('handles floating-point precision correctly', () => {\n    // 199.999 cents \u2248 $2.00 (with rounding to two decimal places)\n    expect(formatCurrency(199.999, 'USD')).toBe('$2.00');\n  });\n\n  // Bonus test case for another floating-point scenario\n  it('handles fractional cents with truncation or rounding', () => {\n    // 123.456 cents \u2248 $1.23 (assuming standard rounding down or to nearest)\n    expect(formatCurrency(123.456, 'USD')).toBe('$1.23');\n  });\n});\n```"
+}

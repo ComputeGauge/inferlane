@@ -1,0 +1,13 @@
+{
+  "prompt_id": 16,
+  "category": "data",
+  "model_id": "haiku-4.5",
+  "model_label": "Claude Haiku 4.5",
+  "api_model": "claude-haiku-4-5-20251001",
+  "input_tokens": 86,
+  "output_tokens": 545,
+  "latency_ms": 3608,
+  "cost_usd": 0.002811,
+  "stop_reason": "end_turn",
+  "output": "# Python 3 one-liner solution\n\n```python\nimport sys, json\nfrom datetime import datetime, timedelta\nfrom collections import defaultdict\n\ncutoff = (datetime.now(datetime.now().astimezone().tzinfo) - timedelta(days=7))\nusers = defaultdict(set)\nfor line in sys.stdin:\n    data = json.loads(line)\n    if datetime.fromisoformat(data['timestamp']) >= cutoff:\n        users[data['user_id']].add(data['event'])\nfor user, _ in sorted(users.items(), key=lambda x: len(x[1]), reverse=True)[:5]:\n    print(f\"{user}: {len(users[user])} distinct events\")\n```\n\n**Or as a true one-liner** (less readable but valid):\n```python\npython3 -c \"import sys,json;from datetime import datetime,timedelta;from collections import defaultdict;cutoff=(datetime.now(datetime.now().astimezone().tzinfo)-timedelta(days=7));users=defaultdict(set);[users[json.loads(line)['user_id']].add(json.loads(line)['event']) for line in sys.stdin if datetime.fromisoformat(json.loads(line)['timestamp'])>=cutoff];[print(f'{u}: {len(users[u])} distinct events') for u,_ in sorted(users.items(),key=lambda x:len(x[1]),reverse=True)[:5]]\"\n```\n\n**Better short-block version** (recommended):\n```python\nimport sys, json\nfrom datetime import datetime, timedelta\nfrom collections import defaultdict\n\ncutoff = datetime.now(datetime.now().astimezone().tzinfo) - timedelta(days=7)\nusers = defaultdict(set)\n\nfor line in sys.stdin:\n    d = json.loads(line)\n    if datetime.fromisoformat(d['timestamp']) >= cutoff:\n        users[d['user_id']].add(d['event'])\n\nfor user, events in sorted(users.items(), key=lambda x: len(x[1]), reverse=True)[:5]:\n    print(f\"{user}: {len(events)} distinct events\")\n```\n\n**Usage:**\n```bash\ncat events.jsonl | python3 script.py\n```"
+}

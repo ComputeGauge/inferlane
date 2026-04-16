@@ -6,10 +6,10 @@ async function main() {
 
   // 1. Demo User
   const demoUser = await prisma.user.upsert({
-    where: { email: 'demo@inferlane.ai' },
+    where: { email: 'demo@inferlane.dev' },
     update: {},
     create: {
-      email: 'demo@inferlane.ai',
+      email: 'demo@inferlane.dev',
       name: 'Demo User',
       role: 'USER',
     },

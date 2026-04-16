@@ -1,0 +1,52 @@
+{
+  "opus-4": {
+    "label": "Claude Opus 4",
+    "api_model": "claude-opus-4-20250514",
+    "count": 20,
+    "total_input_tokens": 1937,
+    "total_output_tokens": 15730,
+    "total_cost_usd": 1.2088049999999997,
+    "avg_latency_ms": 17014.7,
+    "errors": 0
+  },
+  "sonnet-4": {
+    "label": "Claude Sonnet 4",
+    "api_model": "claude-sonnet-4-20250514",
+    "count": 20,
+    "total_input_tokens": 1937,
+    "total_output_tokens": 15148,
+    "total_cost_usd": 0.233031,
+    "avg_latency_ms": 12455.35,
+    "errors": 0
+  },
+  "haiku-4.5": {
+    "label": "Claude Haiku 4.5",
+    "api_model": "claude-haiku-4-5-20251001",
+    "count": 20,
+    "total_input_tokens": 1937,
+    "total_output_tokens": 19149,
+    "total_cost_usd": 0.09768199999999999,
+    "avg_latency_ms": 6785.6,
+    "errors": 0
+  },
+  "grok-4": {
+    "label": "Grok 4",
+    "api_model": "grok-4-0709",
+    "count": 20,
+    "total_input_tokens": 15223,
+    "total_output_tokens": 65150,
+    "total_cost_usd": 1.022919,
+    "avg_latency_ms": 48761.35,
+    "errors": 0
+  },
+  "gemma-2b": {
+    "label": "Gemma 2 2B (local)",
+    "api_model": "ollama/gemma2:2b",
+    "count": 20,
+    "total_input_tokens": 1901,
+    "total_output_tokens": 11780,
+    "total_cost_usd": 0.0,
+    "avg_latency_ms": 12452.5,
+    "errors": 0
+  }
+}

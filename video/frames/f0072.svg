@@ -1,0 +1,131 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630"
+     xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glowA" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ef4444"/>
+      <stop offset="1" stop-color="#ef4444" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#0a0a0f"/>
+  
+      <circle cx="280" cy="180" r="420" fill="url(#glowA)" opacity="0.15"/>
+      <circle cx="920" cy="460" r="420" fill="url(#glowB)" opacity="0.18"/>
+    
+  
+      <g opacity="1.0">
+        <text x="600" y="85" text-anchor="middle"
+              font-family="-apple-system, Inter, sans-serif"
+              font-size="16" font-weight="600" fill="#6b7280" letter-spacing="4">
+          I BENCHMARKED 5 MODELS ON 20 REAL CODING TASKS
+        </text>
+      </g>
+    
+
+          <g opacity="1.0">
+            <text x="200" y="173.0" text-anchor="end"
+                  font-family="-apple-system, Inter, sans-serif"
+                  font-size="22" font-weight="700" fill="#e5e7eb">
+              Sonnet 4
+            </text>
+            <rect x="220" y="140" width="760" height="52"
+                  rx="6" fill="#1e1e2e"/>
+            <rect x="220" y="140" width="433.3395235927781" height="52"
+                  rx="6" fill="#fbbf24"/>
+            
+            <text x="667.339523592778" y="173.0" text-anchor="start"
+                  font-family="-apple-system, Inter, sans-serif"
+                  font-size="20" font-weight="800" fill="#fbbf24"
+                  opacity="0.3363677742375968">
+              25.6/30
+            </text>
+          </g>
+        
+
+          <g opacity="1.0">
+            <text x="200" y="243.0" text-anchor="end"
+                  font-family="-apple-system, Inter, sans-serif"
+                  font-size="22" font-weight="700" fill="#e5e7eb">
+              Haiku 4.5
+            </text>
+            <rect x="220" y="210" width="760" height="52"
+                  rx="6" fill="#1e1e2e"/>
+            <rect x="220" y="210" width="428.2613260506752" height="52"
+                  rx="6" fill="#60a5fa"/>
+            
+            <text x="662.2613260506753" y="243.0" text-anchor="start"
+                  font-family="-apple-system, Inter, sans-serif"
+                  font-size="20" font-weight="800" fill="#60a5fa"
+                  opacity="0.3363677742375968">
+              25.3/30
+            </text>
+          </g>
+        
+
+          <g opacity="1.0">
+            <text x="200" y="313.0" text-anchor="end"
+                  font-family="-apple-system, Inter, sans-serif"
+                  font-size="22" font-weight="700" fill="#e5e7eb">
+              Opus 4
+            </text>
+            <rect x="220" y="280" width="760" height="52"
+                  rx="6" fill="#1e1e2e"/>
+            <rect x="220" y="280" width="414.71946593840084" height="52"
+                  rx="6" fill="#ef4444"/>
+            
+            <text x="648.7194659384008" y="313.0" text-anchor="start"
+                  font-family="-apple-system, Inter, sans-serif"
+                  font-size="20" font-weight="800" fill="#ef4444"
+                  opacity="0.3363677742375968">
+              24.5/30
+            </text>
+          </g>
+        
+
+          <g opacity="1.0">
+            <text x="200" y="383.0" text-anchor="end"
+                  font-family="-apple-system, Inter, sans-serif"
+                  font-size="22" font-weight="700" fill="#e5e7eb">
+              Grok 4
+            </text>
+            <rect x="220" y="350" width="760" height="52"
+                  rx="6" fill="#1e1e2e"/>
+            <rect x="220" y="350" width="409.64126839629796" height="52"
+                  rx="6" fill="#a78bfa"/>
+            
+            <text x="643.641268396298" y="383.0" text-anchor="start"
+                  font-family="-apple-system, Inter, sans-serif"
+                  font-size="20" font-weight="800" fill="#a78bfa"
+                  opacity="0.3363677742375968">
+              24.2/30
+            </text>
+          </g>
+        
+
+          <g opacity="1.0">
+            <text x="200" y="453.0" text-anchor="end"
+                  font-family="-apple-system, Inter, sans-serif"
+                  font-size="22" font-weight="700" fill="#e5e7eb">
+              Gemma 2 2B
+            </text>
+            <rect x="220" y="420" width="760" height="52"
+                  rx="6" fill="#1e1e2e"/>
+            <rect x="220" y="420" width="218.36249431042333" height="52"
+                  rx="6" fill="#34d399"/>
+            
+            <text x="452.36249431042336" y="453.0" text-anchor="start"
+                  font-family="-apple-system, Inter, sans-serif"
+                  font-size="20" font-weight="800" fill="#34d399"
+                  opacity="0.3363677742375968">
+              12.9/30
+            </text>
+          </g>
+        
+</svg>

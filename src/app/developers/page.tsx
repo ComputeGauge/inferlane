@@ -219,7 +219,7 @@ export default function DevelopersPage() {
             <div className="mt-8 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
               <p className="text-sm text-amber-400">
                 <strong>Base URL:</strong>{' '}
-                <code className="font-mono">https://inferlane.com/api</code>
+                <code className="font-mono">https://inferlane.dev/api</code>
                 {' '}&mdash; All endpoints require HTTPS.
               </p>
             </div>
@@ -239,7 +239,7 @@ export default function DevelopersPage() {
 
             <CodeBlock
               code={`curl -H "Authorization: Bearer ilt_your_key_here" \\
-  https://inferlane.com/api/trading/indices`}
+  https://inferlane.dev/api/trading/indices`}
             />
 
             <div className="mt-6 space-y-3">
@@ -472,17 +472,17 @@ export default function DevelopersPage() {
                 <CodeBlock
                   code={`# Get current indices
 curl -s -H "Authorization: Bearer ilt_your_key" \\
-  https://inferlane.com/api/trading/indices | jq
+  https://inferlane.dev/api/trading/indices | jq
 
 # Place a limit buy order
 curl -X POST -H "Authorization: Bearer ilt_your_key" \\
   -H "Content-Type: application/json" \\
   -d '{"side":"BUY","orderType":"LIMIT","qualityTier":"FRONTIER","quantity":100,"pricePerUnit":0.90}' \\
-  https://inferlane.com/api/trading/orders
+  https://inferlane.dev/api/trading/orders
 
 # Cancel an order
 curl -X DELETE -H "Authorization: Bearer ilt_your_key" \\
-  "https://inferlane.com/api/trading/orders?orderId=clo1a2b3c"`}
+  "https://inferlane.dev/api/trading/orders?orderId=clo1a2b3c"`}
                 />
               </div>
 
@@ -494,7 +494,7 @@ curl -X DELETE -H "Authorization: Bearer ilt_your_key" \\
                     'import requests',
                     '',
                     'API_KEY = "ilt_your_key"',
-                    'BASE = "https://inferlane.com/api"',
+                    'BASE = "https://inferlane.dev/api"',
                     'headers = {"Authorization": f"Bearer {API_KEY}"}',
                     '',
                     '# Fetch indices',
@@ -521,7 +521,7 @@ curl -X DELETE -H "Authorization: Bearer ilt_your_key" \\
                   language="typescript"
                   code={[
                     'const API_KEY = "ilt_your_key";',
-                    'const BASE = "https://inferlane.com/api";',
+                    'const BASE = "https://inferlane.dev/api";',
                     'const headers = { Authorization: `Bearer ${API_KEY}` };',
                     '',
                     '// Fetch indices',
@@ -587,8 +587,8 @@ curl -X DELETE -H "Authorization: Bearer ilt_your_key" \\
           <div className="pt-12 border-t border-[#1e1e2e]">
             <p className="text-gray-600 text-sm">
               Questions? Reach us at{' '}
-              <a href="mailto:dev@inferlane.com" className="text-gray-400 hover:text-white">
-                dev@inferlane.com
+              <a href="mailto:dev@inferlane.dev" className="text-gray-400 hover:text-white">
+                dev@inferlane.dev
               </a>
             </p>
           </div>

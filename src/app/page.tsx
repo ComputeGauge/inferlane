@@ -156,45 +156,62 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
         <div className="relative">
           <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-400 text-xs font-medium px-3 py-1 rounded-full mb-6 border border-amber-500/20">
             <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></span>
-            The cost intelligence layer for AI agents
+            Cost intelligence for AI agents · Claude Code · Goose · Cursor
           </div>
           <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight mb-6">
-            The intelligent
+            The hidden $0.08/hr
             <br />
             <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
-              inference platform.
+              in every agent run.
             </span>
           </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Route, schedule, and optimize AI workloads across every provider. Smart dispatch, cross-provider sessions, phase-aware pricing, and decentralized overflow. Install once, save 40-70%.
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed">
+            Anthropic bills Managed Agents for active runtime (<span className="text-white font-semibold">$0.08/session-hour</span>) and web searches (<span className="text-white font-semibold">$10/1000</span>) — fees invisible on every other cost dashboard. InferLane tracks token cost + runtime + searches per fleet session for the real number that matches your invoice. Routes routine tasks to local Gemma&nbsp;4 for free. <a href="/transparency" className="underline text-amber-400 hover:text-amber-300">How we make money &rarr;</a>
+          </p>
+          <p className="text-sm text-gray-500 max-w-2xl mx-auto mb-8">
+            Our own 90-day Claude Code bill went from $18,136 to $4,163 using just the routing layer. {' '}
+            <a href="/blog/benchmark-20-tasks-5-models" className="underline text-gray-400 hover:text-amber-400">
+              Read the 20-task, 5-model benchmark &rarr;
+            </a>
           </p>
 
-          {/* Install snippet */}
-          <div className="max-w-lg mx-auto mb-10">
+          {/* The video hero */}
+          <div className="max-w-3xl mx-auto mb-10 rounded-2xl overflow-hidden border border-[#1e1e2e] shadow-2xl shadow-amber-500/10">
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster="/hero-comparison.png"
+              className="w-full block"
+              aria-label="InferLane benchmark animation: my Claude Code bill was $18,136, benchmark-backed routing cut it to $4,163"
+            >
+              <source src="/inferlane-benchmark.mp4" type="video/mp4" />
+            </video>
+          </div>
+
+          {/* Install snippet — one-command local setup */}
+          <div className="max-w-2xl mx-auto mb-10">
             <div className="bg-[#12121a] rounded-xl border border-[#1e1e2e] p-4 font-mono text-sm text-left">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-500 text-xs">Add to your MCP config:</span>
+                <span className="text-gray-500 text-xs">One command — installs Ollama + Gemma&nbsp;4, auto-sized to your hardware:</span>
                 <button
-                  onClick={() => navigator.clipboard.writeText('{\n  "mcpServers": {\n    "inferlane": {\n      "command": "npx",\n      "args": ["-y", "@inferlane/mcp"]\n    }\n  }\n}')}
+                  onClick={() => navigator.clipboard.writeText('curl -fsSL https://inferlane.dev/install.sh | bash')}
                   className="text-xs text-gray-500 hover:text-amber-400 transition-colors"
                 >
                   Copy
                 </button>
               </div>
-              <pre className="text-green-400 whitespace-pre overflow-x-auto"><code>{`{
-  "mcpServers": {
-    "inferlane": {
-      "command": "npx",
-      "args": ["-y", "@inferlane/mcp"]
-    }
-  }
-}`}</code></pre>
+              <pre className="text-green-400 whitespace-pre overflow-x-auto"><code>curl -fsSL https://inferlane.dev/install.sh | bash</code></pre>
             </div>
+            <p className="text-xs text-gray-600 mt-2">
+              Prefer the plugin path? <code className="text-gray-500">/plugin marketplace add ComputeGauge/inferlane</code> in Claude Code.
+            </p>
           </div>
 
           <div className="flex items-center justify-center gap-4">
             <a
-              href="https://www.npmjs.com/package/@inferlane/mcp"
+              href="https://www.npmjs.com/package/@inferlane/mcp-server"
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold rounded-xl text-lg hover:brightness-110 transition-all shadow-lg shadow-amber-500/20"
@@ -202,7 +219,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
               Install from npm
             </a>
             <a
-              href="https://github.com/InferLane/mcp"
+              href="https://github.com/ComputeGauge/inferlane"
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-3 bg-[#12121a] border border-[#1e1e2e] text-white font-medium rounded-xl text-lg hover:border-[#3a3a4a] transition-all"
@@ -212,7 +229,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
           </div>
 
           <div className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-500">
-            {['Works with Claude, Cursor & Windsurf', '18 tools, zero config', 'Apache-2.0 open source'].map((text) => (
+            {['Works with Claude Code, Desktop, Goose, Cursor', 'Free local routing via Ollama', 'MIT open source'].map((text) => (
               <span key={text} className="flex items-center gap-1">
                 <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -228,49 +245,49 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
       <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            18 tools your agent gets automatically
+            Three things nobody else does
           </h2>
           <p className="text-gray-400 max-w-xl mx-auto">
-            Install once. Every session is cost-aware and credibility-building.
+            Most cost trackers show you yesterday&apos;s bill. We show you tomorrow&apos;s — before you pay it.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           {[
             {
               icon: 'M13 10V3L4 14h7v7l9-11h-7z',
-              title: 'Smart Dispatch',
-              description: 'Send prompts from any device. InferLane triages by importance, routes to the best provider, and executes at the optimal time.',
+              title: 'Fleet-session cost, not per-request',
+              description: 'Every other tool tracks individual API calls. We aggregate tokens, active runtime, and web-search fees into fleet sessions — the unit Anthropic actually bills you on for Managed Agents. The number that matches your invoice, not your log.',
               color: '#f59e0b',
             },
             {
-              icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
-              title: 'Cross-Provider Sessions',
-              description: 'Start a conversation on Claude, continue on GPT-4, overflow to decentralized compute. Context transfers seamlessly.',
-              color: '#3b82f6',
+              icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+              title: 'The $0.08/hr you didn\u2019t know you were paying',
+              description: 'Anthropic charges Managed Agents for active compute runtime ($0.08/session-hour) and web searches ($10/1000). InferLane is the only tool that captures both alongside token cost for true total cost of ownership.',
+              color: '#ef4444',
             },
             {
-              icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
-              title: 'AI Triage',
-              description: 'Every prompt is classified across 14 dimensions. InferLane auto-selects the right model, right provider, right moment.',
+              icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
+              title: 'Savings ledger, not savings claims',
+              description: 'Every request logs what you actually paid vs what you would have paid at rack rates. See $ saved per request, per model, per provider — with a double-entry ledger that reconciles nightly. Counterfactual accounting means the savings number on your dashboard is auditable, not aspirational.',
               color: '#8b5cf6',
             },
             {
-              icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-              title: 'Decode Economics',
-              description: 'Prefill and decode have different costs. InferLane tracks phase-aware pricing so you never overpay for token generation.',
-              color: '#06b6d4',
-            },
-            {
-              icon: 'M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z',
-              title: 'OpenClaw Network',
-              description: 'When centralized providers rate-limit you, idle GPUs on the decentralized network absorb overflow automatically.',
+              icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+              title: 'Local-to-cloud routing that works',
+              description: 'One command installs Ollama, pulls Gemma auto-sized to your hardware, and configures routing. Simple extraction and classification tasks run free on your laptop. Reasoning-heavy work routes to cloud. No VPN, no account, no credit card.',
               color: '#10a37f',
             },
             {
               icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
-              title: 'Savings Intelligence',
-              description: 'Track exactly how much you save. Real-time ledger shows savings by category: promotions, off-peak, cross-platform, decentralized routing.',
-              color: '#ef4444',
+              title: 'Side-by-side model comparisons, live',
+              description: 'il_compare_models returns current pricing, quality scores, latency, and context window for every equivalent model at once — Sonnet, Haiku, Gemini, DeepSeek, Groq Llama, Gemma\u00a04 local. No more \u201ccheck 5 docs pages to compare providers\u201d.',
+              color: '#06b6d4',
+            },
+            {
+              icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
+              title: 'Prompt content never leaves your machine',
+              description: 'The MCP server runs locally as a stdio subprocess spawned by your agent. Offline tools (il_estimate_cost, il_compare_models, il_suggest_model) never touch the network. Online tools only send model names and token counts — never prompt content. API keys live in your OS keychain, not a config file.',
+              color: '#3b82f6',
             },
           ].map((feature) => (
             <div
@@ -320,7 +337,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
               price: '$0',
               period: '/forever',
               description: 'Open source — Apache 2.0',
-              features: ['18 agent tools via MCP', 'pick_model optimization', 'Session cost tracking', 'Agent credibility scoring', 'Local cluster detection', 'Budget guardrails', 'Works with any MCP client'],
+              features: ['6 agent tools via MCP', 'il_suggest_model optimization', 'Side-by-side model compare', 'Active promotion discovery', 'Local Ollama routing', 'Works offline without an API key', 'Works with any MCP client'],
               cta: 'Install Free',
               highlighted: false,
             },
@@ -397,19 +414,19 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
               One install. Every agent is cost-aware.
             </h2>
             <p className="text-gray-400 max-w-xl mx-auto mb-8">
-              Add InferLane MCP to your config. Your agents start saving 40-70% immediately — and build visible credibility while doing it.
+              Add InferLane MCP to your config. Your agents call il_suggest_model before every non-trivial API request — and the savings ledger records every decision with counterfactual accounting.
             </p>
             <div className="flex items-center justify-center gap-4">
               <a
-                href="https://www.npmjs.com/package/@inferlane/mcp"
+                href="https://www.npmjs.com/package/@inferlane/mcp-server"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold rounded-xl text-lg hover:brightness-110 transition-all shadow-lg shadow-amber-500/20"
               >
-                npm install @inferlane/mcp
+                npm install @inferlane/mcp-server
               </a>
               <a
-                href="https://github.com/InferLane/mcp"
+                href="https://github.com/ComputeGauge/inferlane"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-8 py-3 bg-[#12121a] border border-[#1e1e2e] text-white font-medium rounded-xl text-lg hover:border-[#3a3a4a] transition-all"

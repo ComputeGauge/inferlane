@@ -13,6 +13,7 @@ import { type AIProvider } from '@/generated/prisma/enums';
 import crypto from 'crypto';
 import { isAllowedWebhookUrl } from '@/lib/security/ssrf-guard';
 import { emitSSE } from '@/lib/events';
+import { DEFAULT_ANTHROPIC, normalizeAnthropicModel } from '@/lib/providers/anthropic-models';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -300,7 +301,7 @@ class UniversalDispatcher {
     userId: string,
   ): Promise<{ provider: string; model: string }> {
     // If model explicitly specified, route normally
-    const model = request.model ?? 'claude-sonnet-4';
+    const model = normalizeAnthropicModel(request.model ?? DEFAULT_ANTHROPIC);
     const strategy = toRoutingStrategy(request.routing);
 
     // For decentralized_only, check OpenClaw node availability

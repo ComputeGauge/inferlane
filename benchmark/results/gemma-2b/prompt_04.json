@@ -1,0 +1,13 @@
+{
+  "prompt_id": 4,
+  "category": "implement",
+  "model_id": "gemma-2b",
+  "model_label": "Gemma 2 2B (local)",
+  "api_model": "ollama/gemma2:2b",
+  "input_tokens": 94,
+  "output_tokens": 465,
+  "latency_ms": 10384,
+  "cost_usd": 0.0,
+  "stop_reason": "stop",
+  "output": "```sql\nWITH CustomerRevenue AS (\n    SELECT\n        c.email,\n        SUM(o.total_cents) as total_spent,\n        COUNT(DISTINCT o.id) as order_count,\n        EXTRACT(EPOCH FROM c.created_at) - EXTRACT(EPOCH FROM NOW()) AS days_since_signup\n    FROM customers c\n    JOIN orders o ON c.id = o.customer_id\n    GROUP BY c.email\n),\nRankedCustomers AS (\n    SELECT \n        *,\n        ROW_NUMBER() OVER (ORDER BY total_spent DESC) as rank_num\n    FROM CustomerRevenue\n)\nSELECT \n    email, \n    total_spent, \n    order_count, \n    days_since_signup\nFROM RankedCustomers\nWHERE rank_num <= 10;\n```\n\n**Explanation:**\n\n1. **WITH Clause:** We use a `WITH` clause to define two subqueries:\n   - **CustomerRevenue:** This query calculates the total spent by each customer, order count, and days since signup. It joins the `customers` and `orders` tables based on `customer_id`. \n   - **RankedCustomers:** This query uses `ROW_NUMBER()` to assign a rank to each customer based on their total revenue (descending).\n\n2. **Main Query:** The main query selects the desired columns from `RankedCustomers` and filters for customers with a rank number less than or equal to 10, ensuring we only get the top 10.\n\n\n**Key Points:**\n* **Subqueries:** We use subqueries within the main query to calculate revenue and order count per customer.\n* **`ROW_NUMBER()`:** This function assigns a unique rank to each row based on the specified ordering criteria (in this case, total revenue).\n* **`WHERE` clause:**  We filter for customers with a rank number less than or equal to 10.\n\n\n\nThis query will provide you with a list of the top 10 customers by lifetime revenue, including their email, total spent, order count, and days since signup. \n\n\nLet me know if you have any other questions!"
+}

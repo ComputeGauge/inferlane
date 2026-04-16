@@ -1,0 +1,13 @@
+{
+  "prompt_id": 1,
+  "category": "implement",
+  "model_id": "sonnet-4",
+  "model_label": "Claude Sonnet 4",
+  "api_model": "claude-sonnet-4-20250514",
+  "input_tokens": 88,
+  "output_tokens": 570,
+  "latency_ms": 9869,
+  "cost_usd": 0.008814,
+  "stop_reason": "end_turn",
+  "output": "Here's a TypeScript implementation of a debounce function that meets your requirements:\n\n```typescript\nfunction debounce<T extends (...args: any[]) => void>(\n  fn: T, \n  delay: number\n): (...args: Parameters<T>) => void {\n  let timeoutId: ReturnType<typeof setTimeout> | null = null;\n  \n  return function(this: any, ...args: Parameters<T>): void {\n    // Clear any existing timer to prevent stale invocations\n    if (timeoutId !== null) {\n      clearTimeout(timeoutId);\n    }\n    \n    // Set a new timer\n    timeoutId = setTimeout(() => {\n      timeoutId = null; // Clean up the reference\n      fn.apply(this, args); // Preserve the original context and arguments\n    }, delay);\n  };\n}\n```\n\n## Key Features:\n\n1. **Type Safety**: Uses TypeScript generics to preserve the exact function signature\n2. **Stale Timer Cleanup**: Always clears existing timers before setting new ones\n3. **Context Preservation**: Uses `apply(this, args)` to maintain the original function's context\n4. **Memory Management**: Sets `timeoutId` to `null` after execution to clean up references\n\n## Usage Examples:\n\n```typescript\n// Basic usage\nconst log = debounce((message: string) => console.log(message), 300);\nlog(\"Hello\"); // Will be cancelled\nlog(\"World\"); // Will execute after 300ms\n\n// With multiple parameters\nconst updateUser = debounce((id: number, name: string, email: string) => {\n  console.log(`Updating user ${id}: ${name} - ${email}`);\n}, 500);\n\nupdateUser(1, \"John\", \"john@example.com\");\nupdateUser(1, \"Jane\", \"jane@example.com\"); // Only this will execute\n\n// With object methods\nclass SearchComponent {\n  query: string = \"\";\n  \n  search = debounce((term: string) => {\n    this.query = term;\n    console.log(`Searching for: ${this.query}`);\n  }, 250);\n}\n\nconst component = new SearchComponent();\ncomponent.search(\"typescript\"); // Will execute after 250ms of no further calls\n```\n\nThe function ensures that no matter how many times it's called in rapid succession, the original function will only execute once after the specified delay period has elapsed since the last call."
+}

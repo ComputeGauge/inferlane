@@ -1,0 +1,13 @@
+{
+  "prompt_id": 9,
+  "category": "refactor",
+  "model_id": "gemma-2b",
+  "model_label": "Gemma 2 2B (local)",
+  "api_model": "ollama/gemma2:2b",
+  "input_tokens": 78,
+  "output_tokens": 256,
+  "latency_ms": 5447,
+  "cost_usd": 0.0,
+  "stop_reason": "stop",
+  "output": "```ts\ntype DeepPartial<T> = T extends object ? { [P in keyof T]: P extends string ? DeepPartial<T[P]> : T[P] } : T;\n```\n\n**Explanation:**\n\nThis type helper, `DeepPartial`, is designed to create a new object with only the properties of `T` that are not primitive values. \n\n* **`T extends object`**:  It checks if the input type `T` is an object (i.e., has properties).\n* **`[P in keyof T]`**: This iterates over all keys (`keyof T`) of the object.\n* **`?: T[P] extends object ? DeepPartial<T[P]> : T[P]`**:  For each property, it checks if its value is also an object. If so, recursively apply `DeepPartial` to that nested object. Otherwise, the property's value is directly copied into the new object.\n\n**In essence:** This type helper creates a deep copy of an object, where only non-primitive properties are included in the new object. \n\n\nLet me know if you have any other TypeScript code snippets you'd like to simplify! "
+}

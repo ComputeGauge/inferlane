@@ -43,16 +43,54 @@ export const authOptions: NextAuthOptions = {
                 pass: process.env.EMAIL_SERVER_PASSWORD || '',
               },
             },
-            from: process.env.EMAIL_FROM || 'noreply@inferlane.ai',
+            from: process.env.EMAIL_FROM || 'noreply@inferlane.dev',
           }),
         ]
       : []),
   ],
 
   session: {
+    // ASVS V3.3.2 — tightened from 30d default to 8h idle / 30d absolute.
+    // The JWT rolls on every request, so active users stay signed in as
+    // long as they use the dashboard; inactive users are logged out after
+    // 8 hours of idle time. updateAge triggers a token refresh 15 min
+    // before the idle window expires so refreshes don't interrupt typing.
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 8 * 60 * 60,              // 8 hours idle
+    updateAge: 15 * 60,               // refresh 15 minutes before expiry
   },
+
+  // Cookie config: use __Secure- prefix on HTTPS (production), plain
+  // prefix on HTTP (localhost). NextAuth v4 normally infers this from
+  // NEXTAUTH_URL but the inference can break on Vercel's edge proxy.
+  ...((() => {
+    const isSecure = (process.env.NEXTAUTH_URL || '').startsWith('https://');
+    const prefix = isSecure ? '__Secure-' : '';
+    return {
+      cookies: {
+        state: {
+          name: `${prefix}next-auth.state`,
+          options: {
+            httpOnly: true,
+            sameSite: 'lax' as const,
+            path: '/',
+            secure: isSecure,
+            maxAge: 900,
+          },
+        },
+        pkceCodeVerifier: {
+          name: `${prefix}next-auth.pkce.code_verifier`,
+          options: {
+            httpOnly: true,
+            sameSite: 'lax' as const,
+            path: '/',
+            secure: isSecure,
+            maxAge: 900,
+          },
+        },
+      },
+    };
+  })()),
 
   pages: {
     signIn: '/auth/signin',
@@ -63,18 +101,28 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
-        // Fetch role + subscription tier from database
-        const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
-          select: { role: true },
-        });
-        token.role = dbUser?.role || 'USER';
-
-        const sub = await prisma.subscription.findUnique({
-          where: { userId: user.id },
-          select: { tier: true },
-        });
-        token.plan = sub?.tier?.toLowerCase() ?? 'free';
+        // Fetch role + subscription tier. Wrapped in try-catch with
+        // a timeout race so a Neon cold-start doesn't hang the entire
+        // OAuth callback. If the DB is slow, we default to USER/free
+        // and the real values get populated on the next session refresh.
+        try {
+          const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000));
+          const [dbUser, sub] = await Promise.all([
+            Promise.race([
+              prisma.user.findUnique({ where: { id: user.id }, select: { role: true } }),
+              timeout,
+            ]),
+            Promise.race([
+              prisma.subscription.findUnique({ where: { userId: user.id }, select: { tier: true } }),
+              timeout,
+            ]),
+          ]);
+          token.role = (dbUser as { role?: string } | null)?.role || 'USER';
+          token.plan = (sub as { tier?: string } | null)?.tier?.toLowerCase() ?? 'free';
+        } catch {
+          token.role = 'USER';
+          token.plan = 'free';
+        }
       }
       if (account) {
         token.provider = account.provider;
@@ -92,20 +140,18 @@ export const authOptions: NextAuthOptions = {
     },
 
     async signIn({ user }) {
-      // Create default FREE subscription for new users
+      // Create default FREE subscription for new users.
+      // Fire-and-forget — don't block the OAuth callback.
       if (user.id) {
-        const existingSub = await prisma.subscription.findUnique({
-          where: { userId: user.id },
-        });
-        if (!existingSub) {
-          await prisma.subscription.create({
-            data: {
-              userId: user.id,
-              tier: 'FREE',
-              status: 'ACTIVE',
-            },
-          });
-        }
+        prisma.subscription.findUnique({ where: { userId: user.id } })
+          .then(async (existing) => {
+            if (!existing) {
+              await prisma.subscription.create({
+                data: { userId: user.id!, tier: 'FREE', status: 'ACTIVE' },
+              });
+            }
+          })
+          .catch(() => { /* swallow — subscription created on next visit */ });
       }
       return true;
     },

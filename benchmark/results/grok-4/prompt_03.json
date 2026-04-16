@@ -1,0 +1,13 @@
+{
+  "prompt_id": 3,
+  "category": "implement",
+  "model_id": "grok-4",
+  "model_label": "Grok 4",
+  "api_model": "grok-4-0709",
+  "input_tokens": 739,
+  "output_tokens": 3921,
+  "latency_ms": 61649,
+  "cost_usd": 0.061031999999999996,
+  "stop_reason": "stop",
+  "output": "```javascript\nconst fs = require('fs');\n\nfunction parseLine(line, delim) {\n  let fields = [];\n  let field = '';\n  let inQuote = false;\n  let i = 0;\n  while (i < line.length) {\n    let char = line[i];\n    if (inQuote) {\n      if (char === '\"') {\n        if (i + 1 < line.length && line[i + 1] === '\"') {\n          field += '\"';\n          i++;\n        } else {\n          inQuote = false;\n        }\n      } else {\n        field += char;\n      }\n    } else {\n      if (char === delim) {\n        fields.push(field);\n        field = '';\n      } else if (char === '\"') {\n        inQuote = true;\n      } else {\n        field += char;\n      }\n    }\n    i++;\n  }\n  fields.push(field);\n  return fields;\n}\n\nconst input = fs.readFileSync(0, 'utf-8').trim();\nconst lines = input.split(/\\r?\\n/);\nif (lines.length === 0 || (lines.length === 1 && lines[0] === '')) {\n  process.exit(0);\n}\n\nconst possibleDelims = [',', ';', '\\t'];\nlet selectedDelim = null;\nlet selectedFieldCount = 0;\n\nfor (let delim of possibleDelims) {\n  let checkLines = lines.slice(0, Math.min(5, lines.length));\n  let counts = checkLines.map(line => parseLine(line, delim).length);\n  let firstCount = counts[0];\n  if (firstCount <= 1) continue;\n  let consistent = counts.every(c => c === firstCount);\n  if (consistent && firstCount > selectedFieldCount) {\n    selectedDelim = delim;\n    selectedFieldCount = firstCount;\n  }\n}\n\nif (selectedDelim === null) {\n  let maxFields = 0;\n  for (let delim of possibleDelims) {\n    let fields = parseLine(lines[0], delim).length;\n    if (fields > maxFields) {\n      maxFields = fields;\n      selectedDelim = delim;\n    }\n  }\n}\n\nconst headers = parseLine(lines[0], selectedDelim);\nfor (let i = 1; i < lines.length; i++) {\n  const row = parseLine(lines[i], selectedDelim);\n  const obj = {};\n  for (let j = 0; j < headers.length; j++) {\n    obj[headers[j]] = (j < row.length) ? row[j] : '';\n  }\n  console.log(JSON.stringify(obj));\n}\n```"
+}

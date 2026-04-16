@@ -1,0 +1,13 @@
+{
+  "prompt_id": 9,
+  "category": "refactor",
+  "model_id": "sonnet-4",
+  "model_label": "Claude Sonnet 4",
+  "api_model": "claude-sonnet-4-20250514",
+  "input_tokens": 84,
+  "output_tokens": 185,
+  "latency_ms": 4453,
+  "cost_usd": 0.003027,
+  "stop_reason": "end_turn",
+  "output": "```ts\n// Recursively makes all properties in an object type optional, including nested objects\ntype DeepPartial<T> = T extends object \n  ? { [P in keyof T]?: DeepPartial<T[P]> }\n  : T;\n```\n\nThe key simplification here is removing the redundant `T[P] extends object ? DeepPartial<T[P]> : T[P]` check. Since `DeepPartial<T[P]>` already handles the case where `T[P]` is not an object (it would just return `T[P]` unchanged), we can apply `DeepPartial` to all property types and let the recursion handle the base cases naturally.\n\nThis maintains the exact same behavior while being more concise and easier to read."
+}

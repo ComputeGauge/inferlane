@@ -86,8 +86,8 @@ export default function TermsOfServicePage() {
       <h2>10. Contact</h2>
       <p>
         Questions about these Terms? Contact us at{' '}
-        <a href="mailto:legal@inferlane.ai" className="text-blue-400 hover:underline">
-          legal@inferlane.ai
+        <a href="mailto:legal@inferlane.dev" className="text-blue-400 hover:underline">
+          legal@inferlane.dev
         </a>.
       </p>
     </main>

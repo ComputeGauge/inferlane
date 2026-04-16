@@ -32,7 +32,7 @@ async function sendWithResend(payload: EmailPayload): Promise<boolean> {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: process.env.EMAIL_FROM || 'InferLane <noreply@inferlane.ai>',
+      from: process.env.EMAIL_FROM || 'InferLane <noreply@inferlane.dev>',
       to: payload.to,
       subject: payload.subject,
       html: payload.html,
@@ -52,7 +52,7 @@ async function sendWithNodemailer(payload: EmailPayload): Promise<boolean> {
     },
   });
   await transport.sendMail({
-    from: process.env.EMAIL_FROM || 'InferLane <noreply@inferlane.ai>',
+    from: process.env.EMAIL_FROM || 'InferLane <noreply@inferlane.dev>',
     to: payload.to,
     subject: payload.subject,
     html: payload.html,
@@ -206,7 +206,7 @@ export function buildDigestHtml(data: DigestData): string {
 
         <!-- CTA -->
         <tr><td align="center" style="padding:8px 32px 24px;">
-          <a href="${process.env.APP_URL || 'https://inferlane.ai'}/dashboard"
+          <a href="${process.env.APP_URL || 'https://inferlane.dev'}/dashboard"
              style="display:inline-block;background:#7c3aed;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">
             View Dashboard
           </a>
@@ -216,7 +216,7 @@ export function buildDigestHtml(data: DigestData): string {
         <tr><td style="padding:16px 32px;background:#0f0f1a;border-top:1px solid #1e1e2e;">
           <p style="color:#64748b;font-size:11px;margin:0;text-align:center;">
             You're receiving this because you enabled weekly digests.
-            <a href="${process.env.APP_URL || 'https://inferlane.ai'}/dashboard/settings" style="color:#7c3aed;text-decoration:none;">Unsubscribe</a>
+            <a href="${process.env.APP_URL || 'https://inferlane.dev'}/dashboard/settings" style="color:#7c3aed;text-decoration:none;">Unsubscribe</a>
           </p>
         </td></tr>
       </table>
@@ -241,7 +241,7 @@ export async function sendWeeklyDigest(
 // Welcome Email
 // ---------------------------------------------------------------------------
 
-const APP_URL = process.env.APP_URL || 'https://inferlane.ai';
+const APP_URL = process.env.APP_URL || 'https://inferlane.dev';
 
 export function buildWelcomeHtml(data: { userName: string }): string {
   const name = escapeHtml(data.userName);

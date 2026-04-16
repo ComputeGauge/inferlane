@@ -1,0 +1,13 @@
+{
+  "prompt_id": 8,
+  "category": "refactor",
+  "model_id": "opus-4",
+  "model_label": "Claude Opus 4",
+  "api_model": "claude-opus-4-20250514",
+  "input_tokens": 158,
+  "output_tokens": 645,
+  "latency_ms": 11643,
+  "cost_usd": 0.05074499999999999,
+  "stop_reason": "end_turn",
+  "output": "Here's the refactored code using async/await with proper error handling:\n\n```js\nasync function run() {\n  let user, orders, enriched;\n  \n  try {\n    user = await promisify(fetchUser)(id);\n  } catch (err) {\n    console.error('Failed at: fetchUser');\n    throw err;\n  }\n  \n  try {\n    orders = await promisify(fetchOrders)(user.id);\n  } catch (err) {\n    console.error('Failed at: fetchOrders');\n    throw err;\n  }\n  \n  try {\n    enriched = await promisify(enrichOrders)(orders);\n  } catch (err) {\n    console.error('Failed at: enrichOrders');\n    throw err;\n  }\n  \n  return { user, orders: enriched };\n}\n\n// Helper function to convert callback-based functions to promises\nfunction promisify(fn) {\n  return (...args) => {\n    return new Promise((resolve, reject) => {\n      fn(...args, (err, result) => {\n        if (err) reject(err);\n        else resolve(result);\n      });\n    });\n  };\n}\n```\n\nAlternatively, if you prefer a cleaner approach with less repetition:\n\n```js\nasync function run() {\n  const steps = [\n    { name: 'fetchUser', fn: () => promisify(fetchUser)(id) },\n    { name: 'fetchOrders', fn: (user) => promisify(fetchOrders)(user.id) },\n    { name: 'enrichOrders', fn: (user, orders) => promisify(enrichOrders)(orders) }\n  ];\n  \n  const results = [];\n  \n  for (const step of steps) {\n    try {\n      const result = await step.fn(...results);\n      results.push(result);\n    } catch (err) {\n      console.error(`Failed at: ${step.name}`);\n      throw err;\n    }\n  }\n  \n  const [user, orders, enriched] = results;\n  return { user, orders: enriched };\n}\n\nfunction promisify(fn) {\n  return (...args) => {\n    return new Promise((resolve, reject) => {\n      fn(...args, (err, result) => {\n        if (err) reject(err);\n        else resolve(result);\n      });\n    });\n  };\n}\n```\n\nBoth versions:\n- Convert callback-based functions to promises using the `promisify` helper\n- Log the specific step name when an error occurs\n- Rethrow the error to maintain the same error propagation behavior\n- Return the same result structure as the original"
+}

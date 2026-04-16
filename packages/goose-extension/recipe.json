@@ -1,0 +1,18 @@
+{
+  "name": "InferLane Smart Router",
+  "description": "AI model routing and cost optimization — automatically pick the best model for every task",
+  "version": "1.0.0",
+  "author": "InferLane",
+  "extensions": {
+    "inferlane": {
+      "name": "InferLane",
+      "type": "stdio",
+      "enabled": true,
+      "cmd": "npx",
+      "args": ["-y", "@inferlane/mcp-server"],
+      "description": "AI model routing, cost optimization, credibility tracking",
+      "timeout": 60
+    }
+  },
+  "instructions": "You have access to InferLane for smart model routing. Before making API calls, use pick_model to choose the optimal model. Use assess_routing to determine if tasks can run locally (via Ollama) instead of cloud. Use session_cost to monitor spend. Always log_request after API calls for cost tracking."
+}

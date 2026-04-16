@@ -1,0 +1,28 @@
+# InferLane responsible disclosure
+# https://datatracker.ietf.org/doc/html/rfc9116
+
+Contact: mailto:security@inferlane.dev
+Expires: 2027-04-15T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://inferlane.dev/.well-known/security.txt
+Policy: https://inferlane.dev/security/responsible-disclosure
+
+# We welcome security research conducted in good faith within the scope
+# of our responsible disclosure policy. Key rules:
+#
+#   - Do not access, modify, or destroy data belonging to other users.
+#   - Do not run DoS or volumetric attacks.
+#   - Do not use social engineering or phishing against our staff.
+#   - Do not test physical security or infrastructure we do not operate.
+#   - Report findings privately to security@inferlane.dev before any
+#     public disclosure. We aim to acknowledge within 2 business days
+#     and provide a meaningful update within 10 business days.
+#
+# We do not currently run a paid bug bounty program, but we will
+# publicly credit valid reports if the reporter wishes and will work
+# to address findings in a reasonable timeframe.
+#
+# Out of scope: rate-limiting issues below the point of causing harm,
+# email spoofing of non-authoritative domains, clickjacking on pages
+# with no sensitive actions, issues requiring physical access to a
+# user's device.

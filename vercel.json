@@ -19,7 +19,11 @@
     { "path": "/api/cron/sync-usage", "schedule": "0 13 * * *" },
     { "path": "/api/cron/process-dispatch", "schedule": "0 14 * * *" },
     { "path": "/api/cron/discover-promotions", "schedule": "0 15 * * *" },
-    { "path": "/api/cron/orchestrate-capacity", "schedule": "0 16 * * *" }
+    { "path": "/api/cron/orchestrate-capacity", "schedule": "0 16 * * *" },
+    { "path": "/api/cron/reconcile-ledger", "schedule": "10 3 * * *" },
+    { "path": "/api/cron/sweep-treasury", "schedule": "15 17 * * *" },
+    { "path": "/api/cron/execute-payouts", "schedule": "30 18 * * 1" },
+    { "path": "/api/cron/purge-deleted-accounts", "schedule": "45 2 * * *" }
   ],
   "headers": [
     {

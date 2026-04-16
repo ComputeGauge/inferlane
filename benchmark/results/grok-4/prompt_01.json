@@ -1,0 +1,13 @@
+{
+  "prompt_id": 1,
+  "category": "implement",
+  "model_id": "grok-4",
+  "model_label": "Grok 4",
+  "api_model": "grok-4-0709",
+  "input_tokens": 755,
+  "output_tokens": 1089,
+  "latency_ms": 16814,
+  "cost_usd": 0.0186,
+  "stop_reason": "stop",
+  "output": "```typescript\nfunction debounce<T extends (...args: any[]) => void>(\n  fn: T,\n  delay: number\n): (...args: Parameters<T>) => void {\n  let timeoutId: NodeJS.Timeout | null = null;\n\n  return function (...args: Parameters<T>): void {\n    if (timeoutId !== null) {\n      clearTimeout(timeoutId);\n    }\n    timeoutId = setTimeout(() => {\n      fn(...args);\n      timeoutId = null;\n    }, delay);\n  };\n}\n```"
+}

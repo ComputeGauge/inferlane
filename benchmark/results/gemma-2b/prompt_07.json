@@ -1,0 +1,13 @@
+{
+  "prompt_id": 7,
+  "category": "debug",
+  "model_id": "gemma-2b",
+  "model_label": "Gemma 2 2B (local)",
+  "api_model": "ollama/gemma2:2b",
+  "input_tokens": 142,
+  "output_tokens": 561,
+  "latency_ms": 12258,
+  "cost_usd": 0.0,
+  "stop_reason": "stop",
+  "output": "The issue lies in the way you're handling goroutines and the `select` statement. Here's a breakdown of the problem and how to fix it:\n\n**Problem:**\n\n* **Goroutine Leak:**  You create a new goroutine using `go func() { ch <- processFile(r.Body) }()` which runs in parallel, but you don't explicitly close the channel (`ch`) after processing the file. This leads to a goroutine leak because it continues to run even after the request is finished.\n* **Select Statement:** The `select` statement blocks until either:\n    * A value is received on the channel (`ch`). \n    *  5 seconds have passed (timeout). \n\n**Solution:**\n\n1. **Close the Channel:** After processing the file, close the channel to signal that it's done and prevent goroutines from blocking indefinitely. \n\n\n```go\nfunc handleUpload(w http.ResponseWriter, r *http.Request) {\n    ch := make(chan string) // Create a channel for communication\n\n    go func() { \n        result := processFile(r.Body)  // Process the file in a goroutine\n        ch <- result // Send the result to the channel\n    }() \n\n    select {\n    case result := <-ch: // Receive the result from the channel\n        fmt.Fprint(w, result)\n    case <-time.After(5 * time.Second): // Timeout after 5 seconds\n        http.Error(w, \"timeout\", 504)\n    }\n}\n```\n\n**Explanation:**\n\n* **`ch := make(chan string)`:**  Creates a channel to send the result of `processFile`.\n* **`go func() { ... }()`:** Starts a goroutine that processes the file and sends the result to the channel. \n* **`select { ... }`:**  The `select` statement waits for either:\n    * A value on the channel (`ch`). If the goroutine finishes processing, it sends the result to the channel.\n    * Time-out (5 seconds). If no value is received within 5 seconds, the timeout condition triggers.\n\n\n**Additional Considerations:**\n\n* **Error Handling:**  Consider adding error handling to your `processFile` function and handle potential errors appropriately.\n* **Channel Capacity:** Ensure that the channel has a capacity that's appropriate for the expected number of requests. If you anticipate very high request volumes, consider using a more robust channel implementation like `make(chan *string)` or `sync.WaitGroup`. \n\n\nLet me know if you have any other questions!"
+}

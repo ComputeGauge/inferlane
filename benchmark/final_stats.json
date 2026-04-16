@@ -1,0 +1,122 @@
+{
+  "totals": {
+    "opus-4": {
+      "avg_score": 24.5,
+      "wins": 6,
+      "wins_pct": 30.0,
+      "cost_usd": 1.2088,
+      "cost_per_1k_quality_points": 2.4669
+    },
+    "sonnet-4": {
+      "avg_score": 25.6,
+      "wins": 4,
+      "wins_pct": 20.0,
+      "cost_usd": 0.233,
+      "cost_per_1k_quality_points": 0.4551
+    },
+    "haiku-4.5": {
+      "avg_score": 25.3,
+      "wins": 5,
+      "wins_pct": 25.0,
+      "cost_usd": 0.0977,
+      "cost_per_1k_quality_points": 0.1931
+    },
+    "grok-4": {
+      "avg_score": 24.25,
+      "wins": 5,
+      "wins_pct": 25.0,
+      "cost_usd": 1.0229,
+      "cost_per_1k_quality_points": 2.1091
+    },
+    "gemma-2b": {
+      "avg_score": 12.9,
+      "wins": 0,
+      "wins_pct": 0.0,
+      "cost_usd": 0.0,
+      "cost_per_1k_quality_points": 0
+    }
+  },
+  "by_category": {
+    "config": {
+      "opus-4": 24.0,
+      "sonnet-4": 21.0,
+      "haiku-4.5": 22.0,
+      "grok-4": 23.0,
+      "gemma-2b": 9.0,
+      "winner": "grok-4"
+    },
+    "data": {
+      "opus-4": 18.0,
+      "sonnet-4": 22.5,
+      "haiku-4.5": 22.0,
+      "grok-4": 22.5,
+      "gemma-2b": 8.0,
+      "winner": "haiku-4.5"
+    },
+    "debug": {
+      "opus-4": 21.3,
+      "sonnet-4": 25.7,
+      "haiku-4.5": 22.3,
+      "grok-4": 25.7,
+      "gemma-2b": 8.7,
+      "winner": "grok-4"
+    },
+    "docs": {
+      "opus-4": 29.0,
+      "sonnet-4": 28.0,
+      "haiku-4.5": 28.0,
+      "grok-4": 28.0,
+      "gemma-2b": 25.0,
+      "winner": "opus-4"
+    },
+    "explain": {
+      "opus-4": 24.7,
+      "sonnet-4": 25.3,
+      "haiku-4.5": 27.7,
+      "grok-4": 26.0,
+      "gemma-2b": 14.0,
+      "winner": "opus-4"
+    },
+    "implement": {
+      "opus-4": 26.5,
+      "sonnet-4": 25.5,
+      "haiku-4.5": 27.2,
+      "grok-4": 22.5,
+      "gemma-2b": 13.0,
+      "winner": "opus-4"
+    },
+    "refactor": {
+      "opus-4": 28.5,
+      "sonnet-4": 28.5,
+      "haiku-4.5": 24.5,
+      "grok-4": 25.0,
+      "gemma-2b": 14.0,
+      "winner": "opus-4"
+    },
+    "review": {
+      "opus-4": 26.5,
+      "sonnet-4": 26.5,
+      "haiku-4.5": 25.5,
+      "grok-4": 26.0,
+      "gemma-2b": 18.0,
+      "winner": "sonnet-4"
+    },
+    "test": {
+      "opus-4": 21.0,
+      "sonnet-4": 24.0,
+      "haiku-4.5": 29.0,
+      "grok-4": 19.0,
+      "gemma-2b": 14.0,
+      "winner": "haiku-4.5"
+    },
+    "ui": {
+      "opus-4": 26.0,
+      "sonnet-4": 29.0,
+      "haiku-4.5": 24.0,
+      "grok-4": 23.0,
+      "gemma-2b": 10.0,
+      "winner": "sonnet-4"
+    }
+  },
+  "n_prompts": 20
+}

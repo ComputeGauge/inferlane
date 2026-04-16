@@ -150,7 +150,7 @@ async function handleGET(req: NextRequest) {
 
   <div class="footer">
     <p>InferLane &mdash; AI Compute Cost Management</p>
-    <p>This invoice was automatically generated. For questions, contact support@inferlane.ai</p>
+    <p>This invoice was automatically generated. For questions, contact support@inferlane.dev</p>
   </div>
 </body>
 </html>`;

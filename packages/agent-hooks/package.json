@@ -1,0 +1,41 @@
+{
+  "name": "@inferlane/agent-hooks",
+  "version": "0.1.0",
+  "description": "Drop-in lifecycle hooks for Claude Agent SDK and Anthropic Managed Agents — auto-log cost, tokens, and runtime to InferLane without explicit tool calls.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/inferlane/inferlane.git",
+    "directory": "packages/agent-hooks"
+  },
+  "homepage": "https://inferlane.dev",
+  "bugs": "https://github.com/inferlane/inferlane/issues",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist", "README.md", "LICENSE"],
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "inferlane", "claude", "claude-agent-sdk", "anthropic",
+    "managed-agents", "agent-hooks", "cost-tracking",
+    "observability", "llm-cost"
+  ],
+  "peerDependencies": {
+    "@anthropic-ai/claude-agent-sdk": ">=0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@anthropic-ai/claude-agent-sdk": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "@types/node": "^22.0.0"
+  }
+}

@@ -204,7 +204,7 @@ interface NewPromptFormProps {
 
 function NewPromptForm({ onClose, onSubmit }: NewPromptFormProps) {
   const [title, setTitle] = useState('');
-  const [model, setModel] = useState('claude-sonnet-4-20250514');
+  const [model, setModel] = useState('claude-sonnet-4-5');
   const [systemPrompt, setSystemPrompt] = useState('');
   const [userMessage, setUserMessage] = useState('');
   const [scheduleType, setScheduleType] = useState('OPTIMAL_WINDOW');
@@ -285,7 +285,7 @@ function NewPromptForm({ onClose, onSubmit }: NewPromptFormProps) {
             className="w-full px-3 py-2 bg-[#0a0a0f] border border-[#1e1e2e] rounded-xl text-sm text-white focus:outline-none focus:border-amber-500/50"
           >
             <option value="claude-opus-4-20250514">Claude Opus</option>
-            <option value="claude-sonnet-4-20250514">Claude Sonnet</option>
+            <option value="claude-sonnet-4-5">Claude Sonnet</option>
             <option value="claude-haiku-3-20240307">Claude Haiku</option>
             <option value="gpt-4o">GPT-4o</option>
             <option value="gpt-4o-mini">GPT-4o Mini</option>

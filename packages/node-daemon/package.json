@@ -1,0 +1,29 @@
+{
+  "name": "@inferlane/node-daemon",
+  "version": "0.1.0-alpha",
+  "description": "InferLane node daemon — heartbeat, attestation, capability advertisement, and workload execution for compute operators selling inference capacity on the InferLane marketplace.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "type": "module",
+  "bin": {
+    "inferlane-node": "./bin/inferlane-node.mjs"
+  },
+  "main": "src/index.mjs",
+  "files": ["src", "bin", "README.md", "LICENSE"],
+  "scripts": {
+    "start": "node bin/inferlane-node.mjs",
+    "dev": "node --watch bin/inferlane-node.mjs"
+  },
+  "dependencies": {},
+  "keywords": [
+    "inferlane", "node-operator", "compute-marketplace", "tee", "attestation",
+    "heartbeat", "ollama", "vllm", "llama-cpp"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ComputeGauge/inferlane.git"
+  },
+  "homepage": "https://inferlane.dev"
+}

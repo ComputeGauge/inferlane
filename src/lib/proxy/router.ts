@@ -16,6 +16,8 @@ import { subnetManager } from '@/lib/nodes/subnets';
 import { requestClassifier, type Tier } from '@/lib/proxy/request-classifier';
 import { requestCache } from '@/lib/proxy/request-cache';
 import { prefixCache } from '@/lib/proxy/prefix-cache';
+import { affinityRouter } from '@/lib/proxy/affinity-router';
+import { createHash } from 'crypto';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -39,6 +41,7 @@ export interface RoutingRequest {
   estimatedInputTokens?: number;
   estimatedOutputTokens?: number;
   messages?: Array<{ role: string; content: string }>;
+  sessionId?: string;
 }
 
 export interface RoutingDecision {
@@ -69,6 +72,10 @@ export interface RoutingDecision {
   agenticScore?: number;
   /** Set when validation overrode the original routing decision */
   validationOverride?: string;
+  /** Set when load spreading selected a non-#1 candidate */
+  loadSpread?: boolean;
+  /** Set when affinity cache provided the routing decision */
+  affinityHit?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -702,6 +709,73 @@ async function routeAuto(
     return routeDirect(req, inputTokens, outputTokens);
   }
 
+  // ── Affinity-based session routing: check sticky cache before scoring ──
+  const allHealthPre = healthTracker.getAllHealth();
+
+  if (req.sessionId) {
+    const affinityEntry = affinityRouter.getSticky(req.sessionId, req.model);
+    if (affinityEntry) {
+      // Verify the affinity provider is still healthy
+      const affinityHealth = allHealthPre[affinityEntry.provider];
+      const affinityIsHealthy = !affinityHealth || affinityHealth.isHealthy;
+      if (affinityIsHealthy) {
+        const match = available.find(
+          (eq: any) => eq.provider === affinityEntry.provider,
+        );
+        if (match) {
+          const cost = estimateCost(
+            match.inputPerMToken,
+            match.outputPerMToken,
+            inputTokens,
+            outputTokens,
+          );
+          return {
+            provider: affinityEntry.provider,
+            model: affinityEntry.model,
+            reason: `Affinity-routed to ${affinityEntry.provider}/${affinityEntry.model} (session sticky, ${affinityEntry.hitCount} hits)`,
+            reasonCode: 'auto_optimal',
+            estimatedCost: cost,
+            affinityHit: true,
+          };
+        }
+      }
+    }
+  }
+
+  // ── Affinity by system prompt prefix hash ──
+  if (req.messages && req.messages.length > 0 && req.messages[0].role === 'system') {
+    const systemPromptHash = createHash('sha256')
+      .update(req.messages[0].content)
+      .digest('hex')
+      .slice(0, 16);
+    const prefixAffinity = affinityRouter.getByPrefix(systemPromptHash, req.model);
+    if (prefixAffinity) {
+      const prefixHealth = allHealthPre[prefixAffinity.provider];
+      const prefixIsHealthy = !prefixHealth || prefixHealth.isHealthy;
+      if (prefixIsHealthy) {
+        const match = available.find(
+          (eq: any) => eq.provider === prefixAffinity.provider,
+        );
+        if (match) {
+          const cost = estimateCost(
+            match.inputPerMToken,
+            match.outputPerMToken,
+            inputTokens,
+            outputTokens,
+          );
+          return {
+            provider: prefixAffinity.provider,
+            model: prefixAffinity.model,
+            reason: `Affinity-routed to ${prefixAffinity.provider}/${prefixAffinity.model} (system prompt prefix match, ${prefixAffinity.hitCount} hits)`,
+            reasonCode: 'auto_optimal',
+            estimatedCost: cost,
+            affinityHit: true,
+          };
+        }
+      }
+    }
+  }
+
   // ── Classify the prompt to determine tier ──
   // Extract prompt text from the routing request context
   const classification = requestClassifier.classify(
@@ -771,7 +845,36 @@ async function routeAuto(
   }
 
   // If all providers are in cooldown, use all of them anyway
-  const candidates = healthy.length > 0 ? healthy : available;
+  let candidates = healthy.length > 0 ? healthy : available;
+
+  // ── Exchange spot candidates: check the compute exchange for cheaper
+  // offers from decentralized or off-peak centralized providers ──
+  try {
+    const { findBestOffers } = await import('@/lib/exchange/spot-engine');
+    const exchangeCandidates = await findBestOffers({
+      model: req.model,
+      estimatedInputTokens: inputTokens,
+      estimatedOutputTokens: outputTokens,
+    });
+    // Merge exchange candidates into the scoring pool. Each exchange
+    // candidate becomes a virtual provider entry with pricing from
+    // the exchange offer, so the existing composite scorer can rank
+    // them against the user's directly-connected providers.
+    for (const ec of exchangeCandidates) {
+      candidates.push({
+        provider: `exchange:${ec.offerId}`,
+        model: ec.model,
+        inputPerMToken: ec.inputPricePerMtok,
+        outputPerMToken: ec.outputPricePerMtok,
+        qualityScore: ec.reliabilityScore * 100,
+        isExchangeOffer: true,
+        exchangeOfferId: ec.offerId,
+        exchangeProviderType: ec.providerType,
+      } as any);
+    }
+  } catch {
+    // Exchange lookup failed — continue with direct providers only
+  }
 
   // ── Prefix cache: prefer nodes that already have the conversation cached ──
   let prefixCacheHit = false;

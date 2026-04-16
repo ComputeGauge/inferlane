@@ -1,0 +1,13 @@
+{
+  "prompt_id": 7,
+  "category": "debug",
+  "model_id": "haiku-4.5",
+  "model_label": "Claude Haiku 4.5",
+  "api_model": "claude-haiku-4-5-20251001",
+  "input_tokens": 144,
+  "output_tokens": 545,
+  "latency_ms": 5210,
+  "cost_usd": 0.002869,
+  "stop_reason": "end_turn",
+  "output": "# The Goroutine Leak\n\nThe bug is that when a timeout occurs, the goroutine is **abandoned while still running**, and it will eventually try to send on `ch` with no receiver:\n\n```go\nselect {\ncase result := <-ch:\n    fmt.Fprint(w, result)\ncase <-time.After(5 * time.Second):\n    http.Error(w, \"timeout\", 504)\n    // \u274c goroutine still running, will deadlock when trying ch <- ...\n}\n```\n\nAfter ~1000 requests, you accumulate ~1000 blocked goroutines waiting to send on an unbuffered channel with no receiver.\n\n## The Fix\n\nUse a **buffered channel** so the goroutine can always send, even if nobody's listening:\n\n```go\nfunc handleUpload(w http.ResponseWriter, r *http.Request) {\n    ch := make(chan string, 1)  // \u2705 Buffer of 1\n    go func() { ch <- processFile(r.Body) }()\n    select {\n    case result := <-ch:\n        fmt.Fprint(w, result)\n    case <-time.After(5 * time.Second):\n        http.Error(w, \"timeout\", 504)\n    }\n}\n```\n\nWith `make(chan string, 1)`:\n- If the goroutine finishes before timeout: it sends to the buffered channel and exits normally\n- If timeout occurs: the goroutine completes its send to the buffer and exits\u2014no leak\n\n## Better Alternative: Context Cancellation\n\nFor more robust timeout handling, use `context.WithTimeout`:\n\n```go\nfunc handleUpload(w http.ResponseWriter, r *http.Request) {\n    ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)\n    defer cancel()\n    \n    ch := make(chan string, 1)\n    go func() { ch <- processFile(r.Body) }()\n    \n    select {\n    case result := <-ch:\n        fmt.Fprint(w, result)\n    case <-ctx.Done():\n        http.Error(w, \"timeout\", 504)\n    }\n}\n```\n\nThis allows `processFile` to respect cancellation if it checks `ctx.Done()`."
+}

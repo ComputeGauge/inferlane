@@ -1,0 +1,13 @@
+{
+  "prompt_id": 11,
+  "category": "explain",
+  "model_id": "sonnet-4",
+  "model_label": "Claude Sonnet 4",
+  "api_model": "claude-sonnet-4-20250514",
+  "input_tokens": 59,
+  "output_tokens": 406,
+  "latency_ms": 12427,
+  "cost_usd": 0.006267,
+  "stop_reason": "end_turn",
+  "output": "## CAP Theorem Quick Recap\n\nCAP theorem states you can only guarantee 2 of 3 properties during network partitions:\n- **Consistency**: All nodes see the same data simultaneously\n- **Availability**: System remains operational \n- **Partition tolerance**: System continues despite network failures\n\n## Postgres: Choosing CP (Consistency + Partition Tolerance)\n\nWhen you choose Postgres for your payments service, you're **sacrificing Availability** during network partitions.\n\n### What this means operationally:\n\n**During a network partition:**\n- Postgres will **refuse writes** to maintain data consistency\n- The system becomes **unavailable for updates** until the partition heals\n- You get strong consistency guarantees - no risk of conflicting payment states\n\n**For a payments service, this means:**\n```\nNetwork partition occurs\n\u2193\nPostgres primary loses contact with replicas\n\u2193\nSystem stops accepting new payments/updates\n\u2193\nUsers see \"Service temporarily unavailable\" errors\n\u2193\nNo payments are processed until network heals\n```\n\n## Why This Actually Makes Sense for Payments\n\nThis trade-off is often **ideal** for financial services because:\n\n- **No double charges**: You'll never accidentally charge a customer twice due to inconsistent data\n- **No phantom payments**: Account balances remain accurate across all views\n- **Regulatory compliance**: Financial audits require perfect consistency\n- **Clear failure mode**: \"Service down\" is better than \"wrong account balance\"\n\n## DynamoDB Alternative\n\nDynamoDB (with eventual consistency) would be **AP** - highly available but potentially inconsistent during partitions, which could mean:\n- Duplicate payment processing\n- Inconsistent account balances\n- Complex conflict resolution needed\n\nFor payments, Postgres's availability sacrifice is usually the right trade-off to ensure financial data integrity."
+}

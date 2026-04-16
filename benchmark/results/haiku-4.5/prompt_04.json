@@ -1,0 +1,13 @@
+{
+  "prompt_id": 4,
+  "category": "implement",
+  "model_id": "haiku-4.5",
+  "model_label": "Claude Haiku 4.5",
+  "api_model": "claude-haiku-4-5-20251001",
+  "input_tokens": 96,
+  "output_tokens": 604,
+  "latency_ms": 4583,
+  "cost_usd": 0.0031160000000000003,
+  "stop_reason": "end_turn",
+  "output": "# Top 10 Customers by Lifetime Revenue Query\n\n```sql\nSELECT \n    c.id,\n    c.email,\n    SUM(o.total_cents)::numeric / 100 AS total_spent,\n    COUNT(o.id) AS order_count,\n    CURRENT_DATE - c.created_at::date AS days_since_signup\nFROM \n    customers c\n    INNER JOIN orders o ON c.id = o.customer_id\nGROUP BY \n    c.id,\n    c.email,\n    c.created_at\nHAVING \n    COUNT(o.id) >= 2\nORDER BY \n    total_spent DESC\nLIMIT 10;\n```\n\n## Explanation\n\n- **JOIN**: Connects customers with their orders using `INNER JOIN` (automatically excludes customers with no orders)\n- **GROUP BY**: Aggregates orders by customer\n- **SUM()**: Calculates lifetime revenue; divides by 100 and casts to `numeric` to convert cents to dollars\n- **COUNT()**: Counts total orders per customer\n- **HAVING**: Filters for customers with 2+ orders (applied after grouping, unlike WHERE)\n- **Days Since Signup**: Subtracts customer creation date from today; casting to `date` removes time component\n- **ORDER BY**: Sorts by revenue descending\n- **LIMIT 10**: Returns only top 10 results\n\n## Alternative: With Formatted Output\n\n```sql\nSELECT \n    c.id,\n    c.email,\n    to_char(SUM(o.total_cents)::numeric / 100, '$999,999.99') AS total_spent,\n    COUNT(o.id) AS order_count,\n    CURRENT_DATE - c.created_at::date AS days_since_signup,\n    ROUND(SUM(o.total_cents)::numeric / COUNT(o.id) / 100, 2) AS avg_order_value\nFROM \n    customers c\n    INNER JOIN orders o ON c.id = o.customer_id\nGROUP BY \n    c.id,\n    c.email,\n    c.created_at\nHAVING \n    COUNT(o.id) >= 2\nORDER BY \n    SUM(o.total_cents) DESC\nLIMIT 10;\n```\n\nThis version adds:\n- **Currency formatting** with `to_char()`\n- **Average order value** calculation for additional insight\n- Uses `SUM(o.total_cents)` in ORDER BY (more efficient than recalculating in the formatted column)"
+}

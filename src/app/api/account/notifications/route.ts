@@ -1,111 +1,67 @@
+// GET  /api/account/notifications — fetch notification preferences
+// PUT  /api/account/notifications — update notification preferences
+
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { rateLimit } from '@/lib/rate-limit';
-import { withTiming } from '@/lib/api-timing';
-import { handleApiError } from '@/lib/api-errors';
 
-// ---------------------------------------------------------------------------
-// GET   /api/account/notifications — Get notification preferences
-// PATCH /api/account/notifications — Update notification preferences
-// ---------------------------------------------------------------------------
+export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-const ALLOWED_FIELDS = ['weeklyDigest', 'alertEmails', 'tradeNotifs', 'payoutNotifs', 'marketingEmails'] as const;
+  const prefs = await prisma.notificationPreferences.findUnique({
+    where: { userId: session.user.id },
+  });
 
-async function handleGET(req: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const userId = (session.user as Record<string, unknown>).id as string;
-
-    // Return existing prefs or defaults
-    const prefs = await prisma.notificationPreferences.findUnique({
-      where: { userId },
-    });
-
-    if (!prefs) {
-      // Return defaults (all opted in except marketing)
-      return NextResponse.json({
-        weeklyDigest: true,
-        alertEmails: true,
-        tradeNotifs: true,
-        payoutNotifs: true,
-        marketingEmails: false,
-      });
-    }
-
+  if (!prefs) {
+    // Return defaults if no prefs exist yet
     return NextResponse.json({
-      weeklyDigest: prefs.weeklyDigest,
-      alertEmails: prefs.alertEmails,
-      tradeNotifs: prefs.tradeNotifs,
-      payoutNotifs: prefs.payoutNotifs,
-      marketingEmails: prefs.marketingEmails,
+      weeklyDigest: true,
+      alertEmails: true,
+      tradeNotifs: true,
+      payoutNotifs: true,
+      marketingEmails: false,
+      slackWebhookUrl: null,
+      telegramBotToken: null,
+      telegramChatId: null,
+      discordWebhookUrl: null,
+      webhookUrl: null,
     });
-  } catch (error) {
-    return handleApiError(error, 'GetNotificationPrefs');
   }
+
+  // Never return full bot token — mask it
+  return NextResponse.json({
+    ...prefs,
+    telegramBotToken: prefs.telegramBotToken
+      ? `${prefs.telegramBotToken.slice(0, 10)}...${prefs.telegramBotToken.slice(-4)}`
+      : null,
+  });
 }
 
-async function handlePATCH(req: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+export async function PUT(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const userId = (session.user as Record<string, unknown>).id as string;
-    const rl = await rateLimit(`notif-prefs:${userId}`, 10, 60_000);
-    if (!rl.success) {
-      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
-    }
+  const body = await req.json();
 
-    let body;
-    try { body = await req.json(); } catch {
-      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-    }
+  // Whitelist allowed fields
+  const allowed: Record<string, unknown> = {};
+  const boolFields = ['weeklyDigest', 'alertEmails', 'tradeNotifs', 'payoutNotifs', 'marketingEmails'];
+  const strFields = ['slackWebhookUrl', 'telegramBotToken', 'telegramChatId', 'discordWebhookUrl', 'webhookUrl'];
 
-    // Validate only allowed boolean fields
-    const updateData: Record<string, boolean> = {};
-    for (const field of ALLOWED_FIELDS) {
-      if (field in body) {
-        if (typeof body[field] !== 'boolean') {
-          return NextResponse.json(
-            { error: `${field} must be a boolean` },
-            { status: 400 },
-          );
-        }
-        updateData[field] = body[field];
-      }
-    }
-
-    if (Object.keys(updateData).length === 0) {
-      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
-    }
-
-    const prefs = await prisma.notificationPreferences.upsert({
-      where: { userId },
-      create: {
-        userId,
-        ...updateData,
-      },
-      update: updateData,
-    });
-
-    return NextResponse.json({
-      weeklyDigest: prefs.weeklyDigest,
-      alertEmails: prefs.alertEmails,
-      tradeNotifs: prefs.tradeNotifs,
-      payoutNotifs: prefs.payoutNotifs,
-      marketingEmails: prefs.marketingEmails,
-    });
-  } catch (error) {
-    return handleApiError(error, 'UpdateNotificationPrefs');
+  for (const f of boolFields) {
+    if (typeof body[f] === 'boolean') allowed[f] = body[f];
   }
-}
+  for (const f of strFields) {
+    if (typeof body[f] === 'string') allowed[f] = body[f] || null; // empty string → null
+  }
 
-export const GET = withTiming(handleGET);
-export const PATCH = withTiming(handlePATCH);
+  const prefs = await prisma.notificationPreferences.upsert({
+    where: { userId: session.user.id },
+    update: allowed,
+    create: { userId: session.user.id, ...allowed },
+  });
+
+  return NextResponse.json({ ok: true, prefs });
+}

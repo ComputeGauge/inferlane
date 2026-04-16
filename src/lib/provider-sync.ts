@@ -38,9 +38,16 @@ interface ProviderAdapter {
   fetchUsage(apiKey: string, dateStr: string): Promise<SyncResult>;
 }
 
-// Per-million-token pricing (input / output) — updated March 2026
+// Per-million-token pricing (input / output) — updated April 2026.
+// Legacy Anthropic keys retained for historical ProxyRequest cost
+// recalculation. Current Anthropic pricing also lives in
+// @/lib/providers/anthropic-models.ts.
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
-  // Anthropic
+  // Anthropic — current
+  'claude-sonnet-4-5': { input: 3, output: 15 },
+  'claude-haiku-4-5': { input: 1, output: 5 },
+  'claude-opus-4-5': { input: 15, output: 75 },
+  // Anthropic — legacy (deprecated, still honored)
   'claude-opus-4': { input: 15, output: 75 },
   'claude-sonnet-4': { input: 3, output: 15 },
   'claude-haiku-3.5': { input: 0.8, output: 4 },
@@ -96,7 +103,7 @@ const anthropicAdapter: ProviderAdapter = {
           'content-type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-4-5',  // current; normalized if deprecated
           messages: [{ role: 'user', content: 'test' }],
         }),
       });

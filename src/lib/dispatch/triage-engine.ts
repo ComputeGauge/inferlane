@@ -82,20 +82,22 @@ const DEFAULT_BATCH_KEYWORDS = [
 // Model recommendation map (tier -> recommended model)
 // ---------------------------------------------------------------------------
 
+import { LATEST_SONNET, LATEST_OPUS, LATEST_HAIKU } from '@/lib/providers/anthropic-models';
+
 const TIER_MODEL_MAP: Record<Tier, { provider: string; model: string }> = {
   BYPASS:    { provider: 'BYPASS',    model: 'bypass' },
   TRIVIAL:   { provider: 'GROQ',      model: 'llama-3.3-70b' },
-  STANDARD:  { provider: 'ANTHROPIC', model: 'claude-haiku-3.5' },
-  COMPLEX:   { provider: 'ANTHROPIC', model: 'claude-sonnet-4' },
-  REASONING: { provider: 'ANTHROPIC', model: 'claude-opus-4' },
+  STANDARD:  { provider: 'ANTHROPIC', model: LATEST_HAIKU },
+  COMPLEX:   { provider: 'ANTHROPIC', model: LATEST_SONNET },
+  REASONING: { provider: 'ANTHROPIC', model: LATEST_OPUS },
 };
 
 const QUALITY_TIER_MODEL_MAP: Record<Tier, { provider: string; model: string }> = {
   BYPASS:    { provider: 'BYPASS',    model: 'bypass' },
-  TRIVIAL:   { provider: 'ANTHROPIC', model: 'claude-haiku-3.5' },
-  STANDARD:  { provider: 'ANTHROPIC', model: 'claude-sonnet-4' },
-  COMPLEX:   { provider: 'ANTHROPIC', model: 'claude-opus-4' },
-  REASONING: { provider: 'ANTHROPIC', model: 'claude-opus-4' },
+  TRIVIAL:   { provider: 'ANTHROPIC', model: LATEST_HAIKU },
+  STANDARD:  { provider: 'ANTHROPIC', model: LATEST_SONNET },
+  COMPLEX:   { provider: 'ANTHROPIC', model: LATEST_OPUS },
+  REASONING: { provider: 'ANTHROPIC', model: LATEST_OPUS },
 };
 
 const CHEAPEST_TIER_MODEL_MAP: Record<Tier, { provider: string; model: string }> = {

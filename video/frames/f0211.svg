@@ -1,0 +1,74 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630"
+     xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glowA" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ef4444"/>
+      <stop offset="1" stop-color="#ef4444" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#0a0a0f"/>
+  
+      <circle cx="280" cy="180" r="420" fill="url(#glowA)" opacity="0.15"/>
+      <circle cx="920" cy="460" r="420" fill="url(#glowB)" opacity="0.18"/>
+    
+  
+      <g opacity="0.6944444444444448">
+        <text x="600" y="140" text-anchor="middle"
+              font-family="-apple-system, Inter, sans-serif"
+              font-size="16" font-weight="600" fill="#6b7280" letter-spacing="4">
+          SAME 90 DAYS · BENCHMARK-BACKED ROUTING
+        </text>
+      </g>
+
+      <!-- Old bill (strike-through as it recedes) -->
+      <g opacity="0.48611111111111127">
+        <text x="340" y="340" text-anchor="middle"
+              font-family="-apple-system, Inter, sans-serif"
+              font-size="110" font-weight="900" fill="#6b7280" letter-spacing="-2">
+          $18,136
+        </text>
+        <line x1="190.0" y1="308" x2="490" y2="308"
+              stroke="#ef4444" stroke-width="6" opacity="1.0"/>
+      </g>
+
+      <!-- Arrow -->
+      <g opacity="0.6944444444444448">
+        <path d="M 540 300 L 640 300" stroke="#10b981" stroke-width="5"
+              stroke-linecap="round"/>
+        <path d="M 620 285 L 640 300 L 620 315" fill="none"
+              stroke="#10b981" stroke-width="5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+
+      <!-- New bill -->
+      <g opacity="0.6944444444444448">
+        <text x="870" y="340" text-anchor="middle"
+              font-family="-apple-system, Inter, sans-serif"
+              font-size="120" font-weight="900" fill="#10b981" letter-spacing="-2">
+          $4,163
+        </text>
+      </g>
+
+      <!-- Save banner -->
+      <g opacity="0.6944444444444448">
+        <text x="600" y="470" text-anchor="middle"
+              font-family="-apple-system, Inter, sans-serif"
+              font-size="32" font-weight="800" fill="#ffffff">
+          I saved $13,973 in 90 days.
+        </text>
+        <text x="600" y="510" text-anchor="middle"
+              font-family="-apple-system, Inter, sans-serif"
+              font-size="20" font-weight="500" fill="#9ca3af">
+          77% less. Same quality. Free Claude Code plugin.
+        </text>
+      </g>
+    
+</svg>

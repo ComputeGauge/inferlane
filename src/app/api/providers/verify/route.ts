@@ -28,16 +28,16 @@ async function verifyKey(
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-5',
             max_tokens: 1,
             messages: [{ role: 'user', content: 'hi' }],
           }),
         });
         if (res.status === 401) return { valid: false, error: 'Invalid API key' };
-        if (res.status === 400 || res.status === 200) return { valid: true, model: 'claude-sonnet-4-20250514' };
+        if (res.status === 400 || res.status === 200) return { valid: true, model: 'claude-sonnet-4-5' };
         if (res.status === 429) return { valid: true, error: 'Key valid but rate limited or no credits' };
         // 404 means model not found — key may still be valid, try listing models
-        if (res.status === 404) return { valid: true, model: 'claude-sonnet-4-20250514', error: 'Key valid but model access may be limited' };
+        if (res.status === 404) return { valid: true, model: 'claude-sonnet-4-5', error: 'Key valid but model access may be limited' };
         return { valid: false, error: `Unexpected status: ${res.status}` };
       }
 

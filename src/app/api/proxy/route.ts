@@ -547,6 +547,29 @@ async function forwardToProvider(
     // Credit consumption
     if (costUsd > 0 && providerRes.status >= 200 && providerRes.status < 300) {
       consumeCreditsAsync(apiKeyId, userId, costUsd);
+
+      // Commercial build, Leg 2 (provider rebates): record the rebate
+      // delta if we have a partnership rate with this (provider, model).
+      // We charge the user rack rate and get invoiced at the
+      // partnership rate; the difference is our margin. Fire-and-forget
+      // — never block the user response on revenue recognition.
+      try {
+        const { recordExpectedRebate } = await import('@/lib/proxy/router-commercial');
+        const rackRateUsdCents = BigInt(Math.round(costUsd * 100));
+        // For the initial wire-up, invoiced == rack. The real rebate
+        // lookup applies when `lookupRebate()` returns a config and
+        // the invoice-at-partnership logic fires in the upstream call.
+        // Today the delta is 0 so this is a no-op unless a rebate
+        // config is registered.
+        void recordExpectedRebate({
+          provider,
+          model: resolvedModel,
+          rackRateUsdCents,
+          actualInvoiceUsdCents: rackRateUsdCents,
+        }).catch(() => { /* swallow — telemetry only */ });
+      } catch {
+        /* swallow — commercial module is optional at runtime */
+      }
     }
 
     // Emit SSE event for real-time dashboard updates

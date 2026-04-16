@@ -156,7 +156,7 @@ export default function PartnerDashboard() {
             </p>
             <div className="bg-[#0a0a0f] rounded-xl p-4 font-mono text-sm text-gray-300">
               <p className="text-gray-500 mb-2"># Send usage data to InferLane</p>
-              <p>curl -X POST https://inferlane.ai/api/integrations/ingest \</p>
+              <p>curl -X POST https://inferlane.dev/api/integrations/ingest \</p>
               <p className="pl-4">-H &quot;Authorization: Bearer {stats.partner.apiKeyPrefix}...&quot; \</p>
               <p className="pl-4">-H &quot;Content-Type: application/json&quot; \</p>
               <p className="pl-4">{'-d \'{"records": [{"userRef": "user@email.com", "provider": "openai", "model": "gpt-4o", "inputTokens": 1500, "outputTokens": 800}]}\''}</p>
@@ -246,7 +246,7 @@ export default function PartnerDashboard() {
 
             <div className="mt-6">
               <a
-                href="mailto:partners@inferlane.ai"
+                href="mailto:partners@inferlane.dev"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-black text-sm font-semibold rounded-xl hover:brightness-110 transition-all"
               >
                 Apply to Partner Program

@@ -1,0 +1,13 @@
+{
+  "prompt_id": 10,
+  "category": "explain",
+  "model_id": "haiku-4.5",
+  "model_label": "Claude Haiku 4.5",
+  "api_model": "claude-haiku-4-5-20251001",
+  "input_tokens": 67,
+  "output_tokens": 482,
+  "latency_ms": 5116,
+  "cost_usd": 0.002477,
+  "stop_reason": "end_turn",
+  "output": "# The JavaScript Event Loop, Microtasks, and Macrotasks\n\nThe JavaScript event loop is the mechanism that executes your code, handles asynchronous operations, and keeps the runtime responsive. At its core, it works like this: the engine executes synchronous code on the call stack, and when that's done, it checks a **microtask queue** (for promises, `async/await`, `queueMicrotask()`) and runs all pending microtasks to completion. Only after the microtask queue is empty does it move to the **macrotask queue** (for `setTimeout`, `setInterval`, I/O operations) and process one macrotask, then loop back to check microtasks again. This cycle repeats until both queues are empty.\n\nThe key difference between microtasks and macrotasks is **priority and frequency**. Microtasks have higher priority and run immediately after the current execution context and before any macrotask. Within a single event loop iteration, *all* microtasks are drained before moving to a macrotask. Macrotasks, by contrast, are processed one at a time, with the microtask queue checked between each macrotask. Think of it this way: promises (microtasks) are urgent, while timers (macrotasks) are deferred.\n\nThis explains why `await` (which uses microtasks) resumes before `setTimeout(fn, 0)` (a macrotask). When you `await` a promise, the callback is queued as a microtask. Even though `setTimeout(fn, 0)` also has zero delay, its callback goes into the macrotask queue\u2014so the microtask queue is fully drained first. Here's the output:\n\n```javascript\nconsole.log('1');\nsetTimeout(() => console.log('2'), 0);\nPromise.resolve().then(() => console.log('3'));\nconsole.log('4');\n\n// Output:\n// 1\n// 4\n// 3\n// 2\n```\n\nSynchronous code (`1`, `4`) runs first, then all microtasks (`3`), then macrotasks (`2`)."
+}

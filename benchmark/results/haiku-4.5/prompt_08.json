@@ -1,0 +1,13 @@
+{
+  "prompt_id": 8,
+  "category": "refactor",
+  "model_id": "haiku-4.5",
+  "model_label": "Claude Haiku 4.5",
+  "api_model": "claude-haiku-4-5-20251001",
+  "input_tokens": 158,
+  "output_tokens": 432,
+  "latency_ms": 3167,
+  "cost_usd": 0.002318,
+  "stop_reason": "end_turn",
+  "output": "# Refactored with async/await\n\n```js\nasync function run() {\n  try {\n    const user = await fetchUser(id);\n    const orders = await fetchOrders(user.id);\n    const enriched = await enrichOrders(orders);\n    return { user, orders: enriched };\n  } catch (err) {\n    logFailingStep(err);\n    throw err;\n  }\n}\n```\n\n## With detailed step logging\n\nIf you want to know *which* step failed:\n\n```js\nasync function run() {\n  try {\n    const user = await fetchUser(id);\n    const orders = await fetchOrders(user.id);\n    const enriched = await enrichOrders(orders);\n    return { user, orders: enriched };\n  } catch (err) {\n    console.error(`Failed at step: ${err.step || 'unknown'}`);\n    throw err;\n  }\n}\n```\n\nOr with explicit step tracking:\n\n```js\nasync function run() {\n  let currentStep = '';\n  try {\n    currentStep = 'fetchUser';\n    const user = await fetchUser(id);\n    \n    currentStep = 'fetchOrders';\n    const orders = await fetchOrders(user.id);\n    \n    currentStep = 'enrichOrders';\n    const enriched = await enrichOrders(orders);\n    \n    return { user, orders: enriched };\n  } catch (err) {\n    console.error(`Failed at step: ${currentStep}`, err);\n    throw err;\n  }\n}\n```\n\n**Key improvements:**\n- \u2705 Eliminated callback nesting\n- \u2705 Preserved error handling with try/catch\n- \u2705 Logs failing step before rethrowing\n- \u2705 Much more readable and maintainable"
+}

@@ -69,6 +69,7 @@ const navGroups: NavGroup[] = [
       { href: '/dashboard/privacy', label: 'Privacy' },
       { href: '/dashboard/compute-intel', label: 'Compute Intel' },
       { href: '/dashboard/nodes', label: 'Nodes' },
+      { href: '/dashboard/exchange', label: 'Exchange' },
     ],
   },
   {
@@ -398,7 +399,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Right side — hidden on mobile (moved to drawer) */}
             <div className="hidden md:flex items-center gap-3 shrink-0">
-              <ConnectProvider />
               <UserMenu />
             </div>
           </div>

@@ -1,0 +1,13 @@
+{
+  "prompt_id": 7,
+  "category": "debug",
+  "model_id": "grok-4",
+  "model_label": "Grok 4",
+  "api_model": "grok-4-0709",
+  "input_tokens": 788,
+  "output_tokens": 2174,
+  "latency_ms": 40740,
+  "cost_usd": 0.034974,
+  "stop_reason": "stop",
+  "output": "The bug is a goroutine leak. When processing takes longer than 5 seconds, the handler times out and returns, but the anonymous goroutine remains alive indefinitely (blocked forever while trying to send to an unbuffered channel that nothing will ever receive from). This isn't observed in dev (presumably due to light load and no timeouts), but it manifests in production as leaked goroutines under real load.\n\nUnrelated but worth noting separately: the code also doesn't explicitly close `r.Body` (handlers should generally do this to avoid other resource leaks), and the use of `time.After` can cause a small per-request memory leak in the non-timeout case (dangling timer channel)."
+}

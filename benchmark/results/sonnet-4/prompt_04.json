@@ -1,0 +1,13 @@
+{
+  "prompt_id": 4,
+  "category": "implement",
+  "model_id": "sonnet-4",
+  "model_label": "Claude Sonnet 4",
+  "api_model": "claude-sonnet-4-20250514",
+  "input_tokens": 96,
+  "output_tokens": 425,
+  "latency_ms": 8870,
+  "cost_usd": 0.006663,
+  "stop_reason": "end_turn",
+  "output": "Here's a SQL query that meets all your requirements:\n\n```sql\nSELECT \n    c.email,\n    SUM(o.total_cents) as total_spent_cents,\n    COUNT(o.id) as order_count,\n    CURRENT_DATE - c.created_at::date as days_since_signup\nFROM customers c\nINNER JOIN orders o ON c.id = o.customer_id\nGROUP BY c.id, c.email, c.created_at\nHAVING COUNT(o.id) >= 2\nORDER BY total_spent_cents DESC\nLIMIT 10;\n```\n\n**Key components explained:**\n\n1. **JOIN**: Uses `INNER JOIN` to connect customers with their orders\n2. **Aggregations**: \n   - `SUM(o.total_cents)` for lifetime revenue\n   - `COUNT(o.id)` for order count\n3. **Days calculation**: `CURRENT_DATE - c.created_at::date` calculates days since signup\n4. **Filtering**: `HAVING COUNT(o.id) >= 2` excludes customers with fewer than 2 orders\n5. **Grouping**: Groups by customer attributes to aggregate their orders\n6. **Sorting**: Orders by total spent (descending) and limits to top 10\n\n**Sample output:**\n```\nemail                | total_spent_cents | order_count | days_since_signup\n---------------------|-------------------|-------------|------------------\njohn@example.com     | 150000           | 5           | 365\nsarah@example.com    | 125000           | 3           | 180\n...\n```\n\n**Note**: The revenue is returned in cents as stored. If you prefer dollars, you can modify the SELECT to: `SUM(o.total_cents)::decimal / 100 as total_spent_dollars`"
+}
