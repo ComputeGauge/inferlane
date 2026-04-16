@@ -251,8 +251,41 @@ export default function TransparencyPage() {
         </ul>
       </section>
 
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold text-white mb-3">
+          Proxy latency overhead
+        </h2>
+        <p className="text-gray-400 mb-4">
+          Every request through InferLane adds routing overhead (auth, model
+          selection, provider lookup, cost logging). Here are real measurements
+          from April 2026 — a minimal Haiku request, from Sydney to
+          us-east-1 (Vercel + Anthropic):
+        </p>
+
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="rounded-xl border border-[#1e1e2e] bg-[#12121a] p-5 text-center">
+            <p className="text-3xl font-mono font-bold text-white">~750ms</p>
+            <p className="text-sm text-gray-500 mt-1">Direct to Anthropic</p>
+          </div>
+          <div className="rounded-xl border border-[#1e1e2e] bg-[#12121a] p-5 text-center">
+            <p className="text-3xl font-mono font-bold text-amber-400">~1.5s</p>
+            <p className="text-sm text-gray-500 mt-1">Through InferLane proxy</p>
+          </div>
+        </div>
+
+        <p className="text-sm text-gray-500">
+          Overhead is ~500&ndash;800ms, mostly Vercel serverless cold starts
+          and the routing DB lookup. For a typical 5&ndash;30 second inference
+          call, this is 2&ndash;10% added latency. The MCP tools
+          (<code className="text-gray-400">pick_model</code>,{' '}
+          <code className="text-gray-400">session_cost</code>) run locally
+          with zero network overhead. We plan to move the routing decision
+          to Vercel Edge Functions to bring overhead under 50ms.
+        </p>
+      </section>
+
       <footer className="pt-10 mt-12 border-t border-[#1e1e2e] text-sm text-gray-500">
-        Last updated: 2026-04-15. This page is version-controlled in the
+        Last updated: 2026-04-16. This page is version-controlled in the
         public repo; the git history is the change log.
       </footer>
     </div>
