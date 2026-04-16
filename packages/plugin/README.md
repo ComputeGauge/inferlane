@@ -70,7 +70,7 @@ The plugin will prompt you for an optional InferLane API key. You can skip it �
 The plugin bundles:
 
 - **InferLane skill** — teaches Claude when to use the tools (before picking a model, after API calls, when asked about cost)
-- **`@inferlane/mcp-server`** — the MCP server with 9 tools (including 3 Compute Exchange tools), spawned via `npx` when Claude Code starts
+- **`@inferlane/mcp`** — the MCP server with 9 tools (including 3 Compute Exchange tools), spawned via `npx` when Claude Code starts
 
 ### Tools
 
@@ -95,7 +95,7 @@ The plugin bundles:
 
 ## Related packages
 
-- [`@inferlane/mcp-server`](https://www.npmjs.com/package/@inferlane/mcp-server) — the MCP server (use directly with Goose, Cursor, Claude Desktop)
+- [`@inferlane/mcp`](https://www.npmjs.com/package/@inferlane/mcp) — the MCP server (use directly with Goose, Cursor, Claude Desktop)
 - [`@inferlane/agent-hooks`](https://www.npmjs.com/package/@inferlane/agent-hooks) — lifecycle hooks for the Claude Agent SDK that auto-log tokens, cost, and runtime
 
 ## License

@@ -211,7 +211,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
 
           <div className="flex items-center justify-center gap-4">
             <a
-              href="https://www.npmjs.com/package/@inferlane/mcp-server"
+              href="https://www.npmjs.com/package/@inferlane/mcp"
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold rounded-xl text-lg hover:brightness-110 transition-all shadow-lg shadow-amber-500/20"
@@ -462,7 +462,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
             </p>
             <div className="flex items-center justify-center gap-4">
               <a
-                href="https://www.npmjs.com/package/@inferlane/mcp-server"
+                href="https://www.npmjs.com/package/@inferlane/mcp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold rounded-xl text-lg hover:brightness-110 transition-all shadow-lg shadow-amber-500/20"
