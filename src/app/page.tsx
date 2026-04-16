@@ -405,6 +405,32 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
         </div>
       </section>
 
+      {/* OpenAI-compatible proxy */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="bg-[#12121a] rounded-2xl border border-[#1e1e2e] p-8 md:p-12">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                Change the base URL. Everything else works.
+              </h2>
+              <p className="text-gray-400 mb-4">
+                InferLane exposes an OpenAI-compatible proxy. Swap the URL, keep your existing code. We route to the cheapest provider automatically.
+              </p>
+              <p className="text-sm text-gray-500">
+                Works with any OpenAI SDK, LangChain, LlamaIndex, or raw HTTP. Supports streaming, function calling, and all message formats.
+              </p>
+            </div>
+            <div className="bg-[#0a0a0f] rounded-xl p-5 font-mono text-sm">
+              <p className="text-gray-500 text-xs mb-3"># Before (direct to Anthropic)</p>
+              <p className="text-gray-500"><span className="text-red-400 line-through">base_url = &quot;https://api.anthropic.com&quot;</span></p>
+              <p className="text-gray-500 text-xs mt-4 mb-3"># After (through InferLane)</p>
+              <p className="text-green-400">base_url = &quot;https://inferlane.dev/api/v1&quot;</p>
+              <p className="text-gray-600 text-xs mt-4"># Same SDK, same code, cheaper inference</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Sovereignty / No lock-in section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="bg-[#12121a] rounded-2xl border border-[#1e1e2e] p-8 md:p-12">

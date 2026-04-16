@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 };
 
 // Static pricing data — augmented by client-side spot API calls
+// Rack rates = direct provider pricing. InferLane routing saves via model selection + exchange pricing.
 const REFERENCE_MODELS = [
   {
     name: 'Claude Sonnet 4.5',
@@ -21,6 +22,7 @@ const REFERENCE_MODELS = [
     rackOutput: 15.0,
     context: '200K',
     tier: 'Workhorse',
+    savingsVsOpus: '80%',
   },
   {
     name: 'GPT-4o',
@@ -154,6 +156,7 @@ export default function PricingPage() {
                 <th className="text-right px-4 py-3 font-medium">Output</th>
                 <th className="text-center px-4 py-3 font-medium">Context</th>
                 <th className="text-center px-4 py-3 font-medium">Tier</th>
+                <th className="text-right px-4 py-3 font-medium">vs Opus</th>
               </tr>
             </thead>
             <tbody>
@@ -175,6 +178,15 @@ export default function PricingPage() {
                     <span className={`text-xs px-2 py-0.5 rounded-full border ${tierColor(m.tier)}`}>
                       {m.tier}
                     </span>
+                  </td>
+                  <td className="px-4 py-3.5 text-right">
+                    {m.rackOutput === 0 ? (
+                      <span className="text-emerald-400 font-semibold text-xs">100%</span>
+                    ) : (
+                      <span className="text-green-400 text-xs font-mono">
+                        {Math.round((1 - (m.rackOutput / 75)) * 100)}%
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}
