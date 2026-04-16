@@ -65,7 +65,7 @@ const jsonLd = {
   name: 'InferLane',
   applicationCategory: 'DeveloperApplication',
   operatingSystem: 'Any',
-  description: 'The cost intelligence layer for AI agents. MCP server with 6 tools for model selection, cost estimation, side-by-side comparison, promotion discovery, spend tracking, and multi-provider dispatch.',
+  description: 'The cost intelligence layer for AI agents. MCP server with 9 tools for model selection, cost estimation, side-by-side comparison, promotion discovery, spend tracking, and multi-provider dispatch.',
   offers: {
     '@type': 'Offer',
     price: '0',

@@ -84,16 +84,22 @@ Steps 1-3 are fast and cheap. Step 4 is where the money is spent. Step 5 is on-d
 ## What NOT to do
 
 - **Don't call `il_suggest_model` for trivial single-sentence responses** — the overhead exceeds the savings
-- **Don't call all six tools on every request** — pick the one that matches the question
+- **Don't call all nine tools on every request** — pick the one that matches the question
 - **Don't fabricate responses** — if a tool returns an error or the user doesn't have an API key, say so honestly rather than guessing
 - **Don't use `il_route_request` as a default substitute for direct API calls** — only use it when the user explicitly wants InferLane in the path
 
-## Decentralized compute notes
+## Compute Exchange tools
 
-InferLane includes decentralized providers (Bittensor, Akash, Hyperbolic) in its comparisons — these are often the cheapest tier and useful for cost-sensitive or latency-tolerant workloads. They appear in `il_compare_models` results under the "decentralized" category and in `il_suggest_model` recommendations when `priority: cheapest`.
+InferLane runs a **Compute Exchange** — a live marketplace where providers (centralized and decentralized) list idle capacity and buyers query spot prices. Three tools expose this:
 
-Decentralized compute is an option, not a default. Don't recommend it for latency-critical paths, but do recommend it for batch processing, overnight jobs, or cost-sensitive experimentation.
+**`mcp__inferlane__il_exchange_spot`** — Query live spot prices across the exchange. Returns ranked offers from centralized providers (Anthropic off-peak H100s) and decentralized operators (Darkbloom Apple Silicon, OpenClaw GPUs). Use when the user wants the absolute cheapest capacity available right now, or when comparing live market prices.
+
+**`mcp__inferlane__il_exchange_offers`** — Browse the full exchange order book. Shows all active capacity listings with GPU type, pricing, throughput, attestation status, and utilization. Use when the user wants to see the full market or compare provider types.
+
+**`mcp__inferlane__il_exchange_list_capacity`** — List your own idle compute for sale on the exchange. Other agents and users can then route inference to your hardware at the price you set. Use when the user wants to monetize idle GPU/Apple Silicon, or when managing a fleet that has excess capacity during off-peak hours.
+
+The exchange supports TEE-attested execution (Apple Secure Enclave, Intel TDX, AMD SEV-SNP) — use `require_attestation: true` in spot queries for hardware-verified privacy.
 
 ## The goal
 
-Help users spend their AI budget wisely. The tools are a means; the end is better cost decisions on behalf of the user. Use them when they help and skip them when they don't.
+Help users spend their AI budget wisely AND help compute owners monetize idle capacity. The tools are a means; the end is better cost decisions for buyers and better utilization for sellers. Use them when they help and skip them when they don't.

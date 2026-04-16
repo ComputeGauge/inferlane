@@ -337,7 +337,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
               price: '$0',
               period: '/forever',
               description: 'Open source — Apache 2.0',
-              features: ['6 agent tools via MCP', 'il_suggest_model optimization', 'Side-by-side model compare', 'Active promotion discovery', 'Local Ollama routing', 'Works offline without an API key', 'Works with any MCP client'],
+              features: ['9 agent tools via MCP', 'Compute exchange spot pricing', 'il_suggest_model optimization', 'Side-by-side model compare', 'List & sell idle capacity', 'Works offline without an API key', 'Works with any MCP client'],
               cta: 'Install Free',
               highlighted: false,
             },

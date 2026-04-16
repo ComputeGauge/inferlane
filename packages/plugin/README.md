@@ -40,7 +40,7 @@ Works for Anthropic Managed Agents, Claude Agent SDK, Claude Code, Goose, SwarmC
 
 ### 2. Pre-flight model picking, not post-hoc logging
 
-Most cost tools tell you what you already spent. InferLane tells you **what to spend** — `il_suggest_model` is called *before* the expensive API call, not after. The skill teaches Claude to call it whenever the user mentions cost, whenever a task is repetitive enough that a cheaper model would work, or whenever a subagent is about to be spawned. Three of the six tools work completely offline (no API key needed); see the full list in the [Tools](#tools) section below.
+Most cost tools tell you what you already spent. InferLane tells you **what to spend** — `il_suggest_model` is called *before* the expensive API call, not after. Plus the **Compute Exchange** tools let agents query live spot prices and even list idle capacity for sale. Nine tools total, three work completely offline; see the full list in the [Tools](#tools) section below.
 
 ### 3. Local-to-cloud routing you can actually run
 
@@ -70,7 +70,7 @@ The plugin will prompt you for an optional InferLane API key. You can skip it �
 The plugin bundles:
 
 - **InferLane skill** — teaches Claude when to use the tools (before picking a model, after API calls, when asked about cost)
-- **`@inferlane/mcp-server`** — the MCP server with 6 tools, spawned via `npx` when Claude Code starts
+- **`@inferlane/mcp-server`** — the MCP server with 9 tools (including 3 Compute Exchange tools), spawned via `npx` when Claude Code starts
 
 ### Tools
 
@@ -82,6 +82,9 @@ The plugin bundles:
 | `il_check_promotions` | Active discounts across providers | Needs key |
 | `il_get_spend` | Your real spend broken down by provider | Needs key |
 | `il_route_request` | Dispatch a prompt through the smart router | Needs key |
+| `il_exchange_spot` | Query live spot prices on the compute exchange | Needs key |
+| `il_exchange_offers` | Browse the full exchange order book | Needs key |
+| `il_exchange_list_capacity` | List your idle compute for sale on the exchange | Needs key |
 
 ## Privacy
 
