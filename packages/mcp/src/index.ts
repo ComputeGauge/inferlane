@@ -137,8 +137,30 @@ trafficLight.onStatusChange((agentId, status) => eventStream.emitStatusChange(ag
 
 const server = new McpServer({
   name: 'inferlane',
-  version: '0.5.0',
+  version: '0.5.3',
 });
+
+// ============================================================================
+// CORE MODE — Set INFERLANE_MODE=core for minimal context overhead (~6K tokens)
+// Default: all 41 tools (~27K tokens). Core mode: 8 essential tools only.
+// ============================================================================
+const CORE_MODE = process.env.INFERLANE_MODE === 'core';
+const toolsRegistered: string[] = [];
+
+/**
+ * Register a tool only if it passes the mode filter.
+ * Core tools: pick_model, log_request, session_cost, assess_routing,
+ *             rate_recommendation, get_cost_comparison, suggest_savings, get_model_pricing
+ */
+const CORE_TOOLS = new Set([
+  'pick_model', 'log_request', 'session_cost', 'assess_routing',
+  'rate_recommendation', 'get_cost_comparison', 'suggest_savings', 'get_model_pricing',
+]);
+
+function shouldRegisterTool(name: string): boolean {
+  if (!CORE_MODE) return true;
+  return CORE_TOOLS.has(name);
+}
 
 // Shared agent_id schema — optional parameter for per-agent identity tracking
 const agentIdSchema = z.string().optional()
@@ -147,6 +169,18 @@ const agentIdSchema = z.string().optional()
 // ============================================================================
 // AGENT-NATIVE TOOLS — Designed for AI agents to use automatically
 // ============================================================================
+
+// In core mode, wrap server.tool to skip non-essential tools
+const originalTool = server.tool.bind(server);
+if (CORE_MODE) {
+  const origToolFn = server.tool;
+  server.tool = function(this: any, name: string) {
+    if (!shouldRegisterTool(name)) return;
+    toolsRegistered.push(name);
+    // eslint-disable-next-line prefer-rest-params
+    return origToolFn.apply(this, arguments as any);
+  } as any;
+}
 
 // TOOL: pick_model
 // THE killer tool. An agent calls this before choosing a model for a subtask.
@@ -2050,10 +2084,11 @@ server.tool(
 // Start server
 // ============================================================================
 async function main() {
+  const modeLabel = CORE_MODE ? 'core (8 tools, minimal context)' : 'full';
   if (platformClient) {
-    console.error('[InferLane MCP] Platform connected. All 30 tools available.');
+    console.error(`[InferLane MCP] Platform connected. Mode: ${modeLabel}. Set INFERLANE_MODE=core for minimal context overhead.`);
   } else {
-    console.error('[InferLane MCP] Running offline. 25 tools available. Set INFERLANE_API_KEY for platform features.');
+    console.error(`[InferLane MCP] Running offline. Mode: ${modeLabel}. Set INFERLANE_API_KEY for platform features.`);
   }
   console.error(`[InferLane MCP] Persistence: ${persistence.available ? 'SQLite active' : 'in-memory only (SQLite unavailable)'}`);
 

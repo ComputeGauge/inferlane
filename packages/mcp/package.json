@@ -1,6 +1,6 @@
 {
   "name": "@inferlane/mcp",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "The cost intelligence layer for AI agents. Model selection, spend tracking, credibility scoring, and local-to-cloud routing via MCP. Works with Claude, Cursor, Windsurf, and any MCP-compatible agent.",
   "license": "Apache-2.0",
   "type": "module",

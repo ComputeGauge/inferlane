@@ -2,7 +2,7 @@
   "mcpServers": {
     "inferlane": {
       "command": "npx",
-      "args": ["-y", "@inferlane/mcp@^0.5.0"],
+      "args": ["-y", "--loglevel=error", "@inferlane/mcp@^0.5.0"],
       "env": {
         "INFERLANE_API_KEY": "${user_config.api_key}"
       }
