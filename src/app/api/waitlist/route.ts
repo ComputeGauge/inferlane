@@ -96,7 +96,7 @@ async function notifyWaitlistSignup(subscriberEmail: string) {
         We'll notify you when InferLane launches new features. In the meantime, the MCP server is already available:
       </p>
       <div style="background:#0a0a0f;border-radius:8px;padding:12px 16px;margin-bottom:20px;">
-        <code style="color:#4ade80;font-size:13px;">npm install @inferlane/mcp-server</code>
+        <code style="color:#4ade80;font-size:13px;">npm install @inferlane/mcp</code>
       </div>
       <a href="${appUrl}" style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#000;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">
         Learn More

@@ -16,7 +16,7 @@
 # Usage:
 #   curl -fsSL https://inferlane.dev/install.sh | bash
 #   # or
-#   npx @inferlane/mcp-server local-setup
+#   npx @inferlane/mcp local-setup
 #
 # Safe to re-run: every step is idempotent.
 # ============================================================================
@@ -175,7 +175,7 @@ ${BOLD}Claude Code${RESET} (${DIM}~/.claude/mcp.json${RESET}) — add to mcpServ
 ${GREEN}
   "inferlane": {
     "command": "npx",
-    "args": ["-y", "@inferlane/mcp-server@latest"],
+    "args": ["-y", "@inferlane/mcp@latest"],
     "env": {
       "INFERLANE_LOCAL_MODEL": "${MODEL_TAG}",
       "OLLAMA_HOST": "http://localhost:11434"
@@ -188,7 +188,7 @@ ${GREEN}
   "mcpServers": {
     "inferlane": {
       "command": "npx",
-      "args": ["-y", "@inferlane/mcp-server@latest"],
+      "args": ["-y", "@inferlane/mcp@latest"],
       "env": {
         "INFERLANE_LOCAL_MODEL": "${MODEL_TAG}",
         "OLLAMA_HOST": "http://localhost:11434"
@@ -203,7 +203,7 @@ ${GREEN}
     type: stdio
     enabled: true
     cmd: npx
-    args: ["-y", "@inferlane/mcp-server@latest"]
+    args: ["-y", "@inferlane/mcp@latest"]
     envs:
       INFERLANE_LOCAL_MODEL: "${MODEL_TAG}"
       OLLAMA_HOST: "http://localhost:11434"

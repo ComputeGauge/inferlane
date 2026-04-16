@@ -157,7 +157,7 @@ function SignInContent() {
                   Try the demo dashboard
                 </a>
                 <a
-                  href="https://www.npmjs.com/package/@inferlane/mcp-server"
+                  href="https://www.npmjs.com/package/@inferlane/mcp"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-6 py-2.5 rounded-xl bg-[#1e1e2e] border border-[#2a2a3a] text-white font-medium text-sm hover:bg-[#2a2a3a] transition-all"

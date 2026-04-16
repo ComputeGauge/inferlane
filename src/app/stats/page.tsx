@@ -333,7 +333,7 @@ export default function StatsPage() {
               </p>
               <div className="flex items-center justify-center gap-4">
                 <a
-                  href="https://www.npmjs.com/package/@inferlane/mcp-server"
+                  href="https://www.npmjs.com/package/@inferlane/mcp"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-semibold rounded-xl hover:brightness-110 transition-all"
