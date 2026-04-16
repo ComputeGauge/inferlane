@@ -34,7 +34,9 @@ const PROVIDER_URLS: Record<string, string> = {
   HYPERBOLIC: 'https://api.hyperbolic.xyz',
   // Decentralized Mac inference
   DARKBLOOM: 'https://api.darkbloom.dev',
-  // AKASH: URL is per-deployment — resolved from ProviderConnection.metadata
+  // Decentralized GPU compute
+  AKASH: 'https://chatapi.akash.network',     // AkashML managed inference
+  NOSANA: 'https://api.nosana.io',             // Nosana GPU marketplace (Solana)
 };
 
 const RETRYABLE_STATUS_CODES = new Set([429, 500, 502, 503, 504]);
@@ -95,6 +97,8 @@ function buildTargetUrl(
     case 'BITTENSOR':
     case 'HYPERBOLIC':
     case 'DARKBLOOM':
+    case 'AKASH':
+    case 'NOSANA':
     default:
       return `${baseUrl}/v1/chat/completions`;
   }
@@ -126,6 +130,8 @@ async function getProviderCredentials(
       FIREWORKS: 'FIREWORKS_API_KEY',
       XAI: 'XAI_API_KEY',
       DARKBLOOM: 'DARKBLOOM_API_KEY',
+      AKASH: 'AKASH_API_KEY',
+      NOSANA: 'NOSANA_API_KEY',
     };
     const envVar = envKeyMap[provider];
     const envKey = envVar ? process.env[envVar] : undefined;

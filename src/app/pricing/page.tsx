@@ -9,7 +9,7 @@ import PublicNav from '@/components/PublicNav';
 export const metadata: Metadata = {
   title: 'Live Pricing — InferLane',
   description:
-    'Real-time inference pricing across 20+ providers. Compare spot rates, see savings vs rack prices, and find the cheapest model for your workload.',
+    'Real-time inference pricing across 26+ providers. Compare spot rates, see savings vs rack prices, and find the cheapest model for your workload.',
 };
 
 // Static pricing data — augmented by client-side spot API calls
@@ -118,7 +118,7 @@ export default function PricingPage() {
           Live Inference Pricing
         </h1>
         <p className="text-lg text-gray-400 max-w-2xl">
-          Real-time spot rates across 20+ providers. InferLane routes your
+          Real-time spot rates across 26+ providers. InferLane routes your
           requests to the cheapest option that meets your quality requirements.
         </p>
       </div>

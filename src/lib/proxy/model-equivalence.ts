@@ -435,6 +435,9 @@ const PROVIDER_PREFIXES: [RegExp, string][] = [
   [/^akash\//i, 'AKASH'],
   [/^hyperbolic\//i, 'HYPERBOLIC'],
   [/^darkbloom\//i, 'DARKBLOOM'],
+  [/^chutes\//i, 'CHUTES'],
+  [/^nosana\//i, 'NOSANA'],
+  [/^akashml\//i, 'AKASH'],
 ];
 
 // ---------------------------------------------------------------------------

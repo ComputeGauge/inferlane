@@ -618,6 +618,9 @@ class UniversalDispatcher {
       CEREBRAS: 'https://api.cerebras.ai/v1/chat/completions',
       SAMBANOVA: 'https://api.sambanova.ai/v1/chat/completions',
       DARKBLOOM: 'https://api.darkbloom.dev/v1/chat/completions',
+      CHUTES: 'https://api.chutes.ai/v1/chat/completions',
+      AKASH: 'https://chatapi.akash.network/v1/chat/completions',
+      NOSANA: 'https://api.nosana.io/v1/chat/completions',
     };
 
     const url = PROVIDER_URLS[provider];

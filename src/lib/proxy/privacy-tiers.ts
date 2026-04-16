@@ -53,6 +53,8 @@ export const PROVIDER_PRIVACY_MAP: Record<string, PrivacyTier> = {
   BITTENSOR: 'BEST_EFFORT',
   AKASH: 'BEST_EFFORT',
   HYPERBOLIC: 'BEST_EFFORT',
+  CHUTES: 'BEST_EFFORT',
+  NOSANA: 'BEST_EFFORT',
 };
 
 /**
