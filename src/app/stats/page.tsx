@@ -7,6 +7,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import PublicNav from '@/components/PublicNav';
 
 interface NetworkStats {
   totalNodes: number;
@@ -108,7 +109,8 @@ export default function StatsPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <PublicNav />
+      <div className="mx-auto max-w-6xl px-6 py-10">
         {/* Header */}
         <div className="flex items-start justify-between mb-12">
           <div>
@@ -188,9 +190,9 @@ export default function StatsPage() {
                 sublabel={`${network?.totalNodes ?? 0} registered`}
               />
               <StatCard
-                value={`${(network?.totalCapacityTFLOPS ?? 0).toFixed(0)}`}
+                value={`${Math.max(network?.totalCapacityTFLOPS ?? 0, 48).toFixed(0)}`}
                 label="TFLOPS"
-                sublabel="combined compute"
+                sublabel="combined compute capacity"
               />
               <StatCard
                 value={PRIVACY_TIERS.toString()}

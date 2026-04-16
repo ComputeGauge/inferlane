@@ -12,9 +12,13 @@ export const metadata = {
     'How InferLane makes money, how routing decisions are made, and where your wallet balance actually lives.',
 };
 
+import PublicNav from '@/components/PublicNav';
+
 export default function TransparencyPage() {
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16 text-gray-200">
+    <div className="min-h-screen bg-[#0a0a0f]">
+    <PublicNav />
+    <div className="mx-auto max-w-3xl px-6 py-10 text-gray-200">
       <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">Transparency</h1>
       <p className="text-lg text-gray-400 mb-10">
         InferLane is free at the point of use for most workloads. This page
@@ -288,6 +292,7 @@ export default function TransparencyPage() {
         Last updated: 2026-04-16. This page is version-controlled in the
         public repo; the git history is the change log.
       </footer>
+    </div>
     </div>
   );
 }

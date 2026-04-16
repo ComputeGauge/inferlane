@@ -4,6 +4,7 @@
 // and live savings calculator. Data comes from the exchange spot API.
 
 import { Metadata } from 'next';
+import PublicNav from '@/components/PublicNav';
 
 export const metadata: Metadata = {
   title: 'Live Pricing — InferLane',
@@ -107,7 +108,9 @@ function tierColor(tier: string): string {
 
 export default function PricingPage() {
   return (
-    <div className="mx-auto max-w-5xl px-6 py-16 text-gray-200">
+    <div className="min-h-screen bg-[#0a0a0f]">
+    <PublicNav />
+    <div className="mx-auto max-w-5xl px-6 py-10 text-gray-200">
       <div className="mb-12">
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
           Live Inference Pricing
@@ -261,6 +264,7 @@ export default function PricingPage() {
         through InferLane may be lower due to volume rebates, promotions,
         and exchange spot pricing. Last updated: {new Date().toISOString().split('T')[0]}.
       </footer>
+    </div>
     </div>
   );
 }

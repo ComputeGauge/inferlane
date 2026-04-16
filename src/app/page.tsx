@@ -337,7 +337,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
               price: '$0',
               period: '/forever',
               description: 'Open source — Apache 2.0',
-              features: ['9 agent tools via MCP', 'Compute exchange spot pricing', 'il_suggest_model optimization', 'Side-by-side model compare', 'List & sell idle capacity', 'Works offline without an API key', 'Works with any MCP client'],
+              features: ['41 agent tools via MCP', 'Compute exchange spot pricing', 'pick_model optimization', 'Side-by-side model compare', 'List & sell idle capacity', 'Works offline without an API key', 'Works with any MCP client'],
               cta: 'Install Free',
               highlighted: false,
             },
@@ -467,7 +467,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
                 rel="noopener noreferrer"
                 className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold rounded-xl text-lg hover:brightness-110 transition-all shadow-lg shadow-amber-500/20"
               >
-                npm install @inferlane/mcp-server
+                npm install @inferlane/mcp
               </a>
               <a
                 href="https://github.com/ComputeGauge/inferlane"
