@@ -34,8 +34,8 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.webmanifest',
   openGraph: {
-    title: "Sonnet 4 beat Opus 4 AND Grok 4 on 20 real coding tasks",
-    description: "We benchmarked 5 models blindly. Both reasoning models (Opus, Grok 4) scored LOWER than plain Sonnet at 4-5\u00d7 the cost. Our 90-day Claude Code bill went $18,136 \u2192 $4,163. Free plugin.",
+    title: "InferLane — Smart routing that cut our Claude Code bill 77%",
+    description: "Compute exchange + MCP server (41 tools) that routes AI inference across 23 providers. Local-first via Ollama. Privacy tiers. No vendor lock-in. Free and open source.",
     type: "website",
     url: "https://inferlane.dev",
     siteName: "InferLane",
@@ -44,14 +44,14 @@ export const metadata: Metadata = {
         url: 'https://inferlane.dev/hero-comparison.png',
         width: 1200,
         height: 630,
-        alt: 'Sonnet 4 beat Opus and Grok 4 on 20 real coding tasks — InferLane benchmark',
+        alt: 'InferLane — Smart model routing and cost optimization for AI agents',
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sonnet 4 beat Opus 4 AND Grok 4 on 20 real coding tasks",
-    description: "5-model blind benchmark. Reasoning models lost to plain Sonnet while costing 4-5\u00d7 more.",
+    title: "InferLane — Smart routing that cut our Claude Code bill 77%",
+    description: "Compute exchange + 41-tool MCP server. Routes across 23 providers. Local-first. Privacy tiers. Free, open source.",
     images: ['https://inferlane.dev/hero-comparison.png'],
   },
   alternates: {
