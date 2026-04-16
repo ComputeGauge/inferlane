@@ -617,6 +617,7 @@ class UniversalDispatcher {
       PERPLEXITY: 'https://api.perplexity.ai/chat/completions',
       CEREBRAS: 'https://api.cerebras.ai/v1/chat/completions',
       SAMBANOVA: 'https://api.sambanova.ai/v1/chat/completions',
+      DARKBLOOM: 'https://api.darkbloom.dev/v1/chat/completions',
     };
 
     const url = PROVIDER_URLS[provider];

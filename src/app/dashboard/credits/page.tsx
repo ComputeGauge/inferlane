@@ -140,7 +140,7 @@ export default function CreditsPage() {
             <StatCard
               label="Delegated to Pool"
               value={fmt(summary.delegatedToPool)}
-              subtext="Earning passive income"
+              subtext="Generating pool returns"
             />
             <StatCard
               label="Earned This Month"

@@ -18,6 +18,7 @@ import { requestCache } from '@/lib/proxy/request-cache';
 import { prefixCache } from '@/lib/proxy/prefix-cache';
 import { affinityRouter } from '@/lib/proxy/affinity-router';
 import { createHash } from 'crypto';
+import { getProviderPrivacyTier, filterByPrivacyTier, type PrivacyTier } from './privacy-tiers';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -42,6 +43,12 @@ export interface RoutingRequest {
   estimatedOutputTokens?: number;
   messages?: Array<{ role: string; content: string }>;
   sessionId?: string;
+  /** Minimum routing privacy tier required for this request (from privacy-tiers module) */
+  routingPrivacyTier?: import('./privacy-tiers').PrivacyTier;
+  /** ISO 3166-1 alpha-2 region codes to prefer (e.g. ['DE', 'FR']) */
+  preferredRegions?: string[];
+  /** ISO 3166-1 alpha-2 region codes to exclude */
+  forbiddenRegions?: string[];
 }
 
 export interface RoutingDecision {
@@ -76,6 +83,12 @@ export interface RoutingDecision {
   loadSpread?: boolean;
   /** Set when affinity cache provided the routing decision */
   affinityHit?: boolean;
+  /** Routing privacy tier of the selected provider */
+  routingPrivacyTier?: import('./privacy-tiers').PrivacyTier;
+  /** Whether geo-routing constraints were applied */
+  geoRoutingApplied?: boolean;
+  /** Region of the selected provider */
+  selectedRegion?: string;
 }
 
 // ---------------------------------------------------------------------------

@@ -32,6 +32,8 @@ const PROVIDER_URLS: Record<string, string> = {
   // Decentralized AI compute providers
   BITTENSOR: 'https://api.chutes.ai',         // Chutes SN64 gateway (largest subnet)
   HYPERBOLIC: 'https://api.hyperbolic.xyz',
+  // Decentralized Mac inference
+  DARKBLOOM: 'https://api.darkbloom.dev',
   // AKASH: URL is per-deployment — resolved from ProviderConnection.metadata
 };
 
@@ -92,6 +94,7 @@ function buildTargetUrl(
     // Decentralized providers use OpenAI-compatible /v1/chat/completions
     case 'BITTENSOR':
     case 'HYPERBOLIC':
+    case 'DARKBLOOM':
     default:
       return `${baseUrl}/v1/chat/completions`;
   }
@@ -110,8 +113,28 @@ async function getProviderCredentials(
   });
 
   if (!connection || !connection.isActive) {
+    // Env fallback — allows the proxy to work without DB-stored keys.
+    // Useful for self-hosted / single-user deployments.
+    const envKeyMap: Record<string, string> = {
+      ANTHROPIC: 'ANTHROPIC_API_KEY',
+      OPENAI: 'OPENAI_API_KEY',
+      GOOGLE: 'GOOGLE_API_KEY',
+      DEEPSEEK: 'DEEPSEEK_API_KEY',
+      GROQ: 'GROQ_API_KEY',
+      TOGETHER: 'TOGETHER_API_KEY',
+      MISTRAL: 'MISTRAL_API_KEY',
+      FIREWORKS: 'FIREWORKS_API_KEY',
+      XAI: 'XAI_API_KEY',
+      DARKBLOOM: 'DARKBLOOM_API_KEY',
+    };
+    const envVar = envKeyMap[provider];
+    const envKey = envVar ? process.env[envVar] : undefined;
+    if (envKey) {
+      return { apiKey: envKey };
+    }
+
     return {
-      error: `Provider ${provider} not connected. Connect it in your dashboard.`,
+      error: `Provider ${provider} not connected. Connect it in your dashboard or set ${envKeyMap[provider] ?? provider + '_API_KEY'} env var.`,
       status: 400,
     };
   }

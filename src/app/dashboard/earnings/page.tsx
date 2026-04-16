@@ -19,7 +19,7 @@ export default function EarningsPage() {
             </div>
             <h4 className="font-semibold text-white mb-1">1. Signup Bonus</h4>
             <p className="text-xs text-gray-400 leading-relaxed">
-              Earn $5-$50 per new user who signs up through your InferLane dashboard.
+              Receive $5-$50 per new user who signs up through your InferLane dashboard.
               Attribution via cookie tracking (30-90 day window).
             </p>
             <p className="text-lg font-bold text-blue-400 font-mono mt-2">$5 - $50</p>
@@ -34,7 +34,7 @@ export default function EarningsPage() {
             <h4 className="font-semibold text-white mb-1">2. Recurring Commission</h4>
             <p className="text-xs text-gray-400 leading-relaxed">
               Earn 8-18% of your referral's monthly spend for 12-24 months or lifetime.
-              The more they use, the more you earn — passively.
+              Commission scales with their usage — recurring revenue, not one-time.
             </p>
             <p className="text-lg font-bold text-green-400 font-mono mt-2">8% - 18%</p>
             <p className="text-[10px] text-gray-600">of monthly spend, recurring</p>

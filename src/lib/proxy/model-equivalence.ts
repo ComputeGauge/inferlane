@@ -116,6 +116,15 @@ export const EQUIVALENCE_TIERS: EquivalenceTier[] = [
         qualityScore: 84,
         latencyClass: 'medium',
       },
+      {
+        provider: 'DARKBLOOM',
+        model: 'gemma-4-27b',
+        inputPerMToken: 0.06,
+        outputPerMToken: 0.20,
+        contextWindow: 128_000,
+        qualityScore: 72,
+        latencyClass: 'medium',
+      },
     ],
   },
   {
@@ -425,6 +434,7 @@ const PROVIDER_PREFIXES: [RegExp, string][] = [
   [/^bittensor\//i, 'BITTENSOR'],
   [/^akash\//i, 'AKASH'],
   [/^hyperbolic\//i, 'HYPERBOLIC'],
+  [/^darkbloom\//i, 'DARKBLOOM'],
 ];
 
 // ---------------------------------------------------------------------------

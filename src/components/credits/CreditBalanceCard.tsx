@@ -128,7 +128,7 @@ export default function CreditBalanceCard() {
             <p className="text-xs text-amber-400">
               {daysLeft <= 3
                 ? `Unused credits expire in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}. Delegate to the pool or list on the marketplace to earn before expiry.`
-                : `Credits expire in ${daysLeft} days. Consider delegating unused credits to earn passive income.`}
+                : `Credits expire in ${daysLeft} days. Consider delegating unused credits to the pool or listing on the marketplace.`}
             </p>
           )}
         </div>

@@ -140,6 +140,72 @@ export default function TransparencyPage() {
 
       <section className="mb-12">
         <h2 className="text-2xl font-semibold text-white mb-3">
+          Privacy tiers &mdash; what we can and can&apos;t guarantee
+        </h2>
+        <p className="text-gray-400 mb-4">
+          Different workloads have different privacy requirements. We route
+          accordingly and are upfront about what each tier actually provides.
+        </p>
+
+        <div className="space-y-4">
+          <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-green-400" />
+              <h3 className="font-semibold text-white">Cloud TEE &mdash; verifiable confidentiality</h3>
+            </div>
+            <p className="text-sm text-gray-400">
+              Workloads route to providers with hardware-backed Trusted
+              Execution Environments (Azure Confidential Computing, AWS
+              Nitro Enclaves). Attestation is cryptographically verified.
+              Use this for PII, financial data, and compliance-sensitive
+              workloads (HIPAA, SOC 2).
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+              <h3 className="font-semibold text-white">Cloud Standard &mdash; contractual privacy</h3>
+            </div>
+            <p className="text-sm text-gray-400">
+              Workloads route to major cloud providers (Anthropic, OpenAI,
+              Google). Privacy is backed by their terms of service and data
+              processing agreements, not hardware attestation. Suitable for
+              business data that isn&apos;t regulated.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-[#1e1e2e] bg-[#12121a] p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-gray-500" />
+              <h3 className="font-semibold text-white">Best Effort &mdash; OS-level hardening only</h3>
+            </div>
+            <p className="text-sm text-gray-400">
+              Workloads may route to community or decentralized nodes.
+              Privacy relies on OS-level protections (SIP, hardened
+              runtime) &mdash; not hardware enclaves. There is no way to
+              cryptographically verify that a consumer Mac is running
+              untampered code today.{' '}
+              <strong className="text-gray-300">
+                This tier is appropriate for public data, non-sensitive
+                classification, and image generation &mdash; not for PII
+                or confidential business data.
+              </strong>
+            </p>
+          </div>
+        </div>
+
+        <p className="text-sm text-gray-500 mt-4">
+          Our routing engine selects the appropriate privacy tier
+          automatically based on your configured policy. You can override
+          per-request via the <code className="text-gray-400">privacyTier</code> parameter
+          in the dispatch API, or set a default policy in your dashboard
+          settings.
+        </p>
+      </section>
+
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold text-white mb-3">
           Subprocessors
         </h2>
         <p className="text-gray-400">

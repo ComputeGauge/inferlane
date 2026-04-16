@@ -25,7 +25,7 @@ export default function MarketplacePage() {
             <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
           </svg>
           <div>
-            <p className="text-xs text-green-400 font-medium">Earn on every click</p>
+            <p className="text-xs text-green-400 font-medium">Commission on every referral</p>
             <p className="text-[10px] text-green-600">Signup + recurring + top-up commissions</p>
           </div>
         </div>
@@ -72,7 +72,7 @@ export default function MarketplacePage() {
             </div>
             <p className="text-sm text-gray-400">
               Earn recurring revenue on every user you refer. Commission on signups, monthly renewals, AND top-ups.
-              Your users save money, you earn passively.
+              Your users save money, you receive recurring commission.
             </p>
           </div>
           <div className="flex-shrink-0 ml-6 text-right">

@@ -122,7 +122,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
         <div className="flex items-center gap-4">
           <a href="#features" className="text-sm text-gray-400 hover:text-white transition-colors">Features</a>
           <a href="/developers" className="text-sm text-gray-400 hover:text-white transition-colors">Developers</a>
-          <a href="#pricing" className="text-sm text-gray-400 hover:text-white transition-colors">Pricing</a>
+          <a href="/pricing" className="text-sm text-gray-400 hover:text-white transition-colors">Pricing</a>
           {isAuthenticated ? (
             <button
               onClick={onDashboard}
@@ -229,7 +229,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
           </div>
 
           <div className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-500">
-            {['Works with Claude Code, Desktop, Goose, Cursor', 'Free local routing via Ollama', 'MIT open source'].map((text) => (
+            {['Works with Claude Code, Desktop, Goose, Cursor', 'Free local routing via Ollama', 'No vendor lock-in \u2014 23 providers'].map((text) => (
               <span key={text} className="flex items-center gap-1">
                 <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -405,6 +405,50 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
         </div>
       </section>
 
+      {/* Sovereignty / No lock-in section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="bg-[#12121a] rounded-2xl border border-[#1e1e2e] p-8 md:p-12">
+          <div className="max-w-3xl mx-auto text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              No single provider controls your AI stack
+            </h2>
+            <p className="text-gray-400 text-lg">
+              InferLane routes across 23 providers. If one raises prices, goes down, or changes terms &mdash; your workloads shift automatically. No vendor lock-in. No single point of failure.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="text-center p-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-white mb-1">Multi-provider by default</h3>
+              <p className="text-sm text-gray-400">Route through Anthropic, OpenAI, Google, Mistral, DeepSeek, Groq, or community nodes. Switch providers without changing a line of code.</p>
+            </div>
+            <div className="text-center p-4">
+              <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-white mb-1">Privacy tiers you can trust</h3>
+              <p className="text-sm text-gray-400">Cloud TEE for regulated data. Standard cloud for business. Best-effort for public workloads. We tell you exactly what each tier guarantees.</p>
+            </div>
+            <div className="text-center p-4">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-white mb-1">GDPR-compliant by architecture</h3>
+              <p className="text-sm text-gray-400">Data export, deletion, and retention are built in &mdash; not bolted on. Route within your jurisdiction with geo-routing constraints.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 rounded-3xl border border-amber-500/20 p-12 text-center relative overflow-hidden">
@@ -453,7 +497,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
               </div>
               <span className="text-sm text-gray-500">InferLane</span>
             </div>
-            <p className="text-xs text-gray-600">The cost intelligence layer for AI agents</p>
+            <p className="text-xs text-gray-600">Compute infrastructure intelligence &middot; No vendor lock-in</p>
           </div>
         </div>
       </footer>

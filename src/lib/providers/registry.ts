@@ -349,6 +349,22 @@ export const PROVIDER_REGISTRY: Record<string, ProviderEntry> = {
     description: 'GPU-specialized cloud',
     categories: ['compute'],
   },
+  DARKBLOOM: {
+    id: 'DARKBLOOM',
+    name: 'Darkbloom',
+    baseUrl: 'https://api.darkbloom.dev',
+    color: '#1a1a2e',
+    apiKeyPlaceholder: 'dk_...',
+    docsUrl: 'https://docs.darkbloom.dev/',
+    signupUrl: 'https://darkbloom.dev/',
+    affiliateUrl: null,
+    affiliateNetwork: null,
+    authStyle: 'bearer',
+    requestFormat: 'openai-compat',
+    isInferenceProvider: true,
+    description: 'Decentralized inference on idle Apple Silicon Macs',
+    categories: ['inference'],
+  },
 };
 
 /** Get all inference providers (those with a baseUrl for proxy routing) */

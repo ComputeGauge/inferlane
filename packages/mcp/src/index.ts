@@ -1362,7 +1362,7 @@ Please use InferLane tools to:
 
 // Helper: make authenticated requests to the InferLane Scheduler API
 async function schedulerRequest(path: string, options?: { method?: string; body?: any }): Promise<any> {
-  const schedulerBase = (baseUrl || 'https://inferlane.com').replace(/\/$/, '');
+  const schedulerBase = (baseUrl || 'https://inferlane.dev').replace(/\/$/, '');
   const res = await fetch(`${schedulerBase}${path}`, {
     method: options?.method || 'GET',
     headers: {
