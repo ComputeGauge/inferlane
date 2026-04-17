@@ -229,7 +229,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
           </div>
 
           <div className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-500">
-            {['Works with Claude Code, Desktop, Goose, Cursor', 'Free local routing via Ollama', 'No vendor lock-in \u2014 23 providers'].map((text) => (
+            {['Works with Claude Code, Desktop, Goose, Cursor', 'Free local routing via Ollama', 'No vendor lock-in \u2014 26 providers'].map((text) => (
               <span key={text} className="flex items-center gap-1">
                 <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -439,7 +439,7 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
               No single provider controls your AI stack
             </h2>
             <p className="text-gray-400 text-lg">
-              InferLane routes across 23 providers. If one raises prices, goes down, or changes terms &mdash; your workloads shift automatically. No vendor lock-in. No single point of failure.
+              InferLane routes across 26 providers. If one raises prices, goes down, or changes terms &mdash; your workloads shift automatically. No vendor lock-in. No single point of failure.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">

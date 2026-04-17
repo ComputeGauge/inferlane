@@ -228,8 +228,8 @@ export default function StatsPage() {
                     },
                     {
                       category: 'Decentralized',
-                      count: 4,
-                      examples: 'Darkbloom, Bittensor, Akash, Hyperbolic',
+                      count: 6,
+                      examples: 'Darkbloom, Chutes (Bittensor), Akash, Nosana, Hyperbolic',
                       color: 'bg-amber-400',
                     },
                     {

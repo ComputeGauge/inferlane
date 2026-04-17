@@ -8,7 +8,7 @@ export async function GET() {
   return NextResponse.json(
     {
       status: 'ok',
-      providers: 23,
+      providers: 26,
       models: 80,
       exchange: 'live',
     },

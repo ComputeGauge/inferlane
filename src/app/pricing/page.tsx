@@ -234,13 +234,14 @@ export default function PricingPage() {
           No single provider lock-in
         </h2>
         <p className="text-gray-400 mb-4">
-          InferLane routes across 23 providers. If one raises prices, goes
+          InferLane routes across 26 providers. If one raises prices, goes
           down, or changes terms &mdash; your workloads automatically shift.
           No vendor lock-in. No single point of failure.
         </p>
         <div className="flex flex-wrap gap-2">
           {['Anthropic', 'OpenAI', 'Google', 'Mistral', 'DeepSeek', 'Groq',
-            'Together', 'Fireworks', 'Cerebras', 'Ollama (local)', 'Darkbloom'].map((p) => (
+            'Together', 'Fireworks', 'Cerebras', 'Ollama (local)', 'Darkbloom',
+            'Chutes (Bittensor)', 'Akash', 'Nosana'].map((p) => (
             <span
               key={p}
               className="text-xs px-3 py-1 rounded-full bg-[#1e1e2e] text-gray-400 border border-[#2a2a3a]"
