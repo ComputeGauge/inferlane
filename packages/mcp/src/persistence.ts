@@ -203,6 +203,11 @@ export class PersistenceLayer {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      CREATE TABLE IF NOT EXISTS cc_event_seen (
+        uuid TEXT PRIMARY KEY,
+        recorded_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       CREATE INDEX IF NOT EXISTS idx_request_log_agent ON request_log(agent_id);
       CREATE INDEX IF NOT EXISTS idx_request_log_created ON request_log(created_at);
       CREATE INDEX IF NOT EXISTS idx_model_ratings_model ON model_ratings(model, provider);
@@ -358,6 +363,21 @@ export class PersistenceLayer {
   // ==========================================================================
   // Request Logging
   // ==========================================================================
+
+  /**
+   * Atomic dedup for Claude-Code transcript events. Returns true if this UUID
+   * is new (caller should record spend) and false if already seen.
+   */
+  markCCEventSeen(uuid: string): boolean {
+    if (!this.db) return true; // in-memory fallback: let caller proceed
+    try {
+      const stmt = this.db.prepare('INSERT OR IGNORE INTO cc_event_seen (uuid) VALUES (?)');
+      const result = stmt.run(uuid);
+      return result.changes > 0;
+    } catch {
+      return true;
+    }
+  }
 
   logRequest(entry: PersistedRequestLog): void {
     if (!this.db) return;

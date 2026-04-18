@@ -326,6 +326,64 @@ export class SpendTracker {
   }
 
   /**
+   * Structured fuel-gauge snapshot — local-only, zero network.
+   * Caller augments with per-provider breakdown from persistence if available.
+   */
+  getFuelGaugeData(
+    byProvider?: Record<string, number>,
+    requestCount: number = 0,
+  ): {
+    total: { spent: number; budget: number | null; remaining: number | null; percent: number | null };
+    providers: Array<{ name: string; spent: number; budget: number | null; remaining: number | null; percent: number | null }>;
+    requestCount: number;
+    budgetEnabled: boolean;
+    resetAt: string;
+    connectedProviders: string[];
+  } {
+    this.autoResetMonth();
+    const totalBudget = this.budgetEnabled ? this.monthlyBudget : null;
+    // Prefer DB-sourced sum when we have per-provider data (deduped, single source of truth).
+    // Fall back to the in-memory tracker if no breakdown is provided.
+    const providerSum = byProvider
+      ? Object.values(byProvider).reduce((s, v) => s + (Number(v) || 0), 0)
+      : 0;
+    const totalSpent = byProvider && Object.keys(byProvider).length > 0
+      ? providerSum
+      : this.monthSpend;
+    const totalRemaining = totalBudget !== null ? Math.max(0, totalBudget - totalSpent) : null;
+    const totalPercent = totalBudget !== null && totalBudget > 0
+      ? Math.min(100, (totalSpent / totalBudget) * 100)
+      : null;
+
+    const providerNames = new Set<string>([
+      ...Object.keys(byProvider || {}),
+      ...Object.keys(this.config.budgets),
+      ...this.config.connectedProviders,
+    ]);
+    // 'total' is surfaced in the `total` field, not as a provider row
+    providerNames.delete('total');
+
+    const providers = Array.from(providerNames).sort().map(name => {
+      const spent = byProvider?.[name] ?? 0;
+      const budget = this.config.budgets[name] ?? null;
+      const remaining = budget !== null ? Math.max(0, budget - spent) : null;
+      const percent = budget !== null && budget > 0
+        ? Math.min(100, (spent / budget) * 100)
+        : null;
+      return { name, spent, budget, remaining, percent };
+    });
+
+    return {
+      total: { spent: totalSpent, budget: totalBudget, remaining: totalRemaining, percent: totalPercent },
+      providers,
+      requestCount,
+      budgetEnabled: this.budgetEnabled,
+      resetAt: this.getNextMonthReset(),
+      connectedProviders: [...this.config.connectedProviders],
+    };
+  }
+
+  /**
    * Estimate the cost of a request using local pricing data.
    */
   estimateCost(model: string, inputTokens: number, outputTokens: number): number {

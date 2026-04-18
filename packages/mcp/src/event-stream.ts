@@ -52,6 +52,7 @@ export class EventStream {
   // Snapshot getters — set by index.ts after wiring up tachometer and traffic light
   private _getTachometer: (() => TachometerReading) | null = null;
   private _getTrafficLight: (() => TrafficLightSummary) | null = null;
+  private _getFuelGauge: (() => unknown) | null = null;
 
   get active(): boolean {
     return this._active;
@@ -63,9 +64,11 @@ export class EventStream {
   setProviders(options: {
     getTachometer: () => TachometerReading;
     getTrafficLight: () => TrafficLightSummary;
+    getFuelGauge?: () => unknown;
   }): void {
     this._getTachometer = options.getTachometer;
     this._getTrafficLight = options.getTrafficLight;
+    if (options.getFuelGauge) this._getFuelGauge = options.getFuelGauge;
   }
 
   /**
@@ -73,8 +76,13 @@ export class EventStream {
    * Returns true if started, false if disabled or failed.
    */
   start(port?: number): boolean {
-    const eventPort = port || parseInt(process.env.INFERLANE_EVENTS_PORT || '', 10);
-    if (!eventPort || isNaN(eventPort)) {
+    // Opt-out only — local HTTP dashboard is the zero-config path to the fuel gauge.
+    if (process.env.INFERLANE_NO_EVENTS === '1') {
+      return false;
+    }
+    const envPort = parseInt(process.env.INFERLANE_EVENTS_PORT || '', 10);
+    const eventPort = port || (isNaN(envPort) ? 7070 : envPort);
+    if (!eventPort || isNaN(eventPort) || eventPort <= 0) {
       return false;
     }
 
@@ -255,6 +263,8 @@ export class EventStream {
       this.handleTachometerSnapshot(res);
     } else if (url === '/api/status') {
       this.handleStatusSnapshot(res);
+    } else if (url === '/api/fuel-gauge') {
+      this.handleFuelGaugeSnapshot(res);
     } else if (url === '/events') {
       this.handleSSE(req, res);
     } else if (url === '/events/tachometer') {
@@ -263,7 +273,7 @@ export class EventStream {
       this.handleSSE(req, res, 'status_change');
     } else {
       res.writeHead(404, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Not found', endpoints: ['/events', '/events/tachometer', '/events/status', '/api/tachometer', '/api/status', '/api/health'] }));
+      res.end(JSON.stringify({ error: 'Not found', endpoints: ['/events', '/events/tachometer', '/events/status', '/api/tachometer', '/api/status', '/api/fuel-gauge', '/api/health'] }));
     }
   }
 
@@ -273,7 +283,7 @@ export class EventStream {
       // Auto-connect: inject the port so the dashboard connects immediately
       const html = this.dashboardHtml.replace(
         'value="http://localhost:7070"',
-        `value="http://localhost:${(this.server?.address() as any)?.port || 7070}"`
+        `value="http://localhost:${(this.server?.address() as { port?: number } | null)?.port || 7070}"`
       );
       res.end(html.replace(
         '// Auto-connect if URL param provided',
@@ -304,6 +314,12 @@ export class EventStream {
   private handleStatusSnapshot(res: ServerResponse): void {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     const data = this._getTrafficLight ? this._getTrafficLight() : { error: 'Traffic light not initialized' };
+    res.end(JSON.stringify(data));
+  }
+
+  private handleFuelGaugeSnapshot(res: ServerResponse): void {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    const data = this._getFuelGauge ? this._getFuelGauge() : { error: 'Fuel gauge not initialized' };
     res.end(JSON.stringify(data));
   }
 

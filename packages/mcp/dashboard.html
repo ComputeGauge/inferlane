@@ -112,6 +112,33 @@
   /* ===== TACHOMETER ===== */
   .tachometer-card { grid-column: 1 / -1; }
 
+  .fuel-gauge-card { grid-column: 1 / -1; }
+  .fuel-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 8px 0 16px;
+  }
+  .fuel-total-amount { font-size: 28px; font-weight: 600; color: #f3f4f6; }
+  .fuel-total-meta { font-size: 12px; color: var(--muted); }
+  .fuel-bar-wrap { background: #111827; border-radius: 6px; height: 8px; overflow: hidden; margin: 6px 0 14px; }
+  .fuel-bar { height: 100%; transition: width 300ms ease; }
+  .fuel-bar.ok { background: #22c55e; }
+  .fuel-bar.warn { background: #f59e0b; }
+  .fuel-bar.crit { background: #ef4444; }
+  .fuel-providers { display: grid; gap: 10px; }
+  .fuel-row {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    font-size: 13px;
+  }
+  .fuel-row-name { color: #e5e7eb; text-transform: uppercase; letter-spacing: 0.04em; font-size: 11px; }
+  .fuel-row-value { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .fuel-empty { color: var(--muted); font-size: 13px; padding: 12px 0; }
+  .fuel-source { margin-top: 12px; font-size: 11px; color: #4b5563; }
+
   .tacho-main {
     display: flex;
     align-items: center;
@@ -471,6 +498,23 @@
 <!-- Dashboard (hidden until connected) -->
 <div class="grid" id="dashboard" style="display:none;">
 
+  <!-- Compute Fuel Gauge -->
+  <div class="card fuel-gauge-card">
+    <div class="card-title">Compute Fuel Gauge</div>
+    <div class="fuel-total">
+      <div>
+        <div class="fuel-total-amount" id="fuelTotalAmount">$0.00</div>
+        <div class="fuel-total-meta" id="fuelTotalMeta">no budget configured</div>
+      </div>
+      <div class="fuel-total-meta" id="fuelTotalPercent">—</div>
+    </div>
+    <div class="fuel-bar-wrap"><div class="fuel-bar ok" id="fuelTotalBar" style="width:0%"></div></div>
+    <div class="fuel-providers" id="fuelProviders">
+      <div class="fuel-empty">Connecting to local MCP…</div>
+    </div>
+    <div class="fuel-source" id="fuelSource">Source: local ~/.inferlane/state.db</div>
+  </div>
+
   <!-- Tachometer -->
   <div class="card tachometer-card">
     <div class="card-title">Token Tachometer</div>
@@ -619,6 +663,83 @@ function connect() {
   fetch(`${baseUrl}/api/status`).then(r => r.json()).then(data => {
     if (data.agents) data.agents.forEach(a => updateTrafficLight(a));
   }).catch(() => {});
+
+  // Fuel gauge: prime + poll every 5s (cheap JSON read from local SQLite)
+  refreshFuelGauge();
+  if (window._fuelGaugeTimer) clearInterval(window._fuelGaugeTimer);
+  window._fuelGaugeTimer = setInterval(refreshFuelGauge, 5000);
+}
+
+function refreshFuelGauge() {
+  const input = document.getElementById('urlInput');
+  const baseUrl = (input ? input.value : 'http://localhost:7070').replace(/\/$/, '');
+  fetch(`${baseUrl}/api/fuel-gauge`)
+    .then(r => r.json())
+    .then(updateFuelGauge)
+    .catch(() => {});
+}
+
+function fuelBarClass(pct) {
+  if (pct == null) return 'ok';
+  if (pct >= 90) return 'crit';
+  if (pct >= 70) return 'warn';
+  return 'ok';
+}
+
+function fmtMoney(v) { return '$' + (Number(v) || 0).toFixed(2); }
+
+function updateFuelGauge(data) {
+  if (!data || data.error) return;
+  const t = data.total || {};
+  document.getElementById('fuelTotalAmount').textContent = fmtMoney(t.spent);
+
+  const meta = document.getElementById('fuelTotalMeta');
+  const pctEl = document.getElementById('fuelTotalPercent');
+  const bar = document.getElementById('fuelTotalBar');
+
+  if (t.budget != null) {
+    meta.textContent = 'of ' + fmtMoney(t.budget) + ' monthly budget';
+    const pct = t.percent || 0;
+    const remaining = Math.max(0, 100 - pct);
+    pctEl.innerHTML = '<span style="font-size:18px;color:#f3f4f6">' + remaining.toFixed(0) + '%</span> remaining';
+    bar.style.width = Math.min(100, pct) + '%';
+    bar.className = 'fuel-bar ' + fuelBarClass(pct);
+  } else {
+    meta.textContent = 'no budget configured — set INFERLANE_BUDGET_TOTAL to track remaining';
+    pctEl.textContent = (data.requestCount || 0) + ' requests this month';
+    bar.style.width = '0%';
+    bar.className = 'fuel-bar ok';
+  }
+
+  const wrap = document.getElementById('fuelProviders');
+  const providers = Array.isArray(data.providers) ? data.providers : [];
+  if (providers.length === 0) {
+    wrap.innerHTML = '<div class="fuel-empty">No provider activity yet. Call log_request after API calls, or set ANTHROPIC_API_KEY / OPENAI_API_KEY / GOOGLE_API_KEY.</div>';
+  } else {
+    wrap.innerHTML = providers.map(p => {
+      const pct = p.percent;
+      const barWidth = pct != null ? Math.min(100, pct) : 0;
+      const cls = fuelBarClass(pct);
+      const right = p.budget != null
+        ? fmtMoney(p.spent) + ' / ' + fmtMoney(p.budget)
+        : fmtMoney(p.spent);
+      return '<div class="fuel-row">' +
+        '<div class="fuel-row-name">' + escapeHtml(p.name) + '</div>' +
+        '<div class="fuel-bar-wrap" style="margin:0"><div class="fuel-bar ' + cls + '" style="width:' + barWidth + '%"></div></div>' +
+        '<div class="fuel-row-value">' + right + '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  const src = document.getElementById('fuelSource');
+  const resetDate = data.resetAt ? new Date(data.resetAt).toLocaleDateString() : '';
+  src.textContent = 'Source: local ~/.inferlane/state.db · resets ' + resetDate;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
 }
 
 function updateTachometer(data) {

@@ -37,6 +37,11 @@ import { AgentTrafficLightSystem, type AgentLifecyclePhase } from './traffic-lig
 import { EventStream } from './event-stream.js';
 import { RatingSync } from './rating-sync.js';
 import { StateOfComputeReport } from './state-of-compute.js';
+import { ClaudeCodeWatcher } from './claude-code-watcher.js';
+
+function errMsg(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
 
 const tracker = new SpendTracker();
 const sessions = new AgentSessionTracker();
@@ -125,10 +130,18 @@ let logRequestCallCount = 0;
 let logRequestTotalCost = 0;
 const hasApiKey = !!process.env.INFERLANE_API_KEY || !!apiKey;
 
-// Wire event stream to tachometer and traffic light
+function buildFuelGauge() {
+  const summary = persistence.available
+    ? persistence.getSpendSummary(undefined, 'month')
+    : { totalCost: 0, requestCount: 0, byProvider: {}, byModel: {} };
+  return tracker.getFuelGaugeData(summary.byProvider, summary.requestCount);
+}
+
+// Wire event stream to tachometer, traffic light, and fuel gauge
 eventStream.setProviders({
   getTachometer: () => tachometer.getReading(),
   getTrafficLight: () => trafficLight.getSummary(),
+  getFuelGauge: () => buildFuelGauge(),
 });
 
 // Subscribe tachometer and traffic light to push events via SSE
@@ -170,15 +183,19 @@ const agentIdSchema = z.string().optional()
 // AGENT-NATIVE TOOLS — Designed for AI agents to use automatically
 // ============================================================================
 
-// In core mode, wrap server.tool to skip non-essential tools
+// In core mode, wrap server.tool to skip non-essential tools.
+// `any` here is intentional: server.tool is variadic and heavily overloaded
+// in the MCP SDK, and a meta-wrapper can't reproduce that signature.
 const originalTool = server.tool.bind(server);
 if (CORE_MODE) {
   const origToolFn = server.tool;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   server.tool = function(this: any, name: string) {
     if (!shouldRegisterTool(name)) return;
     toolsRegistered.push(name);
-    // eslint-disable-next-line prefer-rest-params
+    // eslint-disable-next-line prefer-rest-params, @typescript-eslint/no-explicit-any
     return origToolFn.apply(this, arguments as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any;
 }
 
@@ -703,6 +720,51 @@ server.tool(
 );
 
 server.tool(
+  'fuel_gauge',
+  'Local-first compute fuel gauge. Returns this month\'s spend, budget, and remaining capacity across all connected providers. Reads purely from local state (no cloud round-trip, no API key needed). Use this to check cost headroom before a large task.',
+  {},
+  async () => {
+    const gauge = buildFuelGauge();
+    const lines: string[] = [];
+    lines.push('# Compute Fuel Gauge');
+    lines.push('');
+    const t = gauge.total;
+    if (t.budget !== null) {
+      const pct = t.percent ?? 0;
+      const remainingPct = Math.max(0, 100 - pct);
+      lines.push(`**Total**: $${t.spent.toFixed(2)} / $${t.budget.toFixed(2)} — **${remainingPct.toFixed(0)}% remaining**`);
+    } else {
+      lines.push(`**Total spent this month**: $${t.spent.toFixed(2)} (no budget set — use \`INFERLANE_BUDGET_TOTAL\`)`);
+    }
+    lines.push(`**Requests logged**: ${gauge.requestCount}`);
+    lines.push(`**Resets**: ${new Date(gauge.resetAt).toLocaleDateString()}`);
+    lines.push('');
+    if (gauge.providers.length > 0) {
+      lines.push('## By provider');
+      for (const p of gauge.providers) {
+        if (p.budget !== null) {
+          const pct = p.percent ?? 0;
+          lines.push(`- **${p.name}**: $${p.spent.toFixed(2)} / $${p.budget.toFixed(2)} (${pct.toFixed(0)}% used)`);
+        } else {
+          lines.push(`- **${p.name}**: $${p.spent.toFixed(2)} (no per-provider budget)`);
+        }
+      }
+    } else {
+      lines.push('_No provider activity recorded yet. Call `log_request` after API calls, or set provider keys (`ANTHROPIC_API_KEY` etc.) to enable tracking._');
+    }
+    lines.push('');
+    lines.push(`_Source: local (~/.inferlane/state.db${persistence.available ? '' : ' unavailable — in-memory only'})_`);
+
+    return {
+      content: [
+        { type: 'text' as const, text: lines.join('\n') },
+        { type: 'text' as const, text: JSON.stringify(gauge, null, 2) },
+      ],
+    };
+  }
+);
+
+server.tool(
   'get_model_pricing',
   'Look up current pricing for AI models across all providers. Returns input/output costs per million tokens.',
   {
@@ -780,8 +842,15 @@ server.tool(
       return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to unlock platform features. Get a free key at https://inferlane.dev' }] };
     }
     try {
-      const data: any = await platformClient.getPromotions();
-      const promos = Array.isArray(data) ? data : (data.promotions || []);
+      const data = await platformClient.getPromotions();
+      const promos = (Array.isArray(data) ? data : (data.promotions || [])) as Array<{
+        provider?: string;
+        title?: string;
+        multiplier?: number;
+        description?: string;
+        rawDescription?: string;
+        endsAt?: string;
+      }>;
       if (promos.length === 0) {
         return { content: [{ type: 'text' as const, text: '# Active Promotions\n\nNo active promotions right now. Check back later!' }] };
       }
@@ -790,8 +859,8 @@ server.tool(
         lines.push(`| ${p.provider || '—'} | ${p.title || '—'} | ${p.multiplier || '—'}x | ${p.rawDescription || p.description || '—'} | ${p.endsAt || '—'} |`);
       }
       return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Error fetching promotions: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error fetching promotions: ${errMsg(err)}` }] };
     }
   }
 );
@@ -808,7 +877,11 @@ server.tool(
       return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to unlock platform features. Get a free key at https://inferlane.dev' }] };
     }
     try {
-      const data: any = await platformClient.getSpendSummary(period);
+      const data = await platformClient.getSpendSummary(period) as {
+        total?: number;
+        byProvider?: Record<string, number>;
+        byModel?: Record<string, number>;
+      };
       const lines: string[] = [`# Platform Spend Summary (${period})`, ''];
 
       if (data.total !== undefined) {
@@ -830,8 +903,8 @@ server.tool(
       }
 
       return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Error fetching spend summary: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error fetching spend summary: ${errMsg(err)}` }] };
     }
   }
 );
@@ -846,7 +919,12 @@ server.tool(
       return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to unlock platform features. Get a free key at https://inferlane.dev' }] };
     }
     try {
-      const data: any = await platformClient.getBudgetStatus();
+      const data = await platformClient.getBudgetStatus() as {
+        plan?: string;
+        budget?: number;
+        spend?: number;
+        remaining?: number;
+      };
       const lines: string[] = ['# Platform Budget Status', ''];
 
       if (data.plan) lines.push(`**Plan**: ${data.plan}`);
@@ -859,8 +937,8 @@ server.tool(
       }
 
       return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Error fetching budget status: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error fetching budget status: ${errMsg(err)}` }] };
     }
   }
 );
@@ -905,11 +983,20 @@ server.tool(
     }
 
     try {
-      const result: any = await platformClient.chatCompletion(model, messages, {
+      const result = await platformClient.chatCompletion(model, messages, {
         routing,
         budget,
         max_tokens,
-      });
+      }) as {
+        choices?: Array<{ message?: { content?: string } }>;
+        content?: Array<{ type?: string; text?: string }>;
+        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+        _il_cost?: string;
+        _il_routed_to?: string;
+        _il_routing_reason?: string;
+        _il_savings?: string;
+        _il_fallback?: string;
+      };
 
       // Record actual cost from routing metadata, or estimate if not available
       const actualCost = result._il_cost ? parseFloat(result._il_cost) : 0;
@@ -927,15 +1014,15 @@ server.tool(
       // Anthropic format
       else if (result.content && Array.isArray(result.content)) {
         responseText = result.content
-          .filter((c: any) => c.type === 'text')
-          .map((c: any) => c.text)
+          .filter((c) => c.type === 'text')
+          .map((c) => c.text)
           .join('\n');
       }
       // Gemini format
       else if (result.candidates?.[0]?.content?.parts) {
         responseText = result.candidates[0].content.parts
-          .filter((p: any) => p.text)
-          .map((p: any) => p.text)
+          .filter((p) => p.text)
+          .map((p) => p.text)
           .join('\n');
       }
       // Fallback
@@ -957,8 +1044,8 @@ server.tool(
       }
 
       return { content: [{ type: 'text' as const, text: output }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Error routing request: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error routing request: ${errMsg(err)}` }] };
     }
   }
 );
@@ -1394,8 +1481,9 @@ Please use InferLane tools to:
 // SCHEDULING TOOLS — Prompt scheduling, chains, and deferred execution
 // ============================================================================
 
-// Helper: make authenticated requests to the InferLane Scheduler API
-async function schedulerRequest(path: string, options?: { method?: string; body?: any }): Promise<any> {
+// Helper: make authenticated requests to the InferLane Scheduler API.
+// Callers pass a T describing the expected response shape (loose by default).
+async function schedulerRequest<T = Record<string, unknown>>(path: string, options?: { method?: string; body?: unknown }): Promise<T> {
   const schedulerBase = (baseUrl || 'https://inferlane.dev').replace(/\/$/, '');
   const res = await fetch(`${schedulerBase}${path}`, {
     method: options?.method || 'GET',
@@ -1407,11 +1495,14 @@ async function schedulerRequest(path: string, options?: { method?: string; body?
   });
 
   if (!res.ok) {
-    const errBody: any = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
-    throw new Error(errBody.error?.message || errBody.error || `Scheduler request failed: ${res.status}`);
+    const errBody = await res.json().catch(() => ({ error: `HTTP ${res.status}` })) as { error?: string | { message?: string } };
+    const errText = typeof errBody.error === 'string'
+      ? errBody.error
+      : errBody.error?.message;
+    throw new Error(errText || `Scheduler request failed: ${res.status}`);
   }
 
-  return res.json();
+  return res.json() as Promise<T>;
 }
 
 // TOOL: schedule_prompt
@@ -1437,7 +1528,16 @@ server.tool(
       return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use scheduling features. Get a free key at https://inferlane.dev' }] };
     }
     try {
-      const result = await schedulerRequest('/api/scheduler/prompts', {
+      const result = await schedulerRequest<{
+        id?: string;
+        status?: string;
+        model?: string;
+        scheduleType?: string;
+        scheduledAt?: string;
+        cronExpression?: string;
+        priceThreshold?: number;
+        estimatedCost?: number;
+      }>('/api/scheduler/prompts', {
         method: 'POST',
         body: {
           prompt: params.prompt,
@@ -1461,8 +1561,8 @@ server.tool(
       if (result.estimatedCost) lines.push(`**Estimated cost**: $${Number(result.estimatedCost).toFixed(4)}`);
 
       return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Error scheduling prompt: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error scheduling prompt: ${errMsg(err)}` }] };
     }
   }
 );
@@ -1487,8 +1587,16 @@ server.tool(
       queryParts.push(`limit=${params.limit}`);
       const query = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
 
-      const result = await schedulerRequest(`/api/scheduler/prompts${query}`);
-      const prompts = Array.isArray(result) ? result : (result.prompts || result.data || []);
+      type ScheduledPrompt = {
+        id?: string;
+        model?: string;
+        scheduleType?: string;
+        schedule_type?: string;
+        status?: string;
+        createdAt?: string;
+      };
+      const result = await schedulerRequest<{ prompts?: ScheduledPrompt[]; data?: ScheduledPrompt[] } | ScheduledPrompt[]>(`/api/scheduler/prompts${query}`);
+      const prompts: ScheduledPrompt[] = Array.isArray(result) ? result : (result.prompts || result.data || []);
 
       if (prompts.length === 0) {
         return { content: [{ type: 'text' as const, text: `# Scheduled Prompts\n\nNo prompts found${params.status ? ` with status ${params.status}` : ''}.` }] };
@@ -1513,8 +1621,8 @@ server.tool(
       }
 
       return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Error listing scheduled prompts: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error listing scheduled prompts: ${errMsg(err)}` }] };
     }
   }
 );
@@ -1536,8 +1644,8 @@ server.tool(
       });
 
       return { content: [{ type: 'text' as const, text: `Scheduled prompt \`${params.prompt_id}\` has been cancelled.` }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Error cancelling prompt: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error cancelling prompt: ${errMsg(err)}` }] };
     }
   }
 );
@@ -1558,7 +1666,14 @@ server.tool(
       return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use scheduling features. Get a free key at https://inferlane.dev' }] };
     }
     try {
-      const result = await schedulerRequest('/api/scheduler/chains', {
+      const result = await schedulerRequest<{
+        batchId?: string;
+        id?: string;
+        stepCount?: number;
+        steps?: unknown[];
+        status?: string;
+        estimatedCost?: number;
+      }>('/api/scheduler/chains', {
         method: 'POST',
         body: {
           steps: params.steps.map(s => ({
@@ -1584,8 +1699,8 @@ server.tool(
       lines.push('Use `chain_status` with the batch ID to track progress.');
 
       return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Error creating chain: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error creating chain: ${errMsg(err)}` }] };
     }
   }
 );
@@ -1602,11 +1717,23 @@ server.tool(
       return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use scheduling features. Get a free key at https://inferlane.dev' }] };
     }
     try {
-      const result = await schedulerRequest(`/api/scheduler/chains/${params.batch_id}`);
+      type ChainStep = {
+        status?: string;
+        model?: string;
+        prompt?: string;
+        output?: string;
+        cost?: number;
+      };
+      const result = await schedulerRequest<{
+        steps?: ChainStep[];
+        prompts?: ChainStep[];
+        status?: string;
+        totalCost?: number;
+      }>(`/api/scheduler/chains/${params.batch_id}`);
 
-      const steps = result.steps || result.prompts || [];
-      const completedSteps = steps.filter((s: any) => s.status === 'COMPLETED').length;
-      const failedSteps = steps.filter((s: any) => s.status === 'FAILED').length;
+      const steps: ChainStep[] = result.steps || result.prompts || [];
+      const completedSteps = steps.filter((s) => s.status === 'COMPLETED').length;
+      const failedSteps = steps.filter((s) => s.status === 'FAILED').length;
       const totalSteps = steps.length;
 
       const lines: string[] = ['# Chain Progress', ''];
@@ -1628,8 +1755,8 @@ server.tool(
       }
 
       return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Error fetching chain status: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error fetching chain status: ${errMsg(err)}` }] };
     }
   }
 );
@@ -1651,7 +1778,26 @@ server.tool(
         period: params.period,
         ...(params.include_leaderboard ? { leaderboard: 'true' } : {}),
       });
-      const result = await schedulerRequest(`/api/savings?${queryParams.toString()}`);
+      type SavingsSummary = {
+        periodLabel?: string;
+        totalSaved: number;
+        totalSpent: number;
+        savingsPercent: number;
+        recordCount: number;
+        bestSingleSaving: number;
+        avgSavingPerRequest: number;
+        topSavingsReason?: string;
+      };
+      type LeaderboardEntry = {
+        label: string;
+        totalSaved: number;
+        requestCount: number;
+        avgSavingPercent: number;
+      };
+      const result = await schedulerRequest<{
+        summary: SavingsSummary;
+        leaderboard?: LeaderboardEntry[];
+      }>(`/api/savings?${queryParams.toString()}`);
       const s = result.summary;
 
       const lines: string[] = ['# Cost Savings Summary', ''];
@@ -1695,8 +1841,8 @@ server.tool(
       }
 
       return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Error fetching savings: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error fetching savings: ${errMsg(err)}` }] };
     }
   }
 );
@@ -1724,7 +1870,16 @@ server.tool(
       return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use dispatch features. Get a free key at https://inferlane.dev' }] };
     }
     try {
-      const result = await schedulerRequest('/api/dispatch', {
+      const result = await schedulerRequest<{
+        taskId?: string;
+        status?: string;
+        provider?: string;
+        model?: string;
+        response?: string | { content?: string };
+        cost?: number;
+        latencyMs?: number;
+        estimatedCompletionMs?: number;
+      }>('/api/dispatch', {
         method: 'POST',
         body: {
           prompt: params.prompt,
@@ -1760,8 +1915,8 @@ server.tool(
       }
 
       return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Dispatch error: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Dispatch error: ${errMsg(err)}` }] };
     }
   }
 );
@@ -1778,7 +1933,16 @@ server.tool(
       return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use dispatch features. Get a free key at https://inferlane.dev' }] };
     }
     try {
-      const result = await schedulerRequest(`/api/dispatch?taskId=${encodeURIComponent(params.taskId)}`);
+      const result = await schedulerRequest<{
+        taskId?: string;
+        status?: string;
+        provider?: string;
+        model?: string;
+        response?: string | { content?: string };
+        cost?: number;
+        latencyMs?: number;
+        error?: string;
+      }>(`/api/dispatch?taskId=${encodeURIComponent(params.taskId)}`);
 
       const lines: string[] = ['# Dispatch Status', ''];
       lines.push(`**Task ID**: \`${result.taskId}\``);
@@ -1802,8 +1966,8 @@ server.tool(
       }
 
       return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Status check error: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Status check error: ${errMsg(err)}` }] };
     }
   }
 );
@@ -1827,7 +1991,23 @@ server.tool(
       return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to use dispatch chain features. Get a free key at https://inferlane.dev' }] };
     }
     try {
-      const result = await schedulerRequest('/api/dispatch/chain', {
+      type DispatchChainStep = {
+        status?: string;
+        provider?: string;
+        model?: string;
+        cost?: number;
+        latencyMs?: number;
+        response?: string | { content?: string };
+        error?: string;
+      };
+      const result = await schedulerRequest<{
+        chainId?: string;
+        batchId?: string;
+        status?: string;
+        steps?: DispatchChainStep[];
+        totalCost?: number;
+        totalLatencyMs?: number;
+      }>('/api/dispatch/chain', {
         method: 'POST',
         body: { steps: params.steps },
       });
@@ -1866,8 +2046,8 @@ server.tool(
       }
 
       return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Chain dispatch error: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Chain dispatch error: ${errMsg(err)}` }] };
     }
   }
 );
@@ -1900,7 +2080,32 @@ server.tool(
       if (params.preferDecentralized !== undefined) preferences.preferDecentralized = params.preferDecentralized;
       if (Object.keys(preferences).length > 0) body.preferences = preferences;
 
-      const result = await schedulerRequest('/api/dispatch/triage', {
+      type TriageDetails = {
+        importance?: string;
+        urgency?: string;
+        complexity?: string;
+        recommendedTier?: string;
+        recommendedPlatform?: string;
+        recommendedProvider?: string;
+        recommendedModel?: string;
+        executionMode?: string;
+        estimatedCostUsd?: number;
+        cheapestOptionCostUsd?: number;
+        potentialSavingsPercent?: number;
+        confidence?: number;
+        reason?: string;
+      };
+      type DispatchDetails = {
+        taskId?: string;
+        status?: string;
+        provider?: string;
+        model?: string;
+        result?: { costUsd?: number };
+      };
+      const result = await schedulerRequest<TriageDetails & {
+        triage?: TriageDetails;
+        dispatch?: DispatchDetails;
+      }>('/api/dispatch/triage', {
         method: 'POST',
         body,
       });
@@ -1908,7 +2113,7 @@ server.tool(
       const lines: string[] = ['## Triage Result', ''];
 
       // If result has a nested triage object (from triageAndDispatch)
-      const triage = result.triage || result;
+      const triage: TriageDetails = result.triage || result;
 
       lines.push(`**Importance:** ${triage.importance} | **Urgency:** ${triage.urgency} | **Complexity:** ${(triage.complexity || triage.recommendedTier || '').toUpperCase()}`);
       lines.push(`**Platform:** ${triage.recommendedPlatform}${triage.recommendedProvider ? ` (${triage.recommendedProvider})` : ''} | **Model:** ${triage.recommendedModel || '—'}`);
@@ -1937,8 +2142,8 @@ server.tool(
       }
 
       return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Triage error: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Triage error: ${errMsg(err)}` }] };
     }
   }
 );
@@ -2007,8 +2212,8 @@ server.tool(
       }
 
       return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Triage settings error: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Triage settings error: ${errMsg(err)}` }] };
     }
   }
 );
@@ -2074,10 +2279,306 @@ server.tool(
 
         return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
       }
-    } catch (err: any) {
-      return { content: [{ type: 'text' as const, text: `Session history error: ${err.message}` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Session history error: ${errMsg(err)}` }] };
     }
   }
+);
+
+// ============================================================================
+// COMPUTE EXCHANGE TOOLS — agents as buyers and sellers of inference capacity
+// (Consolidates the il_exchange_* tools that previously lived in @inferlane/mcp-server)
+// ============================================================================
+
+// TOOL: exchange_spot
+server.tool(
+  'exchange_spot',
+  `Query the InferLane Compute Exchange for the cheapest available inference capacity right now. Returns ranked offers from centralized providers (Anthropic, OpenAI off-peak) and decentralized operators (Darkbloom Apple Silicon, OpenClaw GPUs, Hyperspace pods). Use when comparing live spot prices across the full market, or when the user wants to find the absolute cheapest way to run a workload. Queries live capacity listings, not static pricing.`,
+  {
+    model: z.string().describe('Model to query spot pricing for (e.g., "claude-sonnet-4", "llama-3.3-70b")'),
+    input_tokens: z.number().default(2000).describe('Estimated input tokens for the workload'),
+    output_tokens: z.number().default(500).describe('Estimated output tokens for the workload'),
+    require_attestation: z.boolean().default(false).describe('Only return TEE-attested providers (hardware-verified execution)'),
+    provider_type: z.enum(['CENTRALIZED', 'DECENTRALIZED', 'HYBRID']).default('HYBRID').describe('Filter by provider type'),
+  },
+  async ({ model, input_tokens, output_tokens, require_attestation, provider_type }) => {
+    if (!platformClient) {
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to query the Compute Exchange. Get a free key at https://inferlane.dev' }] };
+    }
+    try {
+      const result = await platformClient.exchangeSpot({
+        model,
+        inputTokens: input_tokens,
+        outputTokens: output_tokens,
+        requireAttestation: require_attestation,
+        providerType: provider_type,
+      }) as { offers?: Array<{ provider: string; providerType?: string; inputPricePerMtok: number; outputPricePerMtok: number; estimatedCost?: number; gpuType?: string; attested?: boolean }> };
+
+      const offers = result.offers || [];
+      if (offers.length === 0) {
+        return { content: [{ type: 'text' as const, text: `# Spot Pricing — ${model}\n\nNo capacity available right now. Try without \`require_attestation\` or a different \`provider_type\`.` }] };
+      }
+
+      const lines: string[] = [
+        `# Spot Pricing — ${model}`,
+        `_${input_tokens.toLocaleString()} in / ${output_tokens.toLocaleString()} out tokens_`,
+        '',
+        '| # | Provider | Type | $/M in | $/M out | Est. cost | Hardware | Attested |',
+        '|---|---|---|---|---|---|---|---|',
+      ];
+      offers.forEach((o, i) => {
+        lines.push(
+          `| ${i + 1} | ${o.provider} | ${o.providerType ?? '—'} | $${o.inputPricePerMtok.toFixed(4)} | $${o.outputPricePerMtok.toFixed(4)} | $${(o.estimatedCost ?? 0).toFixed(6)} | ${o.gpuType ?? '—'} | ${o.attested ? '✓' : '—'} |`,
+        );
+      });
+
+      return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error querying spot pricing: ${errMsg(err)}` }] };
+    }
+  },
+);
+
+// TOOL: exchange_offers
+server.tool(
+  'exchange_offers',
+  `List all active capacity offers on the InferLane Compute Exchange order book. Shows who is selling compute, at what price, on what hardware, and whether execution is TEE-attested. Use when browsing the full market, comparing provider types, or auditing what's available. Returns offers sorted cheapest-first.`,
+  {
+    model: z.string().optional().describe('Filter by model name'),
+    provider_type: z.enum(['CENTRALIZED', 'DECENTRALIZED', 'HYBRID']).optional().describe('Filter by provider type'),
+    attested_only: z.boolean().default(false).describe('Only show TEE-attested offers'),
+    limit: z.number().default(20).describe('Max offers to return'),
+  },
+  async ({ model, provider_type, attested_only, limit }) => {
+    if (!platformClient) {
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to query the Compute Exchange. Get a free key at https://inferlane.dev' }] };
+    }
+    try {
+      const result = await platformClient.exchangeOffers({
+        model,
+        providerType: provider_type,
+        attestedOnly: attested_only,
+        limit,
+      }) as { offers?: Array<{ id: string; providerId: string; providerType: string; model: string; gpuType?: string; inputPricePerMtok: number; outputPricePerMtok: number; maxTokensPerSec: number; attestationType?: string }> };
+
+      const offers = result.offers || [];
+      if (offers.length === 0) {
+        return { content: [{ type: 'text' as const, text: '# Exchange Order Book\n\nNo active offers match the filters.' }] };
+      }
+
+      const lines: string[] = [
+        '# Exchange Order Book',
+        '',
+        `Showing ${offers.length} offer(s)`,
+        '',
+        '| Offer | Seller | Type | Model | Hardware | $/M in | $/M out | Tok/s | Attestation |',
+        '|---|---|---|---|---|---|---|---|---|',
+      ];
+      for (const o of offers) {
+        lines.push(
+          `| \`${o.id.slice(0, 8)}\` | ${o.providerId.slice(0, 12)} | ${o.providerType} | ${o.model} | ${o.gpuType ?? '—'} | $${o.inputPricePerMtok.toFixed(4)} | $${o.outputPricePerMtok.toFixed(4)} | ${o.maxTokensPerSec} | ${o.attestationType ?? '—'} |`,
+        );
+      }
+
+      return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error fetching offers: ${errMsg(err)}` }] };
+    }
+  },
+);
+
+// TOOL: exchange_list_capacity
+server.tool(
+  'exchange_list_capacity',
+  `List your own compute capacity on the InferLane Compute Exchange as a seller. Other agents and users can then route inference workloads to your hardware at the price you set. Use when monetizing idle GPU / Apple Silicon, or when an agent is managing a fleet and wants to sell excess capacity during off-peak hours. Requires an authenticated InferLane API key with operator permissions.`,
+  {
+    model: z.string().describe('Model you can serve (e.g., "llama-3.3-70b", "gemma-4-27b")'),
+    input_price_per_mtok: z.number().describe('Price per million input tokens in USD (e.g., 0.35)'),
+    output_price_per_mtok: z.number().describe('Price per million output tokens in USD (e.g., 1.05)'),
+    max_tokens_per_sec: z.number().describe('Maximum throughput in tokens per second'),
+    gpu_type: z.string().optional().describe('Hardware type (e.g., "Apple M4 Max", "H100", "RTX 4090")'),
+    hours_available: z.number().default(24).describe('How many hours from now this capacity is available'),
+    require_attestation: z.boolean().default(false).describe('Require buyers to use TEE-attested execution path'),
+  },
+  async (params) => {
+    if (!platformClient) {
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to list capacity. Get a free key at https://inferlane.dev' }] };
+    }
+    try {
+      const result = await platformClient.exchangeListCapacity({
+        model: params.model,
+        inputPricePerMtok: params.input_price_per_mtok,
+        outputPricePerMtok: params.output_price_per_mtok,
+        maxTokensPerSec: params.max_tokens_per_sec,
+        gpuType: params.gpu_type,
+        hoursAvailable: params.hours_available,
+        requireAttestation: params.require_attestation,
+      }) as { id?: string; offer?: { id: string; model: string; status: string; availableUntil: string } };
+
+      const offer = result.offer ?? (result.id ? { id: result.id, model: params.model, status: 'ACTIVE', availableUntil: '' } : null);
+      if (!offer) {
+        return { content: [{ type: 'text' as const, text: 'Listing submitted but no offer returned. Check your dashboard at https://inferlane.dev/dashboard/exchange' }] };
+      }
+
+      const lines: string[] = [
+        '# Capacity Listed',
+        '',
+        `**Offer ID**: \`${offer.id}\``,
+        `**Model**: ${offer.model}`,
+        `**Status**: ${offer.status}`,
+        `**Price**: $${params.input_price_per_mtok.toFixed(4)}/M in, $${params.output_price_per_mtok.toFixed(4)}/M out`,
+        `**Throughput**: ${params.max_tokens_per_sec} tok/s${params.gpu_type ? ` on ${params.gpu_type}` : ''}`,
+        `**Window**: ${params.hours_available}h from now`,
+        '',
+        'View / edit on the dashboard: https://inferlane.dev/dashboard/exchange',
+      ];
+
+      return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error listing capacity: ${errMsg(err)}` }] };
+    }
+  },
+);
+
+// ============================================================================
+// WEBHOOKS — register, list, delete event callbacks (HMAC-signed)
+// ============================================================================
+
+// TOOL: ping
+server.tool(
+  'ping',
+  `Verify the InferLane API key works. Returns the number of models visible to the caller and the deployment environment — use this first when setting up a new integration or debugging auth problems. No side effects, no spend.`,
+  {},
+  async () => {
+    if (!platformClient) {
+      return { content: [{ type: 'text' as const, text: '❌ No INFERLANE_API_KEY configured. Get a key at https://inferlane.dev/dashboard/onboarding' }] };
+    }
+    try {
+      const result = await platformClient.ping() as { object?: string; data?: Array<{ id: string }> };
+      const modelCount = Array.isArray(result.data) ? result.data.length : 0;
+      const lines: string[] = [
+        '# ✅ API Key Valid',
+        '',
+        `**Models visible**: ${modelCount}`,
+        `**Endpoint**: ${baseUrl || 'https://inferlane.dev'}`,
+        '',
+        'Ready to route requests. Try `pick_model` or `route_via_platform` next.',
+      ];
+      return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `❌ API key rejected or platform unreachable: ${errMsg(err)}` }] };
+    }
+  },
+);
+
+// TOOL: list_webhooks
+server.tool(
+  'list_webhooks',
+  `List all webhook endpoints registered on the caller's account. Shows each endpoint's URL, subscribed events (spend_alert / budget_exceeded / promotion_detected / request_completed), delivery status, and failure count. Use when auditing which endpoints InferLane will deliver events to, or diagnosing why expected callbacks aren't arriving.`,
+  {},
+  async () => {
+    if (!platformClient) {
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to manage webhooks. Get a free key at https://inferlane.dev' }] };
+    }
+    try {
+      const result = await platformClient.listWebhooks() as {
+        data?: Array<{
+          id: string;
+          url: string;
+          events: string[];
+          isActive: boolean;
+          lastDeliveryAt?: string | null;
+          lastDeliveryStatus?: number | null;
+          failureCount: number;
+        }>;
+      };
+      const endpoints = result.data ?? [];
+      if (endpoints.length === 0) {
+        return { content: [{ type: 'text' as const, text: '# Webhooks\n\nNo webhook endpoints registered. Use `register_webhook` to add one.' }] };
+      }
+      const lines: string[] = [
+        '# Webhooks',
+        '',
+        `Showing ${endpoints.length} endpoint(s)`,
+        '',
+        '| ID | URL | Events | Status | Last delivery | Failures |',
+        '|---|---|---|---|---|---|',
+      ];
+      for (const e of endpoints) {
+        const lastStatus = e.lastDeliveryStatus ? `${e.lastDeliveryStatus}` : '—';
+        const lastAt = e.lastDeliveryAt ? new Date(e.lastDeliveryAt).toISOString().slice(0, 19) : 'never';
+        lines.push(
+          `| \`${e.id.slice(0, 10)}\` | ${e.url} | ${e.events.join(', ')} | ${e.isActive ? '✓ active' : '✗ disabled'} | ${lastAt} (${lastStatus}) | ${e.failureCount} |`,
+        );
+      }
+      return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error listing webhooks: ${errMsg(err)}` }] };
+    }
+  },
+);
+
+// TOOL: register_webhook
+server.tool(
+  'register_webhook',
+  `Register an HTTPS endpoint to receive InferLane event callbacks. Each delivery is signed with HMAC-SHA256 — the signing secret is returned ONCE in the response, so the caller must store it immediately. Use for alerting / budget automation / routing to observability pipelines. Every delivery includes X-IL-Signature, X-IL-Event-Type, X-IL-Event-Timestamp headers.`,
+  {
+    url: z.string().url().describe('HTTPS URL that will receive POST deliveries'),
+    events: z.array(z.enum(['spend_alert', 'budget_exceeded', 'promotion_detected', 'request_completed']))
+      .min(1)
+      .describe('Event types to subscribe to'),
+  },
+  async ({ url, events }) => {
+    if (!platformClient) {
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to register webhooks. Get a free key at https://inferlane.dev' }] };
+    }
+    try {
+      const result = await platformClient.registerWebhook({ url, events }) as {
+        id: string;
+        url: string;
+        events: string[];
+        secret: string;
+      };
+      const lines: string[] = [
+        '# ✅ Webhook Registered',
+        '',
+        `**ID**: \`${result.id}\``,
+        `**URL**: ${result.url}`,
+        `**Events**: ${result.events.join(', ')}`,
+        '',
+        '## ⚠️ Signing secret — copy NOW, shown only once',
+        '',
+        `\`\`\``,
+        result.secret,
+        `\`\`\``,
+        '',
+        'Verify incoming deliveries with HMAC-SHA256 over the raw request body, comparing against the `X-IL-Signature` header.',
+      ];
+      return { content: [{ type: 'text' as const, text: lines.join('\n') }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error registering webhook: ${errMsg(err)}` }] };
+    }
+  },
+);
+
+// TOOL: delete_webhook
+server.tool(
+  'delete_webhook',
+  `Permanently delete a webhook endpoint by ID. Deliveries stop immediately; the signing secret is discarded. Use to retire endpoints that are no longer needed, or to rotate the signing secret (delete + re-register).`,
+  {
+    id: z.string().describe('Webhook ID returned by register_webhook or list_webhooks'),
+  },
+  async ({ id }) => {
+    if (!platformClient) {
+      return { content: [{ type: 'text' as const, text: 'Set INFERLANE_API_KEY to manage webhooks. Get a free key at https://inferlane.dev' }] };
+    }
+    try {
+      await platformClient.deleteWebhook(id);
+      return { content: [{ type: 'text' as const, text: `✅ Webhook \`${id}\` deleted. No further deliveries will be attempted.` }] };
+    } catch (err) {
+      return { content: [{ type: 'text' as const, text: `Error deleting webhook: ${errMsg(err)}` }] };
+    }
+  },
 );
 
 // ============================================================================
@@ -2092,10 +2593,39 @@ async function main() {
   }
   console.error(`[InferLane MCP] Persistence: ${persistence.available ? 'SQLite active' : 'in-memory only (SQLite unavailable)'}`);
 
-  // Start SSE event stream if port configured
+  // Auto-ingest real Claude Code usage so the fuel gauge reflects actual spend.
+  // Zero network; reads local transcript logs only. Opt out with INFERLANE_NO_CC_WATCH=1.
+  const ccWatcher = new ClaudeCodeWatcher({
+    seenUuid: (uuid) => !persistence.markCCEventSeen(uuid),
+    onUsage: (ev) => {
+      tracker.recordSpend(ev.cost);
+      if (persistence.available) {
+        persistence.logRequest({
+          provider: ev.provider,
+          model: ev.model,
+          inputTokens: ev.inputTokens + ev.cacheCreationTokens + ev.cacheReadTokens,
+          outputTokens: ev.outputTokens,
+          cost: ev.cost,
+          taskType: 'claude_code',
+          success: true,
+          createdAt: ev.createdAt,
+        });
+      }
+    },
+  });
+  const ccResult = await ccWatcher.start();
+  if (ccResult) {
+    console.error(`[InferLane MCP] Claude Code watcher: backfilled ${ccResult.scanned} events, $${ccResult.cost.toFixed(4)} this month`);
+  } else {
+    console.error('[InferLane MCP] Claude Code watcher: inactive (no ~/.claude/projects or INFERLANE_NO_CC_WATCH=1)');
+  }
+
+  // Local HTTP dashboard auto-starts on port 7070 (override with INFERLANE_EVENTS_PORT, disable with INFERLANE_NO_EVENTS=1)
   const eventsStarted = eventStream.start();
   if (!eventsStarted) {
-    console.error('[InferLane MCP] Event stream: disabled (set INFERLANE_EVENTS_PORT to enable)');
+    console.error('[InferLane MCP] Local dashboard: disabled (INFERLANE_NO_EVENTS=1)');
+  } else {
+    console.error('[InferLane MCP] Local fuel gauge → http://localhost:' + (process.env.INFERLANE_EVENTS_PORT || '7070') + '/dashboard');
   }
 
   // Rating sync status
@@ -2105,7 +2635,7 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('[InferLane MCP] Server v0.5.0 started — cost intelligence + real-time monitoring');
+  console.error('[InferLane MCP] Server v0.6.1 started — cost intelligence + monitoring + compute exchange + webhooks');
 }
 
 main().catch((error) => {

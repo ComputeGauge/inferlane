@@ -1,7 +1,7 @@
 {
   "name": "inferlane",
-  "version": "1.0.0",
-  "description": "Smart model routing and cost optimization for Claude. Picks the cheapest model for each task, routes between local (Ollama) and cloud inference, and tracks AI spend across providers.",
+  "version": "1.1.0",
+  "description": "Cost-aware compute fuel gauge for Claude Code. Auto-tracks real usage from your transcript, budgets by provider, local-first dashboard at http://localhost:7070 — no API key needed.",
   "author": {
     "name": "InferLane",
     "url": "https://inferlane.dev"
@@ -17,12 +17,33 @@
     "multi-provider",
     "observability",
     "ollama",
-    "local-inference"
+    "local-inference",
+    "fuel-gauge"
   ],
   "userConfig": {
     "api_key": {
-      "description": "InferLane API key (optional — offline tools work without one). Get one at https://inferlane.dev/dashboard/settings",
+      "description": "InferLane API key (optional — local fuel gauge works without one). Needed only for cross-device sync. Get one at https://inferlane.dev/dashboard/settings",
       "sensitive": true
+    },
+    "monthly_budget": {
+      "description": "Total monthly budget across all providers in USD (e.g. 100). Leave blank to track spend without a cap.",
+      "default": "100"
+    },
+    "anthropic_budget": {
+      "description": "Per-provider monthly budget for Anthropic in USD. Leave blank to skip the per-provider gauge row.",
+      "default": "60"
+    },
+    "openai_budget": {
+      "description": "Per-provider monthly budget for OpenAI in USD. Leave blank to skip.",
+      "default": ""
+    },
+    "google_budget": {
+      "description": "Per-provider monthly budget for Google/Gemini in USD. Leave blank to skip.",
+      "default": ""
+    },
+    "dashboard_port": {
+      "description": "Port for the local fuel-gauge dashboard (http://localhost:PORT/dashboard). Default 7070.",
+      "default": "7070"
     }
   }
 }
