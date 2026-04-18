@@ -1,7 +1,7 @@
 {
   "name": "@inferlane/mcp",
-  "version": "0.5.4",
-  "description": "The cost intelligence layer for AI agents. Model selection, spend tracking, credibility scoring, and local-to-cloud routing via MCP. Works with Claude, Cursor, Windsurf, and any MCP-compatible agent.",
+  "version": "0.7.0",
+  "description": "Local-first compute fuel gauge for Claude Code + 49 MCP tools for model selection, spend tracking, credibility, routing, and the compute exchange. Auto-ingests real usage from Claude Code transcripts — no API key needed. Works with Claude, Cursor, Windsurf, and any MCP-compatible agent.",
   "license": "Apache-2.0",
   "type": "module",
   "main": "dist/index.js",

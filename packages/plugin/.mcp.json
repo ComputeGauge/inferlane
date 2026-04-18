@@ -2,9 +2,14 @@
   "mcpServers": {
     "inferlane": {
       "command": "npx",
-      "args": ["-y", "--loglevel=error", "@inferlane/mcp@^0.5.0"],
+      "args": ["-y", "--loglevel=error", "@inferlane/mcp@^0.7.0"],
       "env": {
-        "INFERLANE_API_KEY": "${user_config.api_key}"
+        "INFERLANE_API_KEY": "${user_config.api_key}",
+        "INFERLANE_BUDGET_TOTAL": "${user_config.monthly_budget}",
+        "INFERLANE_BUDGET_ANTHROPIC": "${user_config.anthropic_budget}",
+        "INFERLANE_BUDGET_OPENAI": "${user_config.openai_budget}",
+        "INFERLANE_BUDGET_GOOGLE": "${user_config.google_budget}",
+        "INFERLANE_EVENTS_PORT": "${user_config.dashboard_port}"
       }
     }
   }
