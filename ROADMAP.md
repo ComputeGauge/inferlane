@@ -73,6 +73,17 @@ discussion and we'll move it or mark it `help-wanted`.
   inference AND they contribute widgets/policies for their niches. No
   special product work beyond the existing cross-platform daemon +
   marketplace; dedicated recruitment channel.
+- **Operator-modded dashboards + affinity routing** — top-performing
+  operators get a customisable public dashboard (logo, theme, featured
+  widgets, bio, benchmarks). Consumers visiting an operator's branded
+  dashboard get affinity-routed to that operator's node when hardware
+  and model requirements match. Operators can strike independent
+  affiliate/sponsorship deals with widget creators via the marketplace;
+  we facilitate attribution and payment splits on-platform. Inspired by
+  Roblox experiences + Twitch affiliate programmes. Security boundary:
+  operator dashboards are rendered from a sandboxed subset of the same
+  marketplace components (no arbitrary HTML / JS injection). Target: v2
+  post-marketplace launch (month 4-6).
 - **Cash payouts** — Stripe Connect wiring is ready. We'll flip on when
   monthly recurring revenue from MCP Pro + routing markup justifies funding it
   without subsidy. Probably month 3.
