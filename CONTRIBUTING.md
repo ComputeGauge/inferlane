@@ -49,6 +49,34 @@ Credits earned through contributions never expire (unlike standard operator
 credits which expire at 6 months). They also stack with cash payouts when
 those go live.
 
+## Contribution tier ladder (the marketplace, when it launches)
+
+Not every contribution is a merged PR. Starting in month 2-3 we'll open a
+tiered marketplace so contributors can ship standalone components and earn
+revenue-share on adoption, not just kT. Security-tiered so third-party code
+never compromises the network:
+
+| Tier | What it is | Review gate | Reward |
+|---|---|---|---|
+| **UI Widget** | React component rendered in iframe on the dashboard. Pure client-side, postMessage API only. No server/backend access. | Core team review + published to `@inferlane-community/*` npm scope | **40% of MRR** from users who activated the widget in prior 30 days (last-touch attribution, 30-day clawback on churn) |
+| **Routing Policy** | Declarative JSON rules ("route Haiku for task X under $Y"). Data, not code. Runs through our safe evaluator. | Lint + schema validation — no human review | **kT bonus** per 1k adoptions |
+| **Dashboard Theme** | CSS variables + token set. Visual only. | Lint + visual review | **kT bonus** + `theme-creator` badge |
+| **Integration Recipe** | Pre-baked config for Slack/Linear/Discord/Notion webhook alerts. | Core team review | **30% of recipe-driven conversions** (e.g. user installs Slack recipe and upgrades to MCP Pro) |
+| **Provider Adapter** | New LLM backend route (e.g. Cerebras, Mistral Hosted, SambaNova). | Full PR review, merged into main product | **50,000 kT merged** + negotiated revenue share for commercial adapters |
+| **Daemon Plugin** | Operator-side logic: custom benchmarks, fleet coordination, regional routing. | PR-only, full code audit, signed releases, security review | **150,000 kT merged** + negotiated revshare for commercial plugins |
+
+**Attribution rules** (to prevent gaming):
+- Install events logged server-side, not trusted from client
+- 30-day last-touch attribution window
+- Refund clawback: user churn within 30 days refunds attribution
+- Single creator capped at 15% of total platform revenue (prevents concentration risk)
+- Verified identity via GitHub OAuth or Stripe Connect before any cash payout
+
+**Phased launch:**
+- **V1 (month 2-3)**: UI Widget + Routing Policy + Dashboard Theme. Pure client-side / data-only. No server surface for third-party code.
+- **V2 (month 4-6)**: Integration Recipe + Provider Adapter. Heavier review, higher revshare.
+- **V3 (month 6+)**: Daemon Plugin. Signed code only, full audit required.
+
 ## How to submit
 
 1. **Check** the [ROADMAP](./ROADMAP.md) and open issues. If what you want to

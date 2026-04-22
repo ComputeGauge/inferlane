@@ -55,6 +55,24 @@ discussion and we'll move it or mark it `help-wanted`.
 
 ## 💭 Considering (open questions)
 
+- **Contributor marketplace** — UI widgets, dashboard themes, routing
+  policies, integration recipes, provider adapters. Security-tiered:
+  client-side widgets (low risk) and JSON policies (no code) launch first.
+  Revenue share: 30-50% of attributed MRR for UI/integrations; kT bonuses
+  for data-only contributions; 150k kT + negotiated revshare for daemon
+  plugins. Creator dashboard shows installs, MRR attributed, payouts.
+  Draws inspiration from Roblox Dev Exchange and Minecraft Marketplace.
+  Target: v1 pilot in month 2-3 with UI + policy tiers only. See
+  [CONTRIBUTING.md](./CONTRIBUTING.md) for the contribution tier ladder.
+- **Public `/roadmap` and `/community` pages** — this file rendered as a
+  live webpage with 👍 voting per item, a contributor wall, Discord CTA,
+  and upcoming community-call schedule.
+- **Gaming-rig operator class** — NVIDIA RTX 40/50-series + Apple Silicon
+  Macs overlap heavily with the modding community (FiveM, Minecraft server
+  owners, Roblox creators). Two-in-one conversion: their rig serves
+  inference AND they contribute widgets/policies for their niches. No
+  special product work beyond the existing cross-platform daemon +
+  marketplace; dedicated recruitment channel.
 - **Cash payouts** — Stripe Connect wiring is ready. We'll flip on when
   monthly recurring revenue from MCP Pro + routing markup justifies funding it
   without subsidy. Probably month 3.
