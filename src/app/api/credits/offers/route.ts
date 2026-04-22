@@ -111,6 +111,21 @@ async function handleGET(req: NextRequest) {
 // POST /api/credits/offers — Create a new offer
 // ---------------------------------------------------------------------------
 async function handlePOST(req: NextRequest) {
+  // GATED: user-to-user credit marketplace is disabled by default.
+  // Variable-priced peer-to-peer trading of credits earned through work can
+  // be construed as securities / commodities exchange activity under Howey
+  // (US) and similar tests internationally. Do not enable without securities
+  // counsel sign-off. See _internal/HUMAN_TASKS.md task F4.
+  if (process.env.CREDIT_MARKETPLACE_ENABLED !== '1') {
+    return NextResponse.json(
+      {
+        error: 'Credit marketplace is not currently available.',
+        reason: 'Peer-to-peer credit trading is disabled pending compliance review. kT credits are service-redemption units, not transferable securities. See https://inferlane.dev/legal/not-a-financial-product for details.',
+      },
+      { status: 410 },
+    );
+  }
+
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

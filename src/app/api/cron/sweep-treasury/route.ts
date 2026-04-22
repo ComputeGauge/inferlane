@@ -16,6 +16,24 @@ import { logger } from '@/lib/telemetry';
 export async function GET(req: NextRequest) {
   if (!verifyCronSecret(req)) return unauthorizedResponse();
 
+  // GATED: earning yield on customer float is regulated banking / MSB
+  // activity. Do not enable this sweep without banking counsel sign-off
+  // AND the regulated-entity registrations required in the jurisdictions
+  // where customers are served. See _internal/HUMAN_TASKS.md task F1.
+  // The hard gate is separate from the downstream stub-mode check below
+  // so that even if STRIPE_TREASURY_ENABLED is accidentally set, this
+  // cron still refuses to move money without the explicit compliance
+  // acknowledgement.
+  if (process.env.TREASURY_SWEEP_COMPLIANCE_ACKNOWLEDGED !== '1') {
+    return NextResponse.json({
+      ok: true,
+      swept: false,
+      stub: true,
+      disabled: true,
+      message: 'Treasury sweep disabled pending banking / MSB compliance review. kT credits are not a financial product; customer funds are held by the payment processor.',
+    });
+  }
+
   const started = Date.now();
   try {
     // Short-circuit: if the treasury adapter is in stub mode we

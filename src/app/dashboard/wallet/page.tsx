@@ -103,7 +103,7 @@ export default function WalletPage() {
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-white">Wallet</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Prepaid compute credits. Deposit once, we route every request.
+            Prepaid compute credits. Top up once, we route every request.
           </p>
         </div>
         <button
@@ -235,7 +235,7 @@ export default function WalletPage() {
       {!loading && !error && !balance && (
         <div className="rounded-lg border border-[#1e1e2e] bg-[#0a0a12] p-6 text-sm text-gray-500">
           Wallet projection endpoint not yet available in this build.
-          Deposit flow ships in Phase F1.4.
+          Top-up flow ships in Phase F1.4.
         </div>
       )}
     </div>

@@ -26,6 +26,14 @@ const seen = new Map<string, number>();
 const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000;
 
 function isEnabled(): boolean {
+  // GATED: accepting USDT is Virtual Asset Service Provider (VASP)
+  // activity. Triggers AUSTRAC registration (AU), FinCEN MSB (US), MiCA
+  // (EU), FCA registration (UK), and similar regimes. Do not enable
+  // without the appropriate registrations in every jurisdiction from
+  // which you accept funds. See _internal/HUMAN_TASKS.md task F2.
+  // The VASP_COMPLIANCE_ACKNOWLEDGED gate is required in addition to
+  // TETHER_WEBHOOK_ENABLED so the webhook can't accidentally go live.
+  if (process.env.VASP_COMPLIANCE_ACKNOWLEDGED !== '1') return false;
   return (
     process.env.TETHER_WEBHOOK_ENABLED === '1' ||
     process.env.TETHER_WEBHOOK_ENABLED === 'true'
