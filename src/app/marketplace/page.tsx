@@ -153,7 +153,7 @@ export default function MarketplacePage() {
           <li>• 30-day last-touch attribution window</li>
           <li>• Refund clawback: churn within 30 days refunds attribution</li>
           <li>• Single creator capped at 15% of total platform revenue (prevents concentration)</li>
-          <li>• Verified identity via GitHub OAuth or licensed-processor onboarding before any cash payout</li>
+          <li>• Verified identity via GitHub OAuth before revenue-share attribution is credited. The Service operates in credits-only mode; no cash payouts are currently offered.</li>
         </ul>
       </section>
 

@@ -34,8 +34,6 @@ export default function RunANodeCalculator() {
   const kt = Math.round(hw.kt * (hours / 14));
   const tokensPerMonth = kt * 1000;
   const elec = (hw.watts * hours * rate * 30) / 1000;
-  const ktNominalUSD = kt * 0.001;
-  const netCash = Math.max(0, ktNominalUSD * 0.9 - elec);
 
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 overflow-hidden">
@@ -133,39 +131,40 @@ export default function RunANodeCalculator() {
 
           <div className="mt-6 space-y-2 text-sm">
             <div className="flex justify-between text-zinc-400">
-              <span>Credit value (nominal)</span>
-              <span className="font-mono tabular-nums">${ktNominalUSD.toFixed(2)}</span>
+              <span>Service value of credits (at face rate)</span>
+              <span className="font-mono tabular-nums">
+                ≈ {(tokensPerMonth / 1_000_000).toFixed(1)}M tokens of inference
+              </span>
             </div>
             <div className="flex justify-between text-zinc-400">
-              <span>Electricity cost</span>
-              <span className="font-mono tabular-nums">− ${elec.toFixed(2)}</span>
+              <span>Your electricity cost (info only)</span>
+              <span className="font-mono tabular-nums">${elec.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-zinc-400">
-              <span>Platform fee (10%)</span>
-              <span className="font-mono tabular-nums">− ${(ktNominalUSD * 0.1).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between pt-3 mt-3 border-t border-zinc-800 font-semibold text-zinc-100">
-              <span>Net / month <em className="text-zinc-500 font-normal italic">when cash payouts are live</em></span>
-              <span className="font-mono tabular-nums text-amber-400">${netCash.toFixed(2)}</span>
+              <span>Platform share</span>
+              <span className="font-mono tabular-nums">10% of serving rate</span>
             </div>
           </div>
 
-          <p className="mt-6 text-xs text-zinc-500 leading-relaxed">
-            Credits turn on day one. Cash payouts flip on once MRR from
-            MCP Pro + routing markup can fund them without subsidy (target
-            month 3). You earn the same kT either way — credits redeem for
-            inference now, or bank for later conversion.
-          </p>
+          <div className="mt-6 rounded-lg bg-zinc-900/60 border border-amber-500/30 p-4 text-xs text-amber-100/90 leading-relaxed">
+            <strong className="text-amber-300">Credits-only mode.</strong>{' '}
+            The Service currently operates in a credits-only mode. kT credits
+            are redeemable for inference on the network and <strong>do not
+            convert to cash</strong>. If a cash pathway is introduced in the
+            future, it will require a separate opt-in, new terms, and KYC;
+            existing credits will not be converted.
+          </div>
 
           <p className="mt-4 text-[10px] text-zinc-600 leading-relaxed">
             <strong className="text-amber-500">*</strong> Anticipated figures, not guaranteed
             earnings. Illustrative only — not financial advice, not an
             investment, not a security, not a financial product. kT credits
-            are a service unit redeemable for inference; they are not
-            currency and not a claim on InferLane revenue. Cash redemption is
-            planned but not yet live and may never go live. Your actual
-            earnings depend on hardware, uptime, electricity, regional
-            demand, platform fees, and moderation outcomes, and may be zero.
+            are a service unit redeemable for inference on the network;
+            they are not currency, not tradeable, not transferable between
+            users, and carry no claim on InferLane revenue. Cash redemption
+            is not offered and may never be offered. Your actual credits
+            earned depend on hardware, uptime, regional demand, platform
+            fees, and moderation outcomes, and may be zero.
           </p>
         </div>
       </div>

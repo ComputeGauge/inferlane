@@ -81,13 +81,15 @@ export default function TransparencyPage() {
           </div>
 
           <div className="rounded-xl border border-[#1e1e2e] bg-[#12121a] p-5">
-            <h3 className="font-semibold text-white mb-1">5. Peer-network platform fee</h3>
+            <h3 className="font-semibold text-white mb-1">5. Peer-network platform share</h3>
             <p className="text-sm text-gray-400">
               When consumers pay for inference served by peer operators on
-              our network, operators receive 90% of the service fee and we
-              retain 10% as the platform share. kT credits earned by
-              operators are service-redemption units, not securities or
-              currency (see the &quot;What kT credits are not&quot; section below).
+              our network, operators are credited 90% of the service value
+              in kT credits and we retain 10% as the platform share. kT
+              credits are redeemable for inference on the network — they{' '}
+              <strong className="text-amber-300">do not convert to cash</strong>.
+              The Service operates in a credits-only mode. See the
+              &quot;What InferLane is not&quot; box below.
             </p>
           </div>
         </div>
@@ -106,9 +108,11 @@ export default function TransparencyPage() {
             kT credits are service units redeemable for inference on the
             network. They are not a financial product. They have no
             investment character and no claim on InferLane revenue or
-            assets. Cash redemption (where offered) is at the face value
-            of the kT unit at time of redemption, at the platform&apos;s
-            discretion, and may be changed or discontinued.
+            assets. <strong>Credits do not convert to cash.</strong> The
+            Service operates in a credits-only mode. If a cash pathway is
+            introduced in the future, operators will need to separately
+            opt in under new terms; existing credit balances will not be
+            converted.
           </p>
         </div>
       </section>

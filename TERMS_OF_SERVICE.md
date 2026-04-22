@@ -63,11 +63,30 @@ InferLane as described in that agreement.
 
 The Service uses an internal credit system ("Credits", denominated in
 "kT" kilotokens) per our published rate tables. Credits earned by
-serving inference (where applicable) can be spent on inference or, where
-offered, redeemed for cash at the platform's then-current face rate.
+serving inference **can only be spent on inference on the Service**.
 Credits are subject to expiry and balance caps documented in the
 [Operator Agreement](./OPERATOR_AGREEMENT.md) and the service
 dashboard.
+
+**Credits do not convert to cash.** InferLane does not offer, and has
+no present intention to offer, cash conversion, redemption, buy-back,
+or any other pathway by which kT credits become dollars, euros, or any
+other currency or asset. The Service currently operates in a
+credits-only mode.
+
+If, at any future point, InferLane introduces a cash-payout pathway
+for operators (a distinct commercial arrangement separate from the
+credits system), participation in that pathway will require **separate,
+affirmative opt-in** by the operator, including:
+
+- Acceptance of new, path-specific terms;
+- Completion of identity verification (KYC) as required by our licensed
+  payment processor;
+- Explicit election to receive cash for future work, going forward only.
+
+Existing kT credit balances will **not** be converted to cash as part
+of any such future arrangement. The credit path and the cash path
+(if introduced) operate as independent systems.
 
 **What Credits are NOT.** For the avoidance of doubt, Credits and the
 kT unit:
@@ -90,9 +109,8 @@ institution, and does not hold itself out as providing financial,
 investment, tax, or legal advice. Cash conversion of Credits, where
 offered, is a redemption of a service-credit balance at face value,
 processed through our licensed payment partner. The platform may
-change, pause, or discontinue cash redemption at any time. You should
 not acquire Credits as an investment, speculation, or with an
-expectation of profit.
+expectation of profit. **Cash redemption is not currently offered.**
 
 ### Cash payments (when enabled)
 

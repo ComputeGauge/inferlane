@@ -55,7 +55,7 @@ export default function OperatorAgreementPage() {
       <ol>
         <li>Route inference fairly, with published weighting of price / latency / reliability / reputation.</li>
         <li>Operate the moderation gate so prohibited content is blocked before it reaches your node.</li>
-        <li>Pay you what you&apos;ve earned on the published schedule — weekly in credits, monthly in cash (when cash payouts launch).</li>
+        <li>Credit you with what you&apos;ve earned on the published schedule — weekly in kT credits. <strong>The Service currently operates in a credits-only mode: credits are redeemable for inference on the network and cannot be converted to cash.</strong></li>
         <li>Not disclose your identity without your consent or valid legal process.</li>
         <li>Give you 30 days&apos; notice of material changes to this agreement.</li>
       </ol>
@@ -105,17 +105,22 @@ export default function OperatorAgreementPage() {
         kT via the marketplace which never expires. Maximum balance: 10M kT.
       </p>
       <p>
-        <strong>Cash payouts (Phase 2 — target Month 3):</strong> weekly
-        settlements through our licensed payment processor. USD $20 minimum
-        payout. 10% platform fee on gross operator earnings. Tax reporting
-        via 1099-MISC (US) or equivalent where required. KYC required
-        before first cash payout.
+        <strong>Cash payouts — not currently offered.</strong> The Service
+        operates in a credits-only mode. kT credits do not convert to cash,
+        currency, or any other asset. No operator has any present or
+        implied entitlement to cash payout for past, current, or future
+        kT earnings. If InferLane introduces a cash-payout pathway in the
+        future, it will be offered as a separate, opt-in commercial
+        arrangement requiring affirmative acceptance of new
+        path-specific terms, KYC completion, and an explicit election to
+        receive cash for work performed from the opt-in date forward
+        only. Existing kT balances will not be converted.
       </p>
       <p>
-        <strong>Clawbacks:</strong> we may reverse credits or cash within 30
-        days of issuance if post-review audit finds an AUP violation was
-        incorrectly routed (we absorb the cost; you are not charged) or the
-        operator violated this agreement (earnings forfeited).
+        <strong>Clawbacks:</strong> we may reverse credits within 30 days
+        of issuance if post-review audit finds an AUP violation was
+        incorrectly routed (we absorb the cost; you are not charged) or
+        the operator violated this agreement (earnings forfeited).
       </p>
 
       <div className="not-prose rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 text-sm text-amber-100/90 my-8">

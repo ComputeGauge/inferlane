@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const PILLARS = [
   {
     title: 'Share what you&apos;ve got.',
-    body: 'Run a node on your Mac mini, gaming rig, or spare GPU server. Earn credits when others use your compute. Redeem them for inference from the network, or cash out once cash payouts are live.',
+    body: 'Run a node on your Mac mini, gaming rig, or spare GPU server. Earn kT credits when others use your compute. Redeem them for inference from the network. Credits-only at launch — no cash conversion.',
     cta: 'Run a node →',
     href: '/run-a-node',
   },
@@ -29,7 +29,7 @@ const PILLARS = [
 
 const TENETS = [
   { k: 'Honest', v: 'We publish what we have and what we don&apos;t. No aspirational metrics dressed up as production.' },
-  { k: 'Credit-first', v: 'You earn and spend in credits before cash payouts turn on. The network bootstraps without burning capital.' },
+  { k: 'Credit-only', v: 'You earn and spend in kT credits. No cash conversion. If a cash pathway is ever offered, participation will require a separate opt-in.' },
   { k: 'Community-owned', v: 'Top contributors advise the roadmap. Decisions are public. No private cabals.' },
   { k: 'Safe by default', v: 'Moderation at the edge. Every operator signs a code of conduct. Bad actors get kicked; good actors stay.' },
   { k: 'Cross-platform', v: 'Mac. Linux. Windows. GPU rigs. No artificial hardware lock-in.' },

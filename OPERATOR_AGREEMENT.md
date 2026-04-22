@@ -53,9 +53,11 @@ employment and business registration laws in your jurisdiction.
 2. **Protect you from liability arising from end-user content**, provided
    you've complied with this agreement. We maintain the moderation gate;
    prohibited content is blocked before it reaches you.
-3. **Pay you what you've earned** on the published schedule — weekly in
-   credits, monthly in cash (when cash payouts launch). Disputes are
-   resolved within 14 days.
+3. **Credit you with what you've earned** on the published schedule —
+   weekly in kT credits. The Service currently operates in a
+   credits-only mode: credits are redeemable for inference on the
+   network and cannot be converted to cash. Disputes are resolved
+   within 14 days.
 4. **Not disclose your identity** without your consent or valid legal
    process. Operator profiles are pseudonymous unless you opt into public
    attribution.
@@ -132,24 +134,33 @@ redemption mechanism. They have no market value and are not permitted
 to be traded, pledged, or used as collateral. You should not participate
 as an operator in order to acquire Credits as an investment.
 
-### Cash payouts (Phase 2 — target Month 3)
+### Cash payouts — not currently offered
 
-When cash payouts launch:
+The Service **does not currently offer cash payouts.** Operators earn
+kT credits for serving inference; credits are redeemable for inference
+on the network and are not convertible to cash, currency, or any other
+asset.
 
-- **Weekly** settlements via Stripe Connect (or alternative provider as
-  available in your jurisdiction)
-- **Minimum payout threshold**: USD $20
-- **Platform fee**: 10% of gross operator earnings (InferLane retains)
-- **Tax reporting**: we issue 1099-MISC (US) or equivalent where required
-  above regulatory thresholds (USD $600/yr US; AUD $600/yr AU for PAYG)
-- **KYC required** before first cash payout: verified ID + Stripe Connect
-  onboarding + sanctions screening
-- **Currency**: paid in USD by default; local currency via Stripe FX where
-  supported
+If InferLane introduces a cash-payout pathway in the future, it will
+be offered as a **separate, opt-in commercial arrangement**, not a
+conversion of existing credits. Participation in any such future
+pathway would require:
+
+- Affirmative, documented acceptance of new, path-specific terms
+- Completion of identity verification (KYC) through our licensed
+  payment processor at the time
+- Explicit election to receive cash for work performed from the
+  opt-in date forward only
+- Sanctions screening
+
+Existing kT credit balances would **not** be converted to cash as
+part of any such future arrangement. No operator has any present or
+implied entitlement to cash payout for past, current, or future kT
+earnings.
 
 ### Clawbacks
 
-We may reverse credits or cash payouts within 30 days of issuance if:
+We may reverse credits within 30 days of issuance if:
 
 - Post-review audit finds the request violated our AUP and was incorrectly
   routed (we absorb the cost; you aren't charged)

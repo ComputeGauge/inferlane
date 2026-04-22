@@ -42,10 +42,27 @@ export default function NotAFinancialProductPage() {
       <p>
         Credits are denominated in <code>kT</code> (&quot;kilotokens&quot;) and
         are earned by operators who serve inference on the network or by
-        contributors whose components are adopted by users. Credits can be
-        spent on inference from the network or, where offered, redeemed for
-        cash at face value through our licensed payment processor.
+        contributors whose components are adopted by users.{' '}
+        <strong>Credits can only be spent on inference on the network.
+        They do not convert to cash, currency, or any other asset.</strong>
       </p>
+      <div className="not-prose rounded-xl border border-amber-500/40 bg-amber-500/5 p-5 my-6 text-sm text-amber-100/90">
+        <p className="font-semibold text-amber-300 mb-2">Current operating mode: credits only</p>
+        <p>
+          InferLane currently operates in a <strong>credits-only mode</strong>.
+          No cash-payout pathway for kT credits exists. If, at any future
+          point, InferLane introduces a cash-payout pathway, participation
+          will require <strong>separate affirmative opt-in</strong> by the
+          operator, acceptance of new path-specific terms, and completion
+          of identity verification (KYC) as required by our licensed payment
+          processor at the time. Existing kT credit balances will{' '}
+          <strong>not</strong> be converted to cash as part of any such
+          future arrangement. Operators who wish to receive cash for work
+          performed (if and when that pathway is introduced) must elect
+          cash payment going forward only; the credit path and the cash
+          path (if any) operate as independent systems.
+        </p>
+      </div>
       <p>For the avoidance of doubt, kT credits are:</p>
       <ul>
         <li><strong>Not</strong> a security, investment contract, note, or other regulated financial instrument</li>
@@ -57,6 +74,7 @@ export default function NotAFinancialProductPage() {
         <li><strong>Not</strong> transferable between users on a secondary market</li>
         <li><strong>Not</strong> tradeable on any exchange</li>
         <li><strong>Not</strong> permitted to be pledged, staked, or used as collateral</li>
+        <li><strong>Not</strong> convertible to cash, currency, or any other asset — credits are redeemable only for inference on the InferLane network</li>
       </ul>
       <p>Credits carry:</p>
       <ul>
@@ -132,8 +150,9 @@ export default function NotAFinancialProductPage() {
       </p>
       <ul>
         <li>kT credits redeem <strong>only</strong> for inference service on our network</li>
-        <li>kT have no cash-conversion path — earning credits can never result in receiving dollars</li>
-        <li>Operators who want cash choose the cash-payout path at registration; those operators earn USD directly for work performed, with no kT involvement</li>
+        <li>kT have <strong>no cash-conversion path</strong> — earning credits cannot result in receiving dollars, cryptocurrency, or any other asset</li>
+        <li>The Service currently operates in a <strong>credits-only mode</strong>; no cash-payout pathway exists</li>
+        <li>If a cash pathway is ever introduced, it will require a separate opt-in under new terms — it is not a conversion of existing credits</li>
         <li>Credits have a <strong>fixed face rate</strong> (1 kT = 1,000 Llama-70B-equivalent tokens of inference); they do not appreciate</li>
         <li>Credits are non-transferable between users; there is no secondary market</li>
         <li>Credits expire 6 months from earn date — they cannot be held as an investment</li>
