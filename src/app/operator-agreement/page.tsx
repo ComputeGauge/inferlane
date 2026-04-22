@@ -106,9 +106,10 @@ export default function OperatorAgreementPage() {
       </p>
       <p>
         <strong>Cash payouts (Phase 2 — target Month 3):</strong> weekly
-        Stripe Connect settlements. USD $20 minimum payout. 10% platform fee
-        on gross operator earnings. Tax reporting via 1099-MISC (US) or
-        equivalent where required. KYC required before first cash payout.
+        settlements through our licensed payment processor. USD $20 minimum
+        payout. 10% platform fee on gross operator earnings. Tax reporting
+        via 1099-MISC (US) or equivalent where required. KYC required
+        before first cash payout.
       </p>
       <p>
         <strong>Clawbacks:</strong> we may reverse credits or cash within 30
@@ -116,6 +117,23 @@ export default function OperatorAgreementPage() {
         incorrectly routed (we absorb the cost; you are not charged) or the
         operator violated this agreement (earnings forfeited).
       </p>
+
+      <div className="not-prose rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 text-sm text-amber-100/90 my-8">
+        <p className="font-semibold text-amber-300 mb-2">What kT credits are NOT</p>
+        <p>
+          Credits and the kT unit are <strong>not</strong> securities,
+          investment contracts, cryptocurrency, currency, deposits,
+          derivatives, or financial instruments of any kind. They are
+          internal service-redemption units earned for inference work
+          performed. They carry no investment character, no expectation of
+          profit, no yield, and no claim on InferLane revenue or assets.
+          They are not transferable between operators except through the
+          platform-operated redemption mechanism. They have no market value
+          and are not permitted to be traded, pledged, or used as
+          collateral. You should not participate as an operator to acquire
+          Credits as an investment.
+        </p>
+      </div>
 
       <h2>6. Termination</h2>
       <p>

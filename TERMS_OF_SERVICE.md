@@ -61,12 +61,38 @@ InferLane as described in that agreement.
 
 ### Credits
 
-The Service uses an internal credit system ("Credits") denominated per our
-published rate tables. Credits earned by serving inference (where
-applicable) can be spent on inference, redeemed for cash once cash payouts
-are enabled, or held subject to expiry and balance caps. Credits are not
-securities, cryptocurrency tokens, or transferable instruments. They have
-no value outside the Service and no resale market.
+The Service uses an internal credit system ("Credits", denominated in
+"kT" kilotokens) per our published rate tables. Credits earned by
+serving inference (where applicable) can be spent on inference or, where
+offered, redeemed for cash at the platform's then-current face rate.
+Credits are subject to expiry and balance caps documented in the
+[Operator Agreement](./OPERATOR_AGREEMENT.md) and the service
+dashboard.
+
+**What Credits are NOT.** For the avoidance of doubt, Credits and the
+kT unit:
+
+- Are **not** securities, investment contracts, or financial instruments
+- Are **not** currency, legal tender, cryptocurrency, or a stablecoin
+- Are **not** a deposit or deposit-equivalent
+- Are **not** derivatives, futures, forwards, options, or swaps
+- Are **not** a claim on InferLane revenue, assets, or profits
+- Are **not** transferable between users, tradeable on any exchange, or
+  permitted to be resold
+- Carry **no** investment character, **no** expectation of appreciation,
+  **no** yield, and **no** interest
+- Have **no** value outside the Service
+
+InferLane is not a bank, money transmitter, money services business,
+securities broker-dealer, futures commission merchant, exchange,
+custodian, qualified custodian, or any other regulated financial
+institution, and does not hold itself out as providing financial,
+investment, tax, or legal advice. Cash conversion of Credits, where
+offered, is a redemption of a service-credit balance at face value,
+processed through our licensed payment partner. The platform may
+change, pause, or discontinue cash redemption at any time. You should
+not acquire Credits as an investment, speculation, or with an
+expectation of profit.
 
 ### Cash payments (when enabled)
 

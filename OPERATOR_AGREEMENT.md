@@ -118,8 +118,19 @@ operator.
   completion and moderation review
 - Credits expire 6 months from earning, except contribution-kT earned
   via the marketplace which never expires
-- Maximum balance: 10,000,000 kT (prevents speculation; adjust via
+- Maximum balance: 10,000,000 kT (prevents hoarding; adjust via
   governance vote)
+
+**What kT credits are NOT.** Credits and the kT unit are **not**
+securities, investment contracts, cryptocurrency, currency, deposits,
+derivatives, or financial instruments of any kind. They are internal
+service-redemption units earned for inference work performed. They
+carry no investment character, no expectation of profit, no yield, no
+interest, and no claim on InferLane revenue or assets. They are not
+transferable between operators except through the platform-operated
+redemption mechanism. They have no market value and are not permitted
+to be traded, pledged, or used as collateral. You should not participate
+as an operator in order to acquire Credits as an investment.
 
 ### Cash payouts (Phase 2 — target Month 3)
 

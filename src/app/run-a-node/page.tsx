@@ -17,10 +17,23 @@ export default function RunANodePage() {
         </h1>
         <p className="mt-5 text-zinc-400 max-w-2xl">
           Install a signed daemon. Serve requests the coordinator routes to
-          you. Earn kT credits now; cash when MRR justifies it. Leave with
-          one command whenever you want.
+          you. Earn kT service credits now; cash conversion where offered,
+          at face value, once the platform is operating at scale. Leave
+          with one command whenever you want.
         </p>
       </header>
+
+      <div className="mt-6 rounded-xl border border-amber-500/40 bg-amber-500/5 p-4 text-xs text-amber-100/90 leading-relaxed">
+        <strong className="text-amber-300">Not a financial product.</strong>{' '}
+        kT credits are internal service-redemption units, not securities,
+        currency, cryptocurrency, deposits, or investment contracts. Running
+        a node is independent-contractor work — it is not an investment in
+        InferLane and earns no dividend, yield, or revenue share. Cash
+        redemption (where offered) is at face value, not a market rate.
+        Any figures shown below are <em>anticipated at estimated network
+        demand</em> — not guaranteed earnings, not a forecast, and may be
+        zero.
+      </div>
 
       <section className="mt-12">
         <RunANodeCalculator />

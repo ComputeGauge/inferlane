@@ -37,12 +37,12 @@ export default function TransparencyPage() {
 
         <div className="space-y-4">
           <div className="rounded-xl border border-[#1e1e2e] bg-[#12121a] p-5">
-            <h3 className="font-semibold text-white mb-1">1. Float on deposits</h3>
+            <h3 className="font-semibold text-white mb-1">1. Routing markup</h3>
             <p className="text-sm text-gray-400">
-              Your prepaid wallet balance sits in FDIC-insured partner
-              accounts until you use it. We keep the Treasury yield on the
-              held balance. This is how Tether and Stripe Treasury make
-              most of their money too — we just made it explicit.
+              When you route traffic through our hosted endpoint using your
+              own provider API key, we add a small percentage markup on
+              the provider&apos;s cost (typically 5–10%). The markup funds
+              the router, moderation gate, and fuel gauge you&apos;re using.
             </p>
           </div>
 
@@ -53,31 +53,63 @@ export default function TransparencyPage() {
               rates with many model providers. We quote you near rack rate
               and are invoiced at the partnership rate. The delta is our
               revenue. See the rebate table below for the providers we
-              have arrangements with.
+              have disclosed arrangements with.
             </p>
           </div>
 
           <div className="rounded-xl border border-[#1e1e2e] bg-[#12121a] p-5">
-            <h3 className="font-semibold text-white mb-1">3. Compute futures spread</h3>
+            <h3 className="font-semibold text-white mb-1">3. Capacity commitments</h3>
             <p className="text-sm text-gray-400">
-              InferLane runs a compute futures market where buyers can
-              lock in forward prices on inference capacity. We earn a
-              standard exchange spread and settlement fee on trades. This
-              revenue only applies to the futures market, not to your
-              routine routing.
+              Enterprise customers can pre-purchase a block of inference
+              capacity for a specified period at a fixed per-token rate.
+              This is a commercial volume commitment — not a financial
+              instrument, not tradeable, not transferable to other parties.
+              The difference between their committed rate and the spot
+              rate at fulfilment is our margin (positive or negative).
             </p>
           </div>
 
           <div className="rounded-xl border border-[#1e1e2e] bg-[#12121a] p-5">
             <h3 className="font-semibold text-white mb-1">
-              4. Premium surfaces (Pro, Enterprise, Supplier)
+              4. Premium surfaces (Pro, Enterprise)
             </h3>
             <p className="text-sm text-gray-400">
-              Advanced tooling (session history, chain builder, SSO,
-              DPA negotiation, dedicated capacity) is sold as a
-              subscription. Routing itself is never behind a paywall.
+              Advanced tooling (team budgets, Slack alerts, SSO, audit
+              logs, dedicated capacity) is sold as a subscription. Routing
+              itself is never behind a paywall.
             </p>
           </div>
+
+          <div className="rounded-xl border border-[#1e1e2e] bg-[#12121a] p-5">
+            <h3 className="font-semibold text-white mb-1">5. Peer-network platform fee</h3>
+            <p className="text-sm text-gray-400">
+              When consumers pay for inference served by peer operators on
+              our network, operators receive 90% of the service fee and we
+              retain 10% as the platform share. kT credits earned by
+              operators are service-redemption units, not securities or
+              currency (see the &quot;What kT credits are not&quot; section below).
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-xl border border-amber-500/30 bg-amber-500/5 p-5">
+          <h3 className="font-semibold text-amber-200 mb-2">What InferLane is not</h3>
+          <ul className="text-sm text-amber-100/90 space-y-1.5 list-disc list-inside">
+            <li>Not a bank, money transmitter, or money services business</li>
+            <li>Not a broker-dealer, futures commission merchant, or securities exchange</li>
+            <li>Not a deposit-taking institution</li>
+            <li>Not a custodian of customer funds — Stripe (or equivalent licensed processor) holds funds; we record the service-credit balance</li>
+            <li>Not an issuer of securities, tokens, or cryptocurrency</li>
+            <li>Not a provider of investment, legal, tax, or financial advice</li>
+          </ul>
+          <p className="mt-3 text-xs text-amber-100/70">
+            kT credits are service units redeemable for inference on the
+            network. They are not a financial product. They have no
+            investment character and no claim on InferLane revenue or
+            assets. Cash redemption (where offered) is at the face value
+            of the kT unit at time of redemption, at the platform&apos;s
+            discretion, and may be changed or discontinued.
+          </p>
         </div>
       </section>
 
@@ -110,11 +142,13 @@ export default function TransparencyPage() {
           Where your wallet balance lives
         </h2>
         <p className="text-gray-400 mb-3">
-          Prepaid balances are held at licensed partner banks via Stripe
-          Treasury (FDIC-insured) and, for operator payouts in
-          jurisdictions Stripe doesn&apos;t reach, via Fireblocks (qualified
-          custodian). InferLane does not hold customer funds directly;
-          we are a customer of the partner, not a money transmitter.
+          Prepaid balances are held by our licensed payment processor
+          (Stripe) under their regulated payment-services arrangements.
+          InferLane does not hold customer funds directly. We do not
+          operate as a bank, money transmitter, money services business,
+          securities broker, exchange, or qualified custodian. We record
+          a service-credit balance that corresponds to the processor-held
+          prepayment; we do not take custody of your money.
         </p>
         <p className="text-gray-400">
           The double-entry ledger that tracks your balance is auditable
