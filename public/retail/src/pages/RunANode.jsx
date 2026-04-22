@@ -25,7 +25,7 @@ function RunANodePage() {
             Your idle Mac mini <span className="serif">is</span> a contribution waiting to happen.
           </h1>
           <p className="lede fade-up fade-up-d2" style={{ maxWidth: 620 }}>
-            Install a signed daemon. Serve requests the coordinator routes to you. Earn kT credits now; cash when MRR justifies it. Leave with one command whenever you want.
+            Install a signed daemon. Serve requests the coordinator routes to you. Earn kT credits — redeemable for inference on the network. Credits only; no cash conversion. Leave with one command whenever you want.
           </p>
         </div>
       </section>
@@ -92,7 +92,7 @@ function RunANodePage() {
                 <div className="ran-line"><span>Electricity cost</span><span>− ${elec.toFixed(2)}</span></div>
                 <div className="ran-line"><span>Platform fee (10%)</span><span>− ${(ktValueUSD * 0.1).toFixed(2)}</span></div>
                 <div className="ran-line ran-line-tot">
-                  <span>Net / month <em>when this pathway is ever offered</em></span>
+                  <span>Credits redeemable for inference on the network <em>— no cash conversion</em></span>
                   <span>${netWhenCash.toFixed(2)}</span>
                 </div>
               </div>

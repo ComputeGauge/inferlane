@@ -62,7 +62,7 @@ function WhyPage() {
                 You already own the hardware. You already leave it on. We're the polite way to put those idle hours to work without the electricity sink of cryptocurrency.
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {['Signed, notarised daemon', '90% revenue share (when this pathway is ever offered)', 'Credits now; cash via Stripe when MRR justifies', 'Moderation gate at the coordinator — we filter before routing'].map((x) => (
+                {['Signed, notarised daemon', '90% credit share on served inference', 'Credits only — kT credits do not convert to cash', 'Moderation gate at the coordinator — we filter before routing'].map((x) => (
                   <li key={x} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', color: 'var(--fg-dim)', fontSize: 14 }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 2 }}><circle cx="12" cy="12" r="10" fill="#10b98122" /><path d="M8 12l3 3 5-6" stroke="#10b981" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     {x}

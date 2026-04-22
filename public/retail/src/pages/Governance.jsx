@@ -88,7 +88,7 @@ function OperatorAgreementPage() {
       <p>This agreement covers the relationship between InferLane and people running our daemon to serve inference on the peer network. It sits alongside our <a href="#terms">Terms of Service</a> and <a href="#aup">Acceptable Use Policy</a>.</p>
 
       <h2>Your status</h2>
-      <p>You are an <strong>independent contractor</strong>, not an employee, agent, partner, or joint venturer of InferLane. You run a daemon on hardware you own or control, and you earn kT credits (and, eventually, cash) in exchange for serving inference requests routed to you by our coordinator.</p>
+      <p>You are an <strong>independent contractor</strong>, not an employee, agent, partner, or joint venturer of InferLane. You run a daemon on hardware you own or control, and you earn kT credits in exchange for serving inference requests routed to you by our coordinator. The Service currently operates in a credits-only mode: kT credits are redeemable for inference on the network and do not convert to cash, currency, or any other asset.</p>
       <p>You are responsible for your own taxes, insurance, and compliance with local employment and business registration laws in your jurisdiction.</p>
 
       <h2>What you agree to do</h2>
@@ -106,7 +106,7 @@ function OperatorAgreementPage() {
       <ol>
         <li><strong>Route inference fairly.</strong> Routing decisions weight price, latency, reliability, and operator reputation — not personal relationships. Algorithm documented at <code>/docs/routing</code>.</li>
         <li><strong>Operate the moderation gate.</strong> Prohibited content is blocked before it reaches your node.</li>
-        <li><strong>Pay you what you've earned</strong> on the published schedule — weekly in credits, monthly in cash (if this pathway is ever offered). Disputes resolved within 14 days.</li>
+        <li><strong>Credit you with what you&apos;ve earned</strong> weekly in kT credits. The Service operates in a credits-only mode; no cash payouts are offered. Disputes resolved within 14 days.</li>
         <li><strong>Not disclose your identity</strong> without your consent or valid legal process. Operator profiles are pseudonymous unless you opt into public attribution.</li>
         <li><strong>Give you 30 days' notice</strong> of material changes to this agreement. Minor technical updates (daemon versions, routing tweaks) may be made without notice.</li>
       </ol>

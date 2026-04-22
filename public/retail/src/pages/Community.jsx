@@ -34,7 +34,7 @@ function CommunityPage() {
           <div className="cm-doors">
             {[
               { num: '01', title: "Share what you've got", href: '#run-a-node', cta: 'Run A Node',
-                body: 'Run a node on your Mac mini, gaming rig, or spare GPU. Earn kT credits when others use your compute. Cash when payouts go live.', c: '#f59e0b' },
+                body: 'Run a node on your Mac mini, gaming rig, or spare GPU. Earn kT credits when others use your compute. Credits-only — no cash conversion.', c: '#f59e0b' },
               { num: '02', title: 'Use what others share', href: '#install', cta: 'Install The Daemon',
                 body: 'Route bulk inference through the peer network at a fraction of hosted-provider cost. Keep your frontier workloads on Claude / OpenAI / Gemini.', c: '#06b6d4' },
               { num: '03', title: 'Build on the platform', href: '#marketplace', cta: 'Open Marketplace',

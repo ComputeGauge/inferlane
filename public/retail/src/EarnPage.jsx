@@ -18,7 +18,7 @@ function EarnPage() {
             Turn your rig into a <span className="serif">little power station.</span>
           </h1>
           <p className="lede fade-up fade-up-d2" style={{ margin: '0 auto 28px' }}>
-            It's simpler than it sounds. You install the daemon. It serves inference requests when the network needs them. You earn kT credits now; cash when MRR justifies. That's the whole thing.
+            It&apos;s simpler than it sounds. You install the daemon. It serves inference requests when the network needs them. You earn kT credits — redeemable for inference on the network. The Service operates in a credits-only mode; credits do not convert to cash. That&apos;s the whole thing.
           </p>
         </div>
       </section>
@@ -120,8 +120,8 @@ function EarnPage() {
                 <p>By week one you'll have a clean average. The dashboard shows earnings by day, by model, by tier. No guessing.</p>
               </div>
               <div className="timeline-step">
-                <h4>Day 30 · First payout</h4>
-                <p>Stripe Connect deposits your net earnings in USD when this pathway is ever offered. Tax summary emailed annually where required by your local law. No crypto, no custody, no withdrawal lottery.</p>
+                <h4>Day 30 · Your credits are yours</h4>
+                <p>kT credits you&apos;ve earned are visible in the dashboard and redeemable for inference on the network. The Service operates in a credits-only mode — credits do not convert to cash. If a cash pathway is ever introduced, participation will require separate opt-in and identity verification; existing credits will not be converted.</p>
               </div>
             </div>
           </div>
