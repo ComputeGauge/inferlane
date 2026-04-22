@@ -120,6 +120,110 @@ export default function NotAFinancialProductPage() {
         (positive or negative), not as trading gains or losses.
       </p>
 
+      <h2>Why we are not a security under Howey (US)</h2>
+      <p>
+        The Howey test asks whether a contract or scheme constitutes an
+        &quot;investment contract&quot; by requiring ALL four prongs:{' '}
+        <strong>(1)</strong> investment of money,{' '}
+        <strong>(2)</strong> in a common enterprise,{' '}
+        <strong>(3)</strong> with expectation of profit,{' '}
+        <strong>(4)</strong> derived from the efforts of others. InferLane
+        fails prong (3) unambiguously:
+      </p>
+      <ul>
+        <li>kT credits redeem <strong>only</strong> for inference service on our network</li>
+        <li>kT have no cash-conversion path — earning credits can never result in receiving dollars</li>
+        <li>Operators who want cash choose the cash-payout path at registration; those operators earn USD directly for work performed, with no kT involvement</li>
+        <li>Credits have a <strong>fixed face rate</strong> (1 kT = 1,000 Llama-70B-equivalent tokens of inference); they do not appreciate</li>
+        <li>Credits are non-transferable between users; there is no secondary market</li>
+        <li>Credits expire 6 months from earn date — they cannot be held as an investment</li>
+      </ul>
+      <p>
+        The structure matches gift-card and loyalty-points precedent (e.g.
+        <em>In re JetBlue Airways Corp. Securities Litigation</em>) where
+        courts have repeatedly held that redemption-for-service units are
+        not securities.
+      </p>
+
+      <h2>Why we are not subject to CFTC (US commodities / derivatives)</h2>
+      <p>
+        The Commodity Exchange Act covers trading of commodities, futures,
+        forwards, swaps, and options. InferLane offers none of these:
+      </p>
+      <ul>
+        <li>No commodity trading — kT are service-redemption units, not commodities</li>
+        <li>No futures or forward contracts — enterprise &quot;capacity commitments&quot; are <strong>prepaid service bundles</strong> with fixed pricing set at purchase, not price-locked forward delivery contracts</li>
+        <li>No swaps, options, or derivatives of any kind</li>
+        <li>No exchange or trading facility operated by us</li>
+      </ul>
+      <p>
+        Prepaid service bundles (&quot;pay $X today, use up to Y tokens by
+        date Z&quot;) are the same legal structure as mobile-phone prepaid
+        plans or cloud-provider reserved instances — commercial bundles,
+        not derivatives.
+      </p>
+
+      <h2>Why we are not a Money Services Business (FinCEN / AUSTRAC)</h2>
+      <p>
+        A money services business holds customer funds, transmits money
+        between parties, or exchanges currency. InferLane does none of
+        these:
+      </p>
+      <ul>
+        <li><strong>Stripe holds 100% of customer funds.</strong> Always. We do not have merchant accounts for customer prepayments beyond Stripe&apos;s licensed arrangements.</li>
+        <li><strong>Operator payouts flow through Stripe Connect.</strong> Stripe is the licensed money transmitter; we record the earning event and instruct Stripe.</li>
+        <li><strong>No customer-to-customer money transmission.</strong> We never move dollars from one user to another.</li>
+        <li><strong>No currency exchange.</strong> We do not convert USD to any other currency, virtual or otherwise.</li>
+        <li><strong>No float yield.</strong> We do not earn yield on prepaid customer balances. Any float yield remains with Stripe under their arrangement.</li>
+      </ul>
+
+      <h2>Why we are not a Virtual Asset Service Provider</h2>
+      <p>
+        VASP registration under the FATF framework (implemented nationally
+        as AUSTRAC in Australia, FinCEN MSB in the US, MiCA in the EU, FCA
+        registration in the UK) covers crypto exchange, transfer, custody,
+        and issuance. InferLane touches no virtual assets:
+      </p>
+      <ul>
+        <li>No cryptocurrency accepted as payment</li>
+        <li>No cryptocurrency paid out to operators</li>
+        <li>No token on any blockchain — kT is a database row, not an on-chain asset</li>
+        <li>No custody of user-owned crypto</li>
+        <li>No exchange functionality — not between crypto-and-fiat, not between any two assets</li>
+      </ul>
+
+      <h2>Why we are not carrying on a regulated activity under FSMA (UK)</h2>
+      <p>
+        The Financial Services and Markets Act regulates a closed list of
+        activities in the UK. InferLane matches none of the captured
+        categories:
+      </p>
+      <ul>
+        <li>Not accepting deposits — prepayments are held by Stripe under their licensed arrangement; customers have no banking-style claim</li>
+        <li>Not dealing in investments — kT are not securities, not derivatives, not collective investment schemes</li>
+        <li>Not running a multilateral trading facility — no user-to-user trading of credits</li>
+        <li>Not providing investment advice — our routing recommendations are cost/quality routing, not investment recommendations</li>
+      </ul>
+
+      <h2>Why we are not offering a financial product under Australian law</h2>
+      <p>
+        The Australian <em>Corporations Act 2001</em> defines a financial
+        product broadly to cover investment, risk management, and non-cash
+        payment facilities. InferLane&apos;s credits fall within established
+        exemptions, not the regulated categories:
+      </p>
+      <ul>
+        <li>Credits are <strong>not an investment</strong> — no expectation of return, no appreciation, no pooled enterprise</li>
+        <li>Credits are <strong>not a risk-management product</strong> — no hedging, no insurance-like protection</li>
+        <li>Credits are <strong>not a non-cash payment facility</strong> (NCPF) — they redeem only for our own services, not for third-party payments. This tracks the &quot;limited payment facility&quot; carve-out (ASIC regulatory guide 185, Corporations Regulation 7.1.07G for loyalty schemes)</li>
+        <li>Credits are non-transferable, time-limited, and redeemable only for InferLane inference — the classic gift-card / loyalty-scheme profile</li>
+      </ul>
+      <p>
+        We are not dealing in financial products, not operating a financial
+        market, and not providing financial product advice. We do not hold
+        or require an Australian Financial Services Licence.
+      </p>
+
       <h2>If you think we&apos;re one of the above</h2>
       <p>
         If you are a regulator, lawyer, or compliance officer and you
