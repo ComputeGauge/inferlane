@@ -33,11 +33,13 @@ export default function OperatorAgreementPage() {
       <p>
         You are an <strong>independent contractor</strong>, not an employee,
         agent, partner, or joint venturer of InferLane. You run a daemon on
-        hardware you own or control, and you earn kT credits (and,
-        eventually, cash) in exchange for serving inference requests routed
-        to you by our coordinator. You are responsible for your own taxes,
-        insurance, and compliance with local employment and business
-        registration laws in your jurisdiction.
+        hardware you own or control, and you earn kT credits in exchange
+        for serving inference requests routed to you by our coordinator.
+        The Service currently operates in a credits-only mode: kT credits
+        are redeemable for inference on the network and do not convert to
+        cash, currency, or any other asset. You are responsible for your
+        own taxes, insurance, and compliance with local employment and
+        business registration laws in your jurisdiction.
       </p>
 
       <h2>2. What you agree to do</h2>
@@ -145,8 +147,9 @@ export default function OperatorAgreementPage() {
         Either party may terminate at any time. You leave by deactivating
         your daemon. We terminate for cause (agreement/AUP/ToS violation)
         with immediate deactivation and forfeiture. If we wind the service
-        down, we give 90 days&apos; notice and earned credits become cashable
-        at the published rate during the wind-down.
+        down, we give 90 days&apos; notice; during that period, earned
+        credits remain redeemable for inference on the network until they
+        expire or the service ceases operation, whichever comes first.
       </p>
 
       <h2>7. Governing law</h2>

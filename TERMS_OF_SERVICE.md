@@ -227,10 +227,12 @@ Either party may terminate at any time:
 - Us: by providing notice to the email associated with your account,
   either for cause (violation of these Terms) or for convenience
 
-On termination: your licence to use the Service ends; credits may expire
-per the published schedule; outstanding cash balances below the minimum
-payout threshold are forfeited; outstanding cash balances above the
-threshold are paid out per the normal settlement cycle.
+On termination: your licence to use the Service ends; kT credits remain
+redeemable for inference on the network until they expire per the
+published schedule or the service ceases operation, whichever comes
+first; any prepaid consumer balance held by our payment processor on
+your behalf is refunded by that processor per their published terms
+(not held by InferLane).
 
 Provisions that by their nature survive termination (liability limits,
 indemnification, dispute resolution, IP ownership) survive.

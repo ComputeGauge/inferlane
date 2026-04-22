@@ -29,7 +29,8 @@ discussion and we'll move it or mark it `help-wanted`.
   before anyone onboards as an operator.
 - **kT credit ledger** — the "solar-battery" bootstrap model. Earn credits by
   serving inference on your Mac mini; spend them on inference from others.
-  Closed internal economy; cash redemption comes later.
+  Closed internal economy. Credits redeem only for inference on the network;
+  they do not convert to cash.
 - **Cross-platform one-line installer** — `curl -fsSL install.inferlane.dev |
   bash` for macOS, Linux, and Windows (WSL) GPU operators.
 - **Operator profiles + public contribution leaderboard** — pseudonymous,

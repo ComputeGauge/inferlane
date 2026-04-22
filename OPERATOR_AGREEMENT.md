@@ -13,8 +13,10 @@ Where it conflicts with local law in your jurisdiction, local law prevails.
 
 You are an **independent contractor**, not an employee, agent, partner, or
 joint venturer of InferLane. You run a daemon on hardware you own or control,
-and you earn kT credits (and, eventually, cash) in exchange for serving
-inference requests routed to you by our coordinator.
+and you earn kT credits in exchange for serving inference requests routed to
+you by our coordinator. The Service currently operates in a credits-only
+mode: kT credits are redeemable for inference on the network and do not
+convert to cash, currency, or any other asset.
 
 You are responsible for your own taxes, insurance, and compliance with local
 employment and business registration laws in your jurisdiction.
