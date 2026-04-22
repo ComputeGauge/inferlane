@@ -51,3 +51,4 @@ packages/*/node_modules
 
 # claude
 .claude/
+_internal/
