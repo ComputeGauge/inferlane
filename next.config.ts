@@ -6,6 +6,14 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return [
+      // Serve the Claude Design retail prototype as the homepage.
+      // The `src/app/page.tsx` is still accessible as a fallback via
+      // `/home-legacy` if ever needed (add that route manually if so).
+      { source: "/", destination: "/retail/index.html" },
+    ];
+  },
   async headers() {
     return [
       {
@@ -48,6 +56,29 @@ const nextConfig: NextConfig = {
               "frame-src https://js.stripe.com",
               "object-src 'none'",
               "base-uri 'self'",
+              "form-action 'self'",
+            ].join("; "),
+          },
+        ],
+      },
+      {
+        // Claude Design retail prototype — uses unpkg (React + Babel) and
+        // Google Fonts at runtime. Relaxed CSP scoped to /retail/* only;
+        // the rest of the site keeps the strict site-wide policy above.
+        // Also applied to `/` which rewrites to /retail/index.html.
+        source: "/:path((?:retail/.*)|)",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "img-src 'self' data: blob: https:",
+              "font-src 'self' data: https://fonts.gstatic.com",
+              "connect-src 'self'",
+              "object-src 'none'",
+              "base-uri 'self' /retail/",
               "form-action 'self'",
             ].join("; "),
           },
