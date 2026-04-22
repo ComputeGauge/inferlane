@@ -156,67 +156,70 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
         <div className="relative">
           <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-400 text-xs font-medium px-3 py-1 rounded-full mb-6 border border-amber-500/20">
             <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></span>
-            Cost intelligence for AI agents · Claude Code · Goose · Cursor
+            Community-owned AI inference · Open beta
           </div>
           <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight mb-6">
-            The hidden $0.08/hr
+            Share what you&rsquo;ve got.
             <br />
             <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
-              in every agent run.
+              Use what others share.
             </span>
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed">
-            Anthropic bills Managed Agents for active runtime (<span className="text-white font-semibold">$0.08/session-hour</span>) and web searches (<span className="text-white font-semibold">$10/1000</span>) — fees invisible on every other cost dashboard. InferLane tracks token cost + runtime + searches per fleet session for the real number that matches your invoice. Routes routine tasks to local Gemma&nbsp;4 for free. <a href="/transparency" className="underline text-amber-400 hover:text-amber-300">How we make money &rarr;</a>
+            InferLane is a community-owned peer-to-peer AI inference network.
+            Install a small daemon — your idle Mac or GPU serves requests for
+            others on the network. Earn kT credits while you sleep; spend
+            them on inference from the network. <a href="/run-a-node" className="underline text-amber-400 hover:text-amber-300">Run a node &rarr;</a>
           </p>
-          <p className="text-sm text-gray-500 max-w-2xl mx-auto mb-8">
-            Our own 90-day Claude Code bill went from $18,136 to $4,163 using just the routing layer. {' '}
-            <a href="/blog/benchmark-20-tasks-5-models" className="underline text-gray-400 hover:text-amber-400">
-              Read the 20-task, 5-model benchmark &rarr;
-            </a>
-          </p>
+          <div className="inline-flex items-center gap-2 text-xs text-amber-300/80 bg-amber-500/5 border border-amber-500/20 rounded-full px-3 py-1 mb-8">
+            <span className="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>
+            Credits-only pathway · <span className="text-amber-200">kT credits do not convert to cash</span>
+          </div>
 
-          {/* The video hero */}
-          <div className="max-w-3xl mx-auto mb-10 rounded-2xl overflow-hidden border border-[#1e1e2e] shadow-2xl shadow-amber-500/10">
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              poster="/hero-comparison.png"
-              className="w-full block"
-              aria-label="InferLane benchmark animation: my Claude Code bill was $18,136, benchmark-backed routing cut it to $4,163"
-            >
-              <source src="/inferlane-benchmark.mp4" type="video/mp4" />
-            </video>
+          {/* Three-door entry row */}
+          <div className="max-w-3xl mx-auto mb-10 grid sm:grid-cols-3 gap-3">
+            <a href="/install" className="rounded-xl border border-[#1e1e2e] bg-[#12121a] p-4 text-left hover:border-amber-500/40 transition-colors">
+              <div className="text-xs font-mono uppercase tracking-widest text-amber-400/70 mb-1">1. Install & use</div>
+              <div className="text-sm text-white font-semibold">MCP plugin</div>
+              <div className="text-xs text-gray-500 mt-1">Claude Code / Cursor / Windsurf</div>
+            </a>
+            <a href="/run-a-node" className="rounded-xl border border-[#1e1e2e] bg-[#12121a] p-4 text-left hover:border-amber-500/40 transition-colors">
+              <div className="text-xs font-mono uppercase tracking-widest text-amber-400/70 mb-1">2. Run a node</div>
+              <div className="text-sm text-white font-semibold">Earn kT credits</div>
+              <div className="text-xs text-gray-500 mt-1">Mac / Linux / GPU rig</div>
+            </a>
+            <a href="/marketplace" className="rounded-xl border border-[#1e1e2e] bg-[#12121a] p-4 text-left hover:border-amber-500/40 transition-colors">
+              <div className="text-xs font-mono uppercase tracking-widest text-amber-400/70 mb-1">3. Build on it</div>
+              <div className="text-sm text-white font-semibold">Marketplace</div>
+              <div className="text-xs text-gray-500 mt-1">Widgets · policies · adapters</div>
+            </a>
           </div>
 
           {/* Install snippet — one-command local setup */}
           <div className="max-w-2xl mx-auto mb-10">
             <div className="bg-[#12121a] rounded-xl border border-[#1e1e2e] p-4 font-mono text-sm text-left">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-500 text-xs">One command — installs Ollama + Gemma&nbsp;4, auto-sized to your hardware:</span>
+                <span className="text-gray-500 text-xs">One command — MCP plugin, node daemon, or both:</span>
                 <button
-                  onClick={() => navigator.clipboard.writeText('curl -fsSL https://inferlane.dev/install.sh | bash')}
+                  onClick={() => navigator.clipboard.writeText('curl -fsSL https://install.inferlane.dev | bash')}
                   className="text-xs text-gray-500 hover:text-amber-400 transition-colors"
                 >
                   Copy
                 </button>
               </div>
-              <pre className="text-green-400 whitespace-pre overflow-x-auto"><code>curl -fsSL https://inferlane.dev/install.sh | bash</code></pre>
+              <pre className="text-green-400 whitespace-pre overflow-x-auto"><code>curl -fsSL https://install.inferlane.dev | bash</code></pre>
             </div>
             <p className="text-xs text-gray-600 mt-2">
-              Prefer the plugin path? <code className="text-gray-500">/plugin marketplace add ComputeGauge/inferlane</code> in Claude Code.
+              Windows? <code className="text-gray-500">iwr -useb https://install.inferlane.dev/win.ps1 | iex</code>
             </p>
           </div>
 
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center justify-center gap-4 flex-wrap">
             <a
-              href="https://www.npmjs.com/package/@inferlane/mcp"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/install"
               className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold rounded-xl text-lg hover:brightness-110 transition-all shadow-lg shadow-amber-500/20"
             >
-              Install from npm
+              Install the daemon
             </a>
             <a
               href="https://github.com/ComputeGauge/inferlane"
@@ -228,8 +231,8 @@ function LandingPage({ onGetStarted, onSignIn, onDashboard }: { onGetStarted: ()
             </a>
           </div>
 
-          <div className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-500">
-            {['Works with Claude Code, Desktop, Goose, Cursor', 'Free local routing via Ollama', 'No vendor lock-in \u2014 26 providers'].map((text) => (
+          <div className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-500 flex-wrap">
+            {['MCP-native — Claude Code / Cursor / Windsurf', 'Cross-platform — Mac / Linux / Windows', 'Not a security. Not a token. Not crypto.'].map((text) => (
               <span key={text} className="flex items-center gap-1">
                 <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
