@@ -32,8 +32,11 @@ We keep a public [ROADMAP](./ROADMAP.md) and label GitHub issues:
 
 ## How we reward contributions (no cash, yet)
 
-When cash payouts launch (see [ROADMAP](./ROADMAP.md)), contributors with
-vested kT balances can redeem at the same rate as operators. Until then:
+The Service currently operates in a credits-only mode — kT credits are
+redeemable for inference on the network and do not convert to cash. If
+InferLane introduces a cash-payout pathway in the future, it will be a
+separate opt-in arrangement (not a conversion of existing credits). In
+the meantime:
 
 | Contribution | Reward |
 |---|---|
@@ -46,8 +49,8 @@ vested kT balances can redeem at the same rate as operators. Until then:
 | First-time contributor | **Bonus 2,500 kT** on your first merged PR |
 
 Credits earned through contributions never expire (unlike standard operator
-credits which expire at 6 months). They also stack with cash payouts when
-those go live.
+credits which expire at 6 months). They are redeemable for inference on the
+network; they do not convert to cash.
 
 ## Contribution tier ladder (the marketplace, when it launches)
 
@@ -70,7 +73,7 @@ never compromises the network:
 - 30-day last-touch attribution window
 - Refund clawback: user churn within 30 days refunds attribution
 - Single creator capped at 15% of total platform revenue (prevents concentration risk)
-- Verified identity via GitHub OAuth or Stripe Connect before any cash payout
+- Verified identity via GitHub OAuth before revenue-share attribution is credited. Cash payouts are not currently offered.
 
 **Phased launch:**
 - **V1 (month 2-3)**: UI Widget + Routing Policy + Dashboard Theme. Pure client-side / data-only. No server surface for third-party code.

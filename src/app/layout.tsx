@@ -17,11 +17,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL || 'https://inferlane.dev'),
   title: {
-    default: "InferLane — The Cost Intelligence Layer for AI Agents",
+    default: "InferLane — Community-owned AI inference",
     template: "%s | InferLane",
   },
-  description: "The only cost tool that tracks Managed Agent runtime fees ($0.08/hr) and web searches ($10/1000) alongside token cost. MCP-first — teach Claude to pick the cheapest sufficient model before every API call. Routes routine work to local Gemma 4 for free. Works with Claude Code, Goose, Cursor, and any MCP client.",
-  keywords: "MCP server, model context protocol, AI cost tracking, Claude Code, Goose, Cursor, Managed Agent runtime fees, cost optimization, compute budget, InferLane, model selection, local inference, Ollama, Gemma 4",
+  description: "Share what you've got. Use what others share. InferLane is a community-owned peer-to-peer AI inference network. Install a small daemon — your idle Mac or GPU serves requests for others on the network. Earn kT credits; spend them on inference from the network. MCP-native — works with Claude Code, Cursor, Windsurf, and any MCP client.",
+  keywords: "peer-to-peer AI inference, MCP server, model context protocol, Claude Code, Cursor, Windsurf, community-owned AI, kT credits, InferLane, cross-platform daemon, Mac mini inference, open beta",
   authors: [{ name: "InferLane" }],
   creator: "InferLane",
   icons: {
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.webmanifest',
   openGraph: {
-    title: "InferLane — Smart routing that cut our Claude Code bill 77%",
-    description: "Compute exchange + MCP server (41 tools) that routes AI inference across 23 providers. Local-first via Ollama. Privacy tiers. No vendor lock-in. Free and open source.",
+    title: "InferLane — Community-owned AI inference",
+    description: "Peer-to-peer AI inference network. Install a small daemon, earn kT credits as your idle Mac or GPU serves requests for others. MCP-native, cross-platform, credits-only (no cash conversion). Open beta.",
     type: "website",
     url: "https://inferlane.dev",
     siteName: "InferLane",

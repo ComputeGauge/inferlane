@@ -13,8 +13,10 @@ Where it conflicts with local law in your jurisdiction, local law prevails.
 
 You are an **independent contractor**, not an employee, agent, partner, or
 joint venturer of InferLane. You run a daemon on hardware you own or control,
-and you earn kT credits (and, eventually, cash) in exchange for serving
-inference requests routed to you by our coordinator.
+and you earn kT credits in exchange for serving inference requests routed to
+you by our coordinator. The Service currently operates in a credits-only
+mode: kT credits are redeemable for inference on the network and do not
+convert to cash, currency, or any other asset.
 
 You are responsible for your own taxes, insurance, and compliance with local
 employment and business registration laws in your jurisdiction.
@@ -53,9 +55,11 @@ employment and business registration laws in your jurisdiction.
 2. **Protect you from liability arising from end-user content**, provided
    you've complied with this agreement. We maintain the moderation gate;
    prohibited content is blocked before it reaches you.
-3. **Pay you what you've earned** on the published schedule — weekly in
-   credits, monthly in cash (when cash payouts launch). Disputes are
-   resolved within 14 days.
+3. **Credit you with what you've earned** on the published schedule —
+   weekly in kT credits. The Service currently operates in a
+   credits-only mode: credits are redeemable for inference on the
+   network and cannot be converted to cash. Disputes are resolved
+   within 14 days.
 4. **Not disclose your identity** without your consent or valid legal
    process. Operator profiles are pseudonymous unless you opt into public
    attribution.
@@ -118,27 +122,47 @@ operator.
   completion and moderation review
 - Credits expire 6 months from earning, except contribution-kT earned
   via the marketplace which never expires
-- Maximum balance: 10,000,000 kT (prevents speculation; adjust via
+- Maximum balance: 10,000,000 kT (prevents hoarding; adjust via
   governance vote)
 
-### Cash payouts (Phase 2 — target Month 3)
+**What kT credits are NOT.** Credits and the kT unit are **not**
+securities, investment contracts, cryptocurrency, currency, deposits,
+derivatives, or financial instruments of any kind. They are internal
+service-redemption units earned for inference work performed. They
+carry no investment character, no expectation of profit, no yield, no
+interest, and no claim on InferLane revenue or assets. They are not
+transferable between operators except through the platform-operated
+redemption mechanism. They have no market value and are not permitted
+to be traded, pledged, or used as collateral. You should not participate
+as an operator in order to acquire Credits as an investment.
 
-When cash payouts launch:
+### Cash payouts — not currently offered
 
-- **Weekly** settlements via Stripe Connect (or alternative provider as
-  available in your jurisdiction)
-- **Minimum payout threshold**: USD $20
-- **Platform fee**: 10% of gross operator earnings (InferLane retains)
-- **Tax reporting**: we issue 1099-MISC (US) or equivalent where required
-  above regulatory thresholds (USD $600/yr US; AUD $600/yr AU for PAYG)
-- **KYC required** before first cash payout: verified ID + Stripe Connect
-  onboarding + sanctions screening
-- **Currency**: paid in USD by default; local currency via Stripe FX where
-  supported
+The Service **does not currently offer cash payouts.** Operators earn
+kT credits for serving inference; credits are redeemable for inference
+on the network and are not convertible to cash, currency, or any other
+asset.
+
+If InferLane introduces a cash-payout pathway in the future, it will
+be offered as a **separate, opt-in commercial arrangement**, not a
+conversion of existing credits. Participation in any such future
+pathway would require:
+
+- Affirmative, documented acceptance of new, path-specific terms
+- Completion of identity verification (KYC) through our licensed
+  payment processor at the time
+- Explicit election to receive cash for work performed from the
+  opt-in date forward only
+- Sanctions screening
+
+Existing kT credit balances would **not** be converted to cash as
+part of any such future arrangement. No operator has any present or
+implied entitlement to cash payout for past, current, or future kT
+earnings.
 
 ### Clawbacks
 
-We may reverse credits or cash payouts within 30 days of issuance if:
+We may reverse credits within 30 days of issuance if:
 
 - Post-review audit finds the request violated our AUP and was incorrectly
   routed (we absorb the cost; you aren't charged)

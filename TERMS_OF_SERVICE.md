@@ -61,12 +61,56 @@ InferLane as described in that agreement.
 
 ### Credits
 
-The Service uses an internal credit system ("Credits") denominated per our
-published rate tables. Credits earned by serving inference (where
-applicable) can be spent on inference, redeemed for cash once cash payouts
-are enabled, or held subject to expiry and balance caps. Credits are not
-securities, cryptocurrency tokens, or transferable instruments. They have
-no value outside the Service and no resale market.
+The Service uses an internal credit system ("Credits", denominated in
+"kT" kilotokens) per our published rate tables. Credits earned by
+serving inference **can only be spent on inference on the Service**.
+Credits are subject to expiry and balance caps documented in the
+[Operator Agreement](./OPERATOR_AGREEMENT.md) and the service
+dashboard.
+
+**Credits do not convert to cash.** InferLane does not offer, and has
+no present intention to offer, cash conversion, redemption, buy-back,
+or any other pathway by which kT credits become dollars, euros, or any
+other currency or asset. The Service currently operates in a
+credits-only mode.
+
+If, at any future point, InferLane introduces a cash-payout pathway
+for operators (a distinct commercial arrangement separate from the
+credits system), participation in that pathway will require **separate,
+affirmative opt-in** by the operator, including:
+
+- Acceptance of new, path-specific terms;
+- Completion of identity verification (KYC) as required by our licensed
+  payment processor;
+- Explicit election to receive cash for future work, going forward only.
+
+Existing kT credit balances will **not** be converted to cash as part
+of any such future arrangement. The credit path and the cash path
+(if introduced) operate as independent systems.
+
+**What Credits are NOT.** For the avoidance of doubt, Credits and the
+kT unit:
+
+- Are **not** securities, investment contracts, or financial instruments
+- Are **not** currency, legal tender, cryptocurrency, or a stablecoin
+- Are **not** a deposit or deposit-equivalent
+- Are **not** derivatives, futures, forwards, options, or swaps
+- Are **not** a claim on InferLane revenue, assets, or profits
+- Are **not** transferable between users, tradeable on any exchange, or
+  permitted to be resold
+- Carry **no** investment character, **no** expectation of appreciation,
+  **no** yield, and **no** interest
+- Have **no** value outside the Service
+
+InferLane is not a bank, money transmitter, money services business,
+securities broker-dealer, futures commission merchant, exchange,
+custodian, qualified custodian, or any other regulated financial
+institution, and does not hold itself out as providing financial,
+investment, tax, or legal advice. Cash conversion of Credits, where
+offered, is a redemption of a service-credit balance at face value,
+processed through our licensed payment partner. The platform may
+not acquire Credits as an investment, speculation, or with an
+expectation of profit. **Cash redemption is not currently offered.**
 
 ### Cash payments (when enabled)
 
@@ -183,10 +227,12 @@ Either party may terminate at any time:
 - Us: by providing notice to the email associated with your account,
   either for cause (violation of these Terms) or for convenience
 
-On termination: your licence to use the Service ends; credits may expire
-per the published schedule; outstanding cash balances below the minimum
-payout threshold are forfeited; outstanding cash balances above the
-threshold are paid out per the normal settlement cycle.
+On termination: your licence to use the Service ends; kT credits remain
+redeemable for inference on the network until they expire per the
+published schedule or the service ceases operation, whichever comes
+first; any prepaid consumer balance held by our payment processor on
+your behalf is refunded by that processor per their published terms
+(not held by InferLane).
 
 Provisions that by their nature survive termination (liability limits,
 indemnification, dispute resolution, IP ownership) survive.

@@ -153,8 +153,21 @@ export default function MarketplacePage() {
           <li>• 30-day last-touch attribution window</li>
           <li>• Refund clawback: churn within 30 days refunds attribution</li>
           <li>• Single creator capped at 15% of total platform revenue (prevents concentration)</li>
-          <li>• Verified identity via GitHub OAuth or Stripe Connect before any cash payout</li>
+          <li>• Verified identity via GitHub OAuth before revenue-share attribution is credited. The Service operates in credits-only mode; no cash payouts are currently offered.</li>
         </ul>
+      </section>
+
+      <section className="mt-8 rounded-xl border border-amber-500/40 bg-amber-500/5 p-5 text-xs text-amber-100/90 leading-relaxed">
+        <strong className="text-amber-300">Not a financial product.</strong>{' '}
+        Marketplace revenue share is a commercial commission paid for the
+        sale of your component — the same structure used by app stores,
+        creator platforms, and affiliate programmes. It is not an investment
+        contract, profit-sharing security, or claim on InferLane revenue
+        beyond payment for your specific component&apos;s attributed sales.
+        kT credit bonuses are service-redemption units, not currency or
+        securities. See the{' '}
+        <a href="/terms" className="underline decoration-amber-500/50 hover:text-amber-200">Terms of Service</a>
+        {' '}for the full &quot;What kT credits are NOT&quot; disclosure.
       </section>
 
       <section className="mt-16 rounded-2xl border border-violet-500/30 bg-violet-500/5 p-6 md:p-8">

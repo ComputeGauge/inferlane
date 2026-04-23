@@ -29,7 +29,8 @@ discussion and we'll move it or mark it `help-wanted`.
   before anyone onboards as an operator.
 - **kT credit ledger** — the "solar-battery" bootstrap model. Earn credits by
   serving inference on your Mac mini; spend them on inference from others.
-  Closed internal economy; cash redemption comes later.
+  Closed internal economy. Credits redeem only for inference on the network;
+  they do not convert to cash.
 - **Cross-platform one-line installer** — `curl -fsSL install.inferlane.dev |
   bash` for macOS, Linux, and Windows (WSL) GPU operators.
 - **Operator profiles + public contribution leaderboard** — pseudonymous,
@@ -84,9 +85,14 @@ discussion and we'll move it or mark it `help-wanted`.
   operator dashboards are rendered from a sandboxed subset of the same
   marketplace components (no arbitrary HTML / JS injection). Target: v2
   post-marketplace launch (month 4-6).
-- **Cash payouts** — Stripe Connect wiring is ready. We'll flip on when
-  monthly recurring revenue from MCP Pro + routing markup justifies funding it
-  without subsidy. Probably month 3.
+- **Cash payouts** — **Not currently offered.** The Service operates in
+  credits-only mode: kT credits are earned for serving inference and are
+  redeemable for inference on the network; they do not convert to cash.
+  If we introduce a cash pathway in the future it will be a separate,
+  distinct commercial arrangement requiring affirmative opt-in by
+  operators, acceptance of new path-specific terms, and completion of
+  identity verification. Existing kT balances would not be converted
+  as part of any such future change. No timeline; no commitment.
 - **Frontier open-weight on DC partners** (IREN / Applied Digital / Crusoe /
   Core Scientific) — only after active-user + MRR base justifies a pilot
   prepay. Month 3+.

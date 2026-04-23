@@ -12,6 +12,20 @@ async function handlePOST(
   req: NextRequest,
   { params }: { params: Promise<{ offerId: string }> },
 ) {
+  // GATED: peer-to-peer credit purchase is disabled by default.
+  // Variable-priced trading of service credits among users can be construed
+  // as securities / commodities exchange activity. Do not enable without
+  // securities counsel sign-off. See _internal/HUMAN_TASKS.md task F4.
+  if (process.env.CREDIT_MARKETPLACE_ENABLED !== '1') {
+    return NextResponse.json(
+      {
+        error: 'Credit purchases from other users are not currently available.',
+        reason: 'Peer-to-peer credit trading is disabled pending compliance review. kT credits are service-redemption units. See https://inferlane.dev/legal/not-a-financial-product for details.',
+      },
+      { status: 410 },
+    );
+  }
+
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
